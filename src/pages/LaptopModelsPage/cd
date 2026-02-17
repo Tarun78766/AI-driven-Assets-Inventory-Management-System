@@ -1,0 +1,407 @@
+import { useState } from 'react';
+import './LaptopModels.css';
+import AddEditLaptopModal from './AddEditLaptopModal';
+import { 
+  Plus, 
+  Search, 
+  Edit2, 
+  Trash2, 
+  Eye,
+  Laptop,
+  Filter
+} from 'lucide-react';
+
+const LaptopModels = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedModel, setSelectedModel] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Sample laptop models data - using state so we can update it
+  const [laptopModels, setLaptopModels] = useState([
+    {
+      id: 1,
+      modelName: 'Dell XPS 15',
+      brand: 'Dell',
+      processor: 'Intel Core i7-13700H',
+      ram: '16GB DDR5',
+      storage: '512GB SSD',
+      screenSize: '15.6"',
+      graphicsCard: 'NVIDIA RTX 3050',
+      weight: '1.86 kg',
+      batteryLife: 'Up to 12 hours',
+      ports: '2x Thunderbolt 4, 1x USB-C, SD Card',
+      operatingSystem: 'Windows 11 Pro',
+      warranty: '3 years',
+      price: '135000',
+      totalAssets: 45,
+      available: 12,
+      inUse: 30,
+      underRepair: 3
+    },
+    {
+      id: 2,
+      modelName: 'MacBook Pro 16"',
+      brand: 'Apple',
+      processor: 'Apple M2 Pro',
+      ram: '32GB Unified',
+      storage: '1TB SSD',
+      screenSize: '16.2"',
+      graphicsCard: 'Integrated',
+      weight: '2.15 kg',
+      batteryLife: 'Up to 22 hours',
+      ports: '3x Thunderbolt 4, HDMI, SD Card',
+      operatingSystem: 'macOS',
+      warranty: '1 year',
+      price: '245000',
+      totalAssets: 38,
+      available: 8,
+      inUse: 28,
+      underRepair: 2
+    },
+    {
+      id: 3,
+      modelName: 'HP EliteBook 840 G9',
+      brand: 'HP',
+      processor: 'Intel Core i5-1235U',
+      ram: '8GB DDR4',
+      storage: '256GB SSD',
+      screenSize: '14"',
+      graphicsCard: 'Intel Iris Xe',
+      weight: '1.36 kg',
+      batteryLife: 'Up to 10 hours',
+      ports: '2x Thunderbolt 4, 2x USB-A, HDMI',
+      operatingSystem: 'Windows 11 Pro',
+      warranty: '3 years',
+      price: '85000',
+      totalAssets: 62,
+      available: 18,
+      inUse: 42,
+      underRepair: 2
+    },
+    {
+      id: 4,
+      modelName: 'Lenovo ThinkPad X1 Carbon',
+      brand: 'Lenovo',
+      processor: 'Intel Core i7-1260P',
+      ram: '16GB LPDDR5',
+      storage: '512GB SSD',
+      screenSize: '14"',
+      graphicsCard: 'Intel Iris Xe',
+      weight: '1.12 kg',
+      batteryLife: 'Up to 16 hours',
+      ports: '2x Thunderbolt 4, 2x USB-A',
+      operatingSystem: 'Windows 11 Pro',
+      warranty: '3 years',
+      price: '125000',
+      totalAssets: 50,
+      available: 15,
+      inUse: 33,
+      underRepair: 2
+    },
+    {
+      id: 5,
+      modelName: 'ASUS ROG Zephyrus G14',
+      brand: 'ASUS',
+      processor: 'AMD Ryzen 9 6900HS',
+      ram: '16GB DDR5',
+      storage: '1TB SSD',
+      screenSize: '14"',
+      graphicsCard: 'NVIDIA RTX 3060',
+      weight: '1.65 kg',
+      batteryLife: 'Up to 10 hours',
+      ports: '2x USB-C, 2x USB-A, HDMI',
+      operatingSystem: 'Windows 11 Home',
+      warranty: '2 years',
+      price: '155000',
+      totalAssets: 20,
+      available: 5,
+      inUse: 14,
+      underRepair: 1
+    },
+    {
+      id: 6,
+      modelName: 'Microsoft Surface Laptop 5',
+      brand: 'Microsoft',
+      processor: 'Intel Core i7-1255U',
+      ram: '16GB LPDDR5x',
+      storage: '512GB SSD',
+      screenSize: '13.5"',
+      graphicsCard: 'Intel Iris Xe',
+      weight: '1.29 kg',
+      batteryLife: 'Up to 18 hours',
+      ports: '1x USB-C, 1x USB-A, Surface Connect',
+      operatingSystem: 'Windows 11 Pro',
+      warranty: '1 year',
+      price: '145000',
+      totalAssets: 30,
+      available: 9,
+      inUse: 20,
+      underRepair: 1
+    }
+  ]);
+
+  // Filter models based on search
+  const filteredModels = laptopModels.filter(model => 
+    model.modelName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    model.brand.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Calculate statistics
+  const totalModels = laptopModels.length;
+  const totalAssets = laptopModels.reduce((sum, model) => sum + model.totalAssets, 0);
+  const totalAvailable = laptopModels.reduce((sum, model) => sum + model.available, 0);
+  const totalInUse = laptopModels.reduce((sum, model) => sum + model.inUse, 0);
+
+  const handleAddNew = () => {
+    setSelectedModel(null);
+    setIsEditing(false);
+    setShowAddModal(true);
+  };
+
+  const handleViewDetails = (model) => {
+    setSelectedModel(model);
+    // TODO: Implement view details modal
+    alert(`View details for ${model.modelName} - This will show a detailed view modal`);
+  };
+
+  const handleEdit = (model) => {
+    setSelectedModel(model);
+    setIsEditing(true);
+    setShowAddModal(true);
+  };
+
+  const handleDelete = (model) => {
+    if (window.confirm(`Are you sure you want to delete "${model.modelName}"?\n\nThis will remove the model from the catalog. Associated assets will need to be managed separately.`)) {
+      setLaptopModels(prevModels => prevModels.filter(m => m.id !== model.id));
+      
+      // Show success message
+      alert(`✓ "${model.modelName}" has been deleted successfully!`);
+    }
+  };
+
+  const handleSave = (modelData) => {
+    if (isEditing) {
+      // Update existing model
+      setLaptopModels(prevModels => 
+        prevModels.map(m => m.id === modelData.id ? modelData : m)
+      );
+      alert(`✓ "${modelData.modelName}" has been updated successfully!`);
+    } else {
+      // Add new model
+      setLaptopModels(prevModels => [...prevModels, modelData]);
+      alert(`✓ "${modelData.modelName}" has been added successfully!`);
+    }
+    
+    setShowAddModal(false);
+    setSelectedModel(null);
+    setIsEditing(false);
+  };
+
+  const handleCloseModal = () => {
+    setShowAddModal(false);
+    setSelectedModel(null);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="laptop-models">
+      {/* Header */}
+      <div className="page-header">
+        <div className="header-left">
+          <div className="header-icon">
+            <Laptop size={28} />
+          </div>
+          <div>
+            <h1 className="page-title">Laptop Models</h1>
+            <p className="page-subtitle">Manage laptop model catalog and specifications</p>
+          </div>
+        </div>
+        <button className="btn-primary" onClick={handleAddNew}>
+          <Plus size={20} />
+          Add New Model
+        </button>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="stats-row">
+        <div className="stat-card-small">
+          <div className="stat-icon-small" style={{ backgroundColor: '#e0e7ff' }}>
+            <Laptop size={24} style={{ color: '#6366f1' }} />
+          </div>
+          <div className="stat-content-small">
+            <p className="stat-label-small">Total Models</p>
+            <h3 className="stat-value-small">{totalModels}</h3>
+          </div>
+        </div>
+        <div className="stat-card-small">
+          <div className="stat-icon-small" style={{ backgroundColor: '#ddd6fe' }}>
+            <Laptop size={24} style={{ color: '#8b5cf6' }} />
+          </div>
+          <div className="stat-content-small">
+            <p className="stat-label-small">Total Assets</p>
+            <h3 className="stat-value-small">{totalAssets}</h3>
+          </div>
+        </div>
+        <div className="stat-card-small">
+          <div className="stat-icon-small" style={{ backgroundColor: '#d1fae5' }}>
+            <Laptop size={24} style={{ color: '#10b981' }} />
+          </div>
+          <div className="stat-content-small">
+            <p className="stat-label-small">Available</p>
+            <h3 className="stat-value-small">{totalAvailable}</h3>
+          </div>
+        </div>
+        <div className="stat-card-small">
+          <div className="stat-icon-small" style={{ backgroundColor: '#fef3c7' }}>
+            <Laptop size={24} style={{ color: '#f59e0b' }} />
+          </div>
+          <div className="stat-content-small">
+            <p className="stat-label-small">In Use</p>
+            <h3 className="stat-value-small">{totalInUse}</h3>
+          </div>
+        </div>
+      </div>
+
+      {/* Search and Filter */}
+      <div className="table-controls">
+        <div className="search-box">
+          <Search size={20} className="search-icon" />
+          <input
+            type="text"
+            placeholder="Search by model name or brand..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+        </div>
+        <button className="btn-filter">
+          <Filter size={18} />
+          Filter
+        </button>
+      </div>
+
+      {/* Laptop Models Table */}
+      <div className="table-container">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Model Name</th>
+              <th>Brand</th>
+              <th>Processor</th>
+              <th>RAM</th>
+              <th>Storage</th>
+              <th>Screen</th>
+              <th>Total Assets</th>
+              <th>Available</th>
+              <th>In Use</th>
+              <th>Under Repair</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredModels.length > 0 ? (
+              filteredModels.map((model) => (
+                <tr key={model.id}>
+                  <td>
+                    <div className="model-name-cell">
+                      <Laptop size={18} className="model-icon" />
+                      <strong>{model.modelName}</strong>
+                    </div>
+                  </td>
+                  <td>{model.brand}</td>
+                  <td>{model.processor}</td>
+                  <td>{model.ram}</td>
+                  <td>{model.storage}</td>
+                  <td>{model.screenSize}</td>
+                  <td>
+                    <span className="badge badge-total">{model.totalAssets}</span>
+                  </td>
+                  <td>
+                    <span className="badge badge-available">{model.available}</span>
+                  </td>
+                  <td>
+                    <span className="badge badge-in-use">{model.inUse}</span>
+                  </td>
+                  <td>
+                    <span className="badge badge-repair">{model.underRepair}</span>
+                  </td>
+                  <td>
+                    <div className="action-buttons">
+                      <button 
+                        className="btn-icon btn-view" 
+                        title="View Details"
+                        onClick={() => handleViewDetails(model)}
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button 
+                        className="btn-icon btn-edit" 
+                        title="Edit"
+                        onClick={() => handleEdit(model)}
+                      >
+                        <Edit2 size={16} />
+                      </button>
+                      <button 
+                        className="btn-icon btn-delete" 
+                        title="Delete"
+                        onClick={() => handleDelete(model)}
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="11" className="no-data">
+                  <Laptop size={48} />
+                  <p>No laptop models found</p>
+                  <small>Try adjusting your search criteria</small>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="pagination">
+        <p className="pagination-info">Showing {filteredModels.length} of {totalModels} models</p>
+        <div className="pagination-buttons">
+          <button className="btn-pagination" disabled>Previous</button>
+          <button className="btn-pagination active">1</button>
+          <button className="btn-pagination">2</button>
+          <button className="btn-pagination">Next</button>
+        </div>
+      </div>
+
+      {/* Add/Edit Modal */}
+      <AddEditLaptopModal
+        isOpen={showAddModal}
+        onClose={handleCloseModal}
+        model={isEditing ? selectedModel : null}
+        onSave={handleSave}
+      />
+    </div>
+  );
+};
+
+export default LaptopModels;
+
+
+return (
+    <>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/navbar" element={<Navbar />} />
+        <Route path="/sidebar" element={<SideBar />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/laptops" element={<LaptopModels />} />
+        <Route path="/software" element={<Software />} />
+      </Routes>
+    </>
+  );
