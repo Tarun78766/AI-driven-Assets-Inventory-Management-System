@@ -19,135 +19,26 @@ import {
   Download,
   Eye,
   AlertTriangle,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import Navbar from '../../components/navBar/NavBar';
 import SideBar from '../../components/sideBar/SideBar';
 
+const ITEMS_PER_PAGE = 10;
+
 /* ─── Initial Data ─────────────────────── */
 const INITIAL_SOFTWARE = [
-  {
-    id: 1,
-    name: 'Microsoft Office 365',
-    category: 'Productivity',
-    licenseType: 'Subscription',
-    vendor: 'Microsoft',
-    totalLicenses: 300,
-    usedLicenses: 278,
-    expiryDate: '2025-12-31',
-    renewalStatus: 'Upcoming',
-    cost: 12.5,
-    assignedTo: ['Engineering', 'HR', 'Finance'],
-    version: '16.0',
-    notes: 'Enterprise plan, includes Teams & SharePoint',
-  },
-  {
-    id: 2,
-    name: 'Adobe Creative Suite',
-    category: 'Design',
-    licenseType: 'Subscription',
-    vendor: 'Adobe',
-    totalLicenses: 50,
-    usedLicenses: 48,
-    expiryDate: '2025-03-15',
-    renewalStatus: 'Critical',
-    cost: 54.99,
-    assignedTo: ['Design', 'Marketing'],
-    version: '2024',
-    notes: 'Full Creative Cloud access',
-  },
-  {
-    id: 3,
-    name: 'Slack',
-    category: 'Communication',
-    licenseType: 'Subscription',
-    vendor: 'Salesforce',
-    totalLicenses: 1000,
-    usedLicenses: 842,
-    expiryDate: '2026-01-15',
-    renewalStatus: 'Active',
-    cost: 7.25,
-    assignedTo: ['All Departments'],
-    version: 'Business+',
-    notes: 'Company-wide communication tool',
-  },
-  {
-    id: 4,
-    name: 'GitHub Enterprise',
-    category: 'Development',
-    licenseType: 'Per Seat',
-    vendor: 'GitHub Inc.',
-    totalLicenses: 120,
-    usedLicenses: 115,
-    expiryDate: '2025-08-30',
-    renewalStatus: 'Upcoming',
-    cost: 21.0,
-    assignedTo: ['Engineering'],
-    version: 'Enterprise 3.x',
-    notes: 'Includes Actions, Packages, Security',
-  },
-  {
-    id: 5,
-    name: 'Zoom Business',
-    category: 'Communication',
-    licenseType: 'Subscription',
-    vendor: 'Zoom',
-    totalLicenses: 200,
-    usedLicenses: 134,
-    expiryDate: '2026-03-01',
-    renewalStatus: 'Active',
-    cost: 19.99,
-    assignedTo: ['Management', 'HR', 'Sales'],
-    version: '5.x',
-    notes: 'Video conferencing for remote teams',
-  },
-  {
-    id: 6,
-    name: 'AutoCAD',
-    category: 'Engineering',
-    licenseType: 'Perpetual',
-    vendor: 'Autodesk',
-    totalLicenses: 15,
-    usedLicenses: 15,
-    expiryDate: '2025-02-28',
-    renewalStatus: 'Expired',
-    cost: 220.0,
-    assignedTo: ['Engineering'],
-    version: '2024',
-    notes: 'CAD design tool — renewal overdue',
-  },
-  {
-    id: 7,
-    name: 'Jira Software',
-    category: 'Project Management',
-    licenseType: 'Subscription',
-    vendor: 'Atlassian',
-    totalLicenses: 150,
-    usedLicenses: 102,
-    expiryDate: '2026-06-30',
-    renewalStatus: 'Active',
-    cost: 8.15,
-    assignedTo: ['Engineering', 'QA', 'Management'],
-    version: 'Cloud',
-    notes: 'Agile project tracking',
-  },
-  {
-    id: 8,
-    name: 'Tableau Desktop',
-    category: 'Analytics',
-    licenseType: 'Per Seat',
-    vendor: 'Salesforce',
-    totalLicenses: 25,
-    usedLicenses: 22,
-    expiryDate: '2025-11-10',
-    renewalStatus: 'Upcoming',
-    cost: 70.0,
-    assignedTo: ['Analytics', 'Finance'],
-    version: '2024.1',
-    notes: 'Data visualisation and BI',
-  },
+  { id: 1, name: 'Microsoft Office 365', category: 'Productivity', licenseType: 'Subscription', vendor: 'Microsoft', totalLicenses: 300, usedLicenses: 278, expiryDate: '2025-12-31', renewalStatus: 'Upcoming', cost: 12.5, assignedTo: ['Engineering', 'HR', 'Finance'], version: '16.0', notes: 'Enterprise plan, includes Teams & SharePoint' },
+  { id: 2, name: 'Adobe Creative Suite', category: 'Design', licenseType: 'Subscription', vendor: 'Adobe', totalLicenses: 50, usedLicenses: 48, expiryDate: '2025-03-15', renewalStatus: 'Critical', cost: 54.99, assignedTo: ['Design', 'Marketing'], version: '2024', notes: 'Full Creative Cloud access' },
+  { id: 3, name: 'Slack', category: 'Communication', licenseType: 'Subscription', vendor: 'Salesforce', totalLicenses: 1000, usedLicenses: 842, expiryDate: '2026-01-15', renewalStatus: 'Active', cost: 7.25, assignedTo: ['All Departments'], version: 'Business+', notes: 'Company-wide communication tool' },
+  { id: 4, name: 'GitHub Enterprise', category: 'Development', licenseType: 'Per Seat', vendor: 'GitHub Inc.', totalLicenses: 120, usedLicenses: 115, expiryDate: '2025-08-30', renewalStatus: 'Upcoming', cost: 21.0, assignedTo: ['Engineering'], version: 'Enterprise 3.x', notes: 'Includes Actions, Packages, Security' },
+  { id: 5, name: 'Zoom Business', category: 'Communication', licenseType: 'Subscription', vendor: 'Zoom', totalLicenses: 200, usedLicenses: 134, expiryDate: '2026-03-01', renewalStatus: 'Active', cost: 19.99, assignedTo: ['Management', 'HR', 'Sales'], version: '5.x', notes: 'Video conferencing for remote teams' },
+  { id: 6, name: 'AutoCAD', category: 'Engineering', licenseType: 'Perpetual', vendor: 'Autodesk', totalLicenses: 15, usedLicenses: 15, expiryDate: '2025-02-28', renewalStatus: 'Expired', cost: 220.0, assignedTo: ['Engineering'], version: '2024', notes: 'CAD design tool — renewal overdue' },
+  { id: 7, name: 'Jira Software', category: 'Project Management', licenseType: 'Subscription', vendor: 'Atlassian', totalLicenses: 150, usedLicenses: 102, expiryDate: '2026-06-30', renewalStatus: 'Active', cost: 8.15, assignedTo: ['Engineering', 'QA', 'Management'], version: 'Cloud', notes: 'Agile project tracking' },
+  { id: 8, name: 'Tableau Desktop', category: 'Analytics', licenseType: 'Per Seat', vendor: 'Salesforce', totalLicenses: 25, usedLicenses: 22, expiryDate: '2025-11-10', renewalStatus: 'Upcoming', cost: 70.0, assignedTo: ['Analytics', 'Finance'], version: '2024.1', notes: 'Data visualisation and BI' },
 ];
 
-/* ─── Constants ─────────────────────────── */
 const CATEGORIES = ['All', 'Productivity', 'Design', 'Communication', 'Development', 'Engineering', 'Project Management', 'Analytics'];
 const STATUSES   = ['All', 'Active', 'Upcoming', 'Critical', 'Expired'];
 const LIC_TYPES  = ['Subscription', 'Per Seat', 'Perpetual', 'Open Source'];
@@ -160,7 +51,6 @@ const EMPTY_FORM = {
   renewalStatus: 'Active', cost: '', assignedTo: [], version: '', notes: '',
 };
 
-/* ─── Helpers ─────────────────────────── */
 const usagePercent   = (s) => Math.round((s.usedLicenses / s.totalLicenses) * 100);
 const daysUntilExpiry = (d) => Math.ceil((new Date(d) - new Date()) / (1000 * 60 * 60 * 24));
 
@@ -171,9 +61,6 @@ const statusConfig = {
   Expired:  { color: '#8892A4', bg: 'rgba(136,146,164,0.1)',  icon: XCircle      },
 };
 
-/* ════════════════════════════════════════
-   SOFTWARE COMPONENT
-════════════════════════════════════════ */
 const Software = () => {
   const [software, setSoftware]         = useState(INITIAL_SOFTWARE);
   const [search, setSearch]             = useState('');
@@ -186,14 +73,13 @@ const Software = () => {
   const [formData, setFormData]         = useState(EMPTY_FORM);
   const [formErrors, setFormErrors]     = useState({});
   const [toast, setToast]               = useState(null);
+  const [currentPage, setCurrentPage]   = useState(1);
 
-  /* ── Toast ── */
   const showToast = (msg, type = 'success') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3200);
   };
 
-  /* ── Filtered list ── */
   const filtered = useMemo(() => {
     return software.filter((s) => {
       const matchSearch = s.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -204,7 +90,53 @@ const Software = () => {
     });
   }, [software, search, catFilter, statusFilter]);
 
-  /* ── Stats ── */
+  // Pagination
+  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedSoftware = filtered.slice(startIndex, endIndex);
+
+  const handleSearch = (value) => {
+    setSearch(value);
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = (setter) => (value) => {
+    setter(value);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
+
   const stats = useMemo(() => ({
     total:    software.length,
     active:   software.filter((s) => s.renewalStatus === 'Active').length,
@@ -214,7 +146,6 @@ const Software = () => {
     usedLic:  software.reduce((a, s) => a + s.usedLicenses,  0),
   }), [software]);
 
-  /* ── Validation ── */
   const validate = (f) => {
     const e = {};
     if (!f.name.trim())                               e.name          = 'Software name is required';
@@ -226,7 +157,6 @@ const Software = () => {
     return e;
   };
 
-  /* ── Open Add modal ── */
   const handleAddNew = () => {
     setEditItem(null);
     setFormData(EMPTY_FORM);
@@ -234,7 +164,6 @@ const Software = () => {
     setShowModal(true);
   };
 
-  /* ── Open Edit modal ── */
   const handleEdit = (item) => {
     setEditItem(item);
     setFormData({ ...item, assignedTo: [...item.assignedTo] });
@@ -242,12 +171,10 @@ const Software = () => {
     setShowModal(true);
   };
 
-  /* ── View Details ── */
   const handleViewDetails = (item) => {
     setShowDetail(item);
   };
 
-  /* ── Delete ── */
   const handleDeleteConfirm = (item) => {
     setDeleteConfirm(item);
   };
@@ -256,10 +183,16 @@ const Software = () => {
     const name = software.find((s) => s.id === id)?.name;
     setSoftware((prev) => prev.filter((s) => s.id !== id));
     setDeleteConfirm(null);
+    
+    const newFilteredLength = filtered.length - 1;
+    const newTotalPages = Math.ceil(newFilteredLength / ITEMS_PER_PAGE);
+    if (currentPage > newTotalPages && newTotalPages > 0) {
+      setCurrentPage(newTotalPages);
+    }
+    
     showToast(`"${name}" removed`, 'error');
   };
 
-  /* ── Close modal ── */
   const handleCloseModal = () => {
     setShowModal(false);
     setEditItem(null);
@@ -267,7 +200,6 @@ const Software = () => {
     setFormErrors({});
   };
 
-  /* ── Submit Add / Edit ── */
   const handleSubmit = (e) => {
     e.preventDefault();
     const errs = validate(formData);
@@ -292,7 +224,6 @@ const Software = () => {
     handleCloseModal();
   };
 
-  /* ── Form helpers ── */
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -308,14 +239,12 @@ const Software = () => {
     }));
   };
 
-  /* ════════════════ RENDER ════════════════ */
   return (
     <>
       <Navbar />
       <SideBar/>
     <div className="sw-page">
 
-      {/* ── Toast ── */}
       {toast && (
         <div className={`sw-toast sw-toast--${toast.type}`}>
           {toast.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
@@ -323,7 +252,6 @@ const Software = () => {
         </div>
       )}
 
-      {/* ── Page Header ── */}
       <div className="sw-header">
         <div className="sw-header-left">
           <div className="sw-header-icon">
@@ -344,7 +272,6 @@ const Software = () => {
         </div>
       </div>
 
-      {/* ── Stats Cards ── */}
       <div className="sw-stats">
         <div className="sw-stat-card">
           <div className="sw-stat-icon" style={{ background: 'rgba(99,102,241,0.12)', color: '#6366F1' }}>
@@ -395,7 +322,6 @@ const Software = () => {
         </div>
       </div>
 
-      {/* ── Filters ── */}
       <div className="sw-filters">
         <div className="sw-search-wrap">
           <Search size={17} className="sw-search-icon" />
@@ -403,10 +329,10 @@ const Software = () => {
             className="sw-search"
             placeholder="Search software or vendor..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
           />
           {search && (
-            <button className="sw-search-clear" onClick={() => setSearch('')}>
+            <button className="sw-search-clear" onClick={() => handleSearch('')}>
               <X size={15} />
             </button>
           )}
@@ -414,14 +340,14 @@ const Software = () => {
 
         <div className="sw-filter-group">
           <Filter size={15} className="sw-filter-icon" />
-          <select className="sw-select" value={catFilter} onChange={(e) => setCatFilter(e.target.value)}>
+          <select className="sw-select" value={catFilter} onChange={(e) => handleFilterChange(setCatFilter)(e.target.value)}> 
             {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
           </select>
           <ChevronDown size={14} className="sw-select-arrow" />
         </div>
 
         <div className="sw-filter-group">
-          <select className="sw-select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+          <select className="sw-select" value={statusFilter} onChange={(e) => handleFilterChange(setStatusFilter)(e.target.value)}>
             {STATUSES.map((s) => <option key={s}>{s}</option>)}
           </select>
           <ChevronDown size={14} className="sw-select-arrow" />
@@ -432,7 +358,6 @@ const Software = () => {
         </span>
       </div>
 
-      {/* ── Table ── */}
       <div className="sw-table-wrap">
         <table className="sw-table">
           <thead>
@@ -449,7 +374,7 @@ const Software = () => {
             </tr>
           </thead>
           <tbody>
-            {filtered.length === 0 ? (
+            {paginatedSoftware.length === 0 ? (
               <tr>
                 <td colSpan="9" className="sw-empty">
                   <Package size={48} strokeWidth={1.2} />
@@ -458,7 +383,7 @@ const Software = () => {
                 </td>
               </tr>
             ) : (
-              filtered.map((item) => {
+              paginatedSoftware.map((item) => {
                 const pct  = usagePercent(item);
                 const days = daysUntilExpiry(item.expiryDate);
                 const cfg  = statusConfig[item.renewalStatus];
@@ -568,27 +493,52 @@ const Software = () => {
         </table>
       </div>
 
-      {/* ── Pagination ── */}
-      <div className="sw-pagination">
-        <p className="sw-pagination-info">
-          Showing {filtered.length} of {software.length} software
-        </p>
-        <div className="sw-pagination-buttons">
-          <button className="sw-btn-page" disabled>Previous</button>
-          <button className="sw-btn-page sw-btn-page--active">1</button>
-          <button className="sw-btn-page">2</button>
-          <button className="sw-btn-page">Next</button>
+      {/* Enhanced Pagination */}
+      {filtered.length > 0 && (
+        <div className="sw-pagination">
+          <p className="sw-pagination-info">
+            Showing {startIndex + 1}-{Math.min(endIndex, filtered.length)} of {filtered.length} software
+          </p>
+          <div className="sw-pagination-buttons">
+            <button
+              className="sw-btn-page sw-btn-page-nav"
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft size={16} />
+              Previous
+            </button>
+            
+            {getPageNumbers().map((page, index) => (
+              page === '...' ? (
+                <span key={`ellipsis-${index}`} className="sw-pagination-ellipsis">...</span>
+              ) : (
+                <button
+                  key={page}
+                  className={`sw-btn-page ${currentPage === page ? 'sw-btn-page--active' : ''}`}
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </button>
+              )
+            ))}
+            
+            <button
+              className="sw-btn-page sw-btn-page-nav"
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Next
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* ══════════════════════════════════════
-          ADD / EDIT MODAL
-      ══════════════════════════════════════ */}
       {showModal && (
         <div className="sw-modal-overlay" onClick={handleCloseModal}>
           <div className="sw-modal" onClick={(e) => e.stopPropagation()}>
 
-            {/* Modal Header */}
             <div className="sw-modal-header">
               <div className="sw-modal-title-wrap">
                 <div className="sw-modal-icon"><Package size={22} /></div>
@@ -606,7 +556,6 @@ const Software = () => {
               </button>
             </div>
 
-            {/* Modal Body */}
             <div className="sw-modal-body">
               <form onSubmit={handleSubmit} noValidate>
 
@@ -785,9 +734,6 @@ const Software = () => {
         </div>
       )}
 
-      {/* ══════════════════════════════════════
-          DETAIL MODAL
-      ══════════════════════════════════════ */}
       {showDetail && (
         <div className="sw-modal-overlay" onClick={() => setShowDetail(null)}>
           <div className="sw-modal sw-modal--detail" onClick={(e) => e.stopPropagation()}>
@@ -905,9 +851,6 @@ const Software = () => {
         </div>
       )}
 
-      {/* ══════════════════════════════════════
-          DELETE CONFIRM MODAL
-      ══════════════════════════════════════ */}
       {deleteConfirm && (
         <div className="sw-modal-overlay" onClick={() => setDeleteConfirm(null)}>
           <div className="sw-modal sw-modal--confirm" onClick={(e) => e.stopPropagation()}>
@@ -933,4 +876,4 @@ const Software = () => {
   );
 };
 
-export default Software;
+export default Software;  

@@ -8,6 +8,7 @@ import Login from "./components/Login/Login";
 import SignUp from "./components/signUp/SignUp";
 import LaptopModels from "./pages/LaptopModelsPage/Laptopmodels";
 import Software from "./pages/SoftwarePage/Software";
+import Notification from "./pages/NotificationPage/Notification";
 
 function App() {
   return (
@@ -17,7 +18,9 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/navbar" element={<Navbar />} />
+        <Route path="/navbar" element={<Navbar />}></Route>
+        <Route path="/notifications" element={<Notification />} />
+
         <Route path="/sidebar" element={<SideBar />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/laptops" element={<LaptopModels />} />

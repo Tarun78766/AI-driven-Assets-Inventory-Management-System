@@ -1,19 +1,36 @@
 import { useState } from "react";
 import "./LaptopModels.css";
-import { Plus, Search, Edit2, Trash2, Eye, Laptop, Filter } from "lucide-react";
-
+import {
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
+  Eye,
+  Laptop,
+  Filter,
+  X,
+  CheckCircle,
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 
 import Navbar from "../../components/navBar/NavBar";
 import Sidebar from "../../components/sideBar/SideBar";
 import AddEditLaptopModal from "./EditModal/AddEditLaptopModal ";
+
+const ITEMS_PER_PAGE = 10;
 
 const LaptopModels = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedModel, setSelectedModel] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [showDetail, setShowDetail] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [toast, setToast] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  // Sample laptop models data
   const [laptopModels, setLaptopModels] = useState([
     {
       id: 1,
@@ -137,14 +154,34 @@ const LaptopModels = () => {
     },
   ]);
 
-  // Filter models based on search
+  const showToast = (msg, type = "success") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3200);
+  };
+
   const filteredModels = laptopModels.filter(
     (model) =>
       model.modelName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       model.brand.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  // Calculate statistics
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredModels.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedModels = filteredModels.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search changes
+  const handleSearch = (value) => {
+    setSearchTerm(value.trim());
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const totalModels = laptopModels.length;
   const totalAssets = laptopModels.reduce(
     (sum, model) => sum + model.totalAssets,
@@ -161,49 +198,46 @@ const LaptopModels = () => {
     setIsEditing(false);
     setShowAddModal(true);
   };
+
   const handleViewDetails = (model) => {
-    setSelectedModel(model);
-    // TODO: Implement view details modal
-    alert(
-      `View details for ${model.modelName} - This will show a detailed view modal`,
-    );
+    setShowDetail(model);
   };
 
   const handleEdit = (model) => {
     setSelectedModel(model);
     setIsEditing(true);
-
     setShowAddModal(true);
   };
 
-  const handleDelete = (model) => {
-    if (
-      window.confirm(
-        `Are you sure you want to delete "${model.modelName}"?\n\nThis will remove the model from the catalog. Associated assets will need to be managed separately.`,
-      )
-    ) {
-      setLaptopModels((prevModels) =>
-        prevModels.filter((m) => m.id !== model.id),
-      );
+  const handleDeleteConfirm = (model) => {
+    setDeleteConfirm(model);
+  };
 
-      // Show success message
-      alert(`✓ "${model.modelName}" has been deleted successfully!`);
+  const handleDelete = (id) => {
+    const name = laptopModels.find((m) => m.id === id)?.modelName;
+    setLaptopModels((prev) => prev.filter((m) => m.id !== id));
+    setDeleteConfirm(null);
+
+    // Adjust page if needed after deletion
+    const newFilteredLength = filteredModels.length - 1;
+    const newTotalPages = Math.ceil(newFilteredLength / ITEMS_PER_PAGE);
+    if (currentPage > newTotalPages && newTotalPages > 0) {
+      setCurrentPage(newTotalPages);
     }
+
+    showToast(`"${name}" removed`, "error");
   };
 
   const handleSave = (modelData) => {
     if (isEditing) {
-      // Update existing model
       setLaptopModels((prevModels) =>
         prevModels.map((m) => (m.id === modelData.id ? modelData : m)),
       );
-      alert(`✓ "${modelData.modelName}" has been updated successfully!`);
+      showToast(`"${modelData.modelName}" updated successfully`);
     } else {
-      // Add new model
       setLaptopModels((prevModels) => [...prevModels, modelData]);
-      alert(`✓ "${modelData.modelName}" has been added successfully!`);
+      showToast(`"${modelData.modelName}" added successfully`);
     }
-
     setShowAddModal(false);
     setSelectedModel(null);
     setIsEditing(false);
@@ -214,12 +248,52 @@ const LaptopModels = () => {
     setSelectedModel(null);
     setIsEditing(false);
   };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push("...");
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push("...");
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push("...");
+        pages.push(totalPages);
+      }
+    }
+    return pages;
+  };
+
   return (
     <>
       <Navbar />
       <Sidebar />
       <div className="laptop-models">
-        {/* Header */}
+        {toast && (
+          <div className={`lm-toast lm-toast--${toast.type}`}>
+            {toast.type === "success" ? (
+              <CheckCircle size={18} />
+            ) : (
+              <AlertCircle size={18} />
+            )}
+            <span>{toast.msg}</span>
+          </div>
+        )}
+
         <div className="page-header">
           <div className="header-left">
             <div className="header-icon">
@@ -236,9 +310,8 @@ const LaptopModels = () => {
             <Plus size={20} />
             Add New Model
           </button>
-        </div>
+        </div>   
 
-        {/* Statistics Cards */}
         <div className="stats-row">
           <div className="stat-card-small">
             <div
@@ -290,7 +363,6 @@ const LaptopModels = () => {
           </div>
         </div>
 
-        {/* Search and Filter */}
         <div className="table-controls">
           <div className="search-box">
             <Search size={20} className="search-icon" />
@@ -298,7 +370,7 @@ const LaptopModels = () => {
               type="text"
               placeholder="Search by model name or brand..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value.trim())}
+              onChange={(e) => handleSearch(e.target.value)}
               className="search-input"
             />
           </div>
@@ -308,7 +380,6 @@ const LaptopModels = () => {
           </button>
         </div>
 
-        {/* Laptop Models Table */}
         <div className="table-container">
           <table className="data-table">
             <thead>
@@ -327,8 +398,8 @@ const LaptopModels = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredModels.length > 0 ? (
-                filteredModels.map((model) => (
+              {paginatedModels.length > 0 ? (
+                paginatedModels.map((model) => (
                   <tr key={model.id}>
                     <td>
                       <div className="model-name-cell">
@@ -351,7 +422,7 @@ const LaptopModels = () => {
                       </span>
                     </td>
                     <td>
-                      <span className=" badge-table badge-available">
+                      <span className="badge-table badge-available">
                         {model.available}
                       </span>
                     </td>
@@ -361,7 +432,7 @@ const LaptopModels = () => {
                       </span>
                     </td>
                     <td>
-                      <span className="badge-table  badge-repair">
+                      <span className="badge-table badge-repair">
                         {model.underRepair}
                       </span>
                     </td>
@@ -384,7 +455,7 @@ const LaptopModels = () => {
                         <button
                           className="btn-icon btn-delete"
                           title="Delete"
-                          onClick={() => handleDelete(model)}
+                          onClick={() => handleDeleteConfirm(model)}
                         >
                           <Trash2 size={16} />
                         </button>
@@ -405,26 +476,259 @@ const LaptopModels = () => {
           </table>
         </div>
 
-        {/* Pagination */}
-        <div className="pagination">
-          <p className="pagination-info">
-            Showing {filteredModels.length} of {totalModels} models
-          </p>
-          <div className="pagination-buttons">
-            <button className="btn-pagination" disabled>
-              Previous
-            </button>
-            <button className="btn-pagination active">1</button>
-            <button className="btn-pagination">2</button>
-            <button className="btn-pagination">Next</button>
+        {/* Enhanced Pagination */}
+        {filteredModels.length > 0 && (
+          <div className="pagination">
+            <p className="pagination-info">
+              Showing {startIndex + 1}-
+              {Math.min(endIndex, filteredModels.length)} of{" "}
+              {filteredModels.length} models
+            </p>
+            <div className="pagination-buttons">
+              <button
+                className="btn-pagination btn-pagination-nav"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft size={16} />
+                Previous
+              </button>
+
+              {getPageNumbers().map((page, index) =>
+                page === "..." ? (
+                  <span
+                    key={`ellipsis-${index}`}
+                    className="pagination-ellipsis"
+                  >
+                    ...
+                  </span>
+                ) : (
+                  <button
+                    key={page}
+                    className={`btn-pagination ${currentPage === page ? "active" : ""}`}
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </button>
+                ),
+              )}
+
+              <button
+                className="btn-pagination btn-pagination-nav"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <ChevronRight size={16} />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+
         <AddEditLaptopModal
           isOpen={showAddModal}
           onClose={handleCloseModal}
           model={isEditing ? selectedModel : null}
           onSave={handleSave}
         />
+
+        {showDetail && (
+          <div className="lm-modal-overlay" onClick={() => setShowDetail(null)}>
+            <div
+              className="lm-modal lm-modal--detail"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="lm-modal-header">
+                <div className="lm-modal-title-wrap">
+                  <div className="lm-modal-avatar">
+                    <Laptop size={22} />
+                  </div>
+                  <div>
+                    <h2 className="lm-modal-title">{showDetail.modelName}</h2>
+                    <p className="lm-modal-sub">
+                      {showDetail.brand} · {showDetail.operatingSystem}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  className="lm-modal-close"
+                  onClick={() => setShowDetail(null)}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="lm-modal-body">
+                <div className="lm-detail-grid">
+                  <div className="lm-detail-card">
+                    <span className="lm-detail-label">Processor</span>
+                    <span className="lm-detail-value">
+                      {showDetail.processor}
+                    </span>
+                  </div>
+                  <div className="lm-detail-card">
+                    <span className="lm-detail-label">RAM</span>
+                    <span className="lm-detail-value">{showDetail.ram}</span>
+                  </div>
+                  <div className="lm-detail-card">
+                    <span className="lm-detail-label">Storage</span>
+                    <span className="lm-detail-value">
+                      {showDetail.storage}
+                    </span>
+                  </div>
+                  <div className="lm-detail-card">
+                    <span className="lm-detail-label">Screen Size</span>
+                    <span className="lm-detail-value">
+                      {showDetail.screenSize}
+                    </span>
+                  </div>
+                  <div className="lm-detail-card">
+                    <span className="lm-detail-label">Graphics Card</span>
+                    <span className="lm-detail-value">
+                      {showDetail.graphicsCard || "—"}
+                    </span>
+                  </div>
+                  <div className="lm-detail-card">
+                    <span className="lm-detail-label">Weight</span>
+                    <span className="lm-detail-value">
+                      {showDetail.weight || "—"}
+                    </span>
+                  </div>
+                  <div className="lm-detail-card">
+                    <span className="lm-detail-label">Battery Life</span>
+                    <span className="lm-detail-value">
+                      {showDetail.batteryLife || "—"}
+                    </span>
+                  </div>
+                  <div className="lm-detail-card">
+                    <span className="lm-detail-label">Warranty</span>
+                    <span className="lm-detail-value">
+                      {showDetail.warranty || "—"}
+                    </span>
+                  </div>
+                  <div className="lm-detail-card">
+                    <span className="lm-detail-label">Price</span>
+                    <span
+                      className="lm-detail-value"
+                      style={{ color: "#6366f1", fontWeight: 700 }}
+                    >
+                      ₹{Number(showDetail.price).toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  <div className="lm-detail-card">
+                    <span className="lm-detail-label">Ports</span>
+                    <span className="lm-detail-value">
+                      {showDetail.ports || "—"}
+                    </span>
+                  </div>
+                </div>
+                <div className="lm-detail-asset-summary">
+                  <p className="lm-detail-section-title">Asset Summary</p>
+                  <div className="lm-asset-summary-row">
+                    <div
+                      className="lm-asset-chip"
+                      style={{ background: "#e0e7ff", color: "#6366f1" }}
+                    >
+                      <span className="lm-asset-chip-num">
+                        {showDetail.totalAssets}
+                      </span>
+                      <span className="lm-asset-chip-label">Total</span>
+                    </div>
+                    <div
+                      className="lm-asset-chip"
+                      style={{ background: "#d1fae5", color: "#10b981" }}
+                    >
+                      <span className="lm-asset-chip-num">
+                        {showDetail.available}
+                      </span>
+                      <span className="lm-asset-chip-label">Available</span>
+                    </div>
+                    <div
+                      className="lm-asset-chip"
+                      style={{ background: "#fef3c7", color: "#f59e0b" }}
+                    >
+                      <span className="lm-asset-chip-num">
+                        {showDetail.inUse}
+                      </span>
+                      <span className="lm-asset-chip-label">In Use</span>
+                    </div>
+                    <div
+                      className="lm-asset-chip"
+                      style={{ background: "#fee2e2", color: "#ef4444" }}
+                    >
+                      <span className="lm-asset-chip-num">
+                        {showDetail.underRepair}
+                      </span>
+                      <span className="lm-asset-chip-label">Under Repair</span>
+                    </div>
+                  </div>
+                </div>
+                {showDetail.specifications && (
+                  <div className="lm-detail-notes-wrap">
+                    <span className="lm-detail-label">
+                      Additional Specifications
+                    </span>
+                    <p className="lm-detail-notes">
+                      {showDetail.specifications}
+                    </p>
+                  </div>
+                )}
+              </div>
+              <div className="lm-modal-footer">
+                <button
+                  className="lm-btn lm-btn--ghost"
+                  onClick={() => setShowDetail(null)}
+                >
+                  Close
+                </button>
+                <button
+                  className="lm-btn lm-btn--primary"
+                  onClick={() => {
+                    setShowDetail(null);
+                    handleEdit(showDetail);
+                  }}
+                >
+                  <Edit2 size={15} /> Edit Model
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {deleteConfirm && (
+          <div
+            className="lm-modal-overlay"
+            onClick={() => setDeleteConfirm(null)}
+          >
+            <div
+              className="lm-modal lm-modal--confirm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="lm-confirm-icon">
+                <Trash2 size={28} color="#ef4444" />
+              </div>
+              <h3 className="lm-confirm-title">Delete Model?</h3>
+              <p className="lm-confirm-text">
+                Are you sure you want to remove{" "}
+                <strong>"{deleteConfirm.modelName}"</strong>? This action cannot
+                be undone.
+              </p>
+              <div className="lm-confirm-actions">
+                <button
+                  className="lm-btn lm-btn--ghost"
+                  onClick={() => setDeleteConfirm(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="lm-btn lm-btn--danger"
+                  onClick={() => handleDelete(deleteConfirm.id)}
+                >
+                  <Trash2 size={15} /> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

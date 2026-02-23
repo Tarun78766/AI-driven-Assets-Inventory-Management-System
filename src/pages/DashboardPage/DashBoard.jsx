@@ -11,6 +11,7 @@ import {
   Clock,
   ArrowUpRight,
   ArrowDownRight,
+  LayoutDashboard,
 } from "lucide-react";
 
 const Dashboard = () => {
@@ -114,11 +115,15 @@ const Dashboard = () => {
       <Sidebar />
       <div className="dashboard">
       <div className="dashboard-header">
-        <div>
-          <h1 className="dashboard-title">Dashboard</h1>
+          <div className="header-left">
+            <div className="header-icon">
+              <LayoutDashboard size={28} />
+            </div>
+           
+          <div><h1 className="dashboard-title">Dashboard</h1>
           <p className="dashboard-subtitle">
             Welcome back! Here's what's happening with your inventory.
-          </p>
+          </p></div>
         </div>
       </div>
 
