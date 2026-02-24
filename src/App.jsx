@@ -9,6 +9,8 @@ import SignUp from "./components/signUp/SignUp";
 import LaptopModels from "./pages/LaptopModelsPage/Laptopmodels";
 import Software from "./pages/SoftwarePage/Software";
 import Notification from "./pages/NotificationPage/Notification";
+import Employees from "./pages/EmployeesPage/Employees";
+import Assignments from "./pages/AssignmentsPage/Assignments";
 
 function App() {
   return (
@@ -25,6 +27,8 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/laptops" element={<LaptopModels />} />
         <Route path="/software" element={<Software />} />
+        <Route path="/employees" element={<Employees />} />
+        <Route path="/assignments" element={<Assignments />} />
       </Routes>
     </>
   );
