@@ -6,10 +6,12 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="nav-left">
+      
         <div className="logo">
           <div className="logo-icon">i</div>
           <span className="logo-text">InventoryHub</span>
-        </div>
+          </div>
+            
       </div>
 
       <div className="nav-right">
@@ -41,10 +43,12 @@ const Navbar = () => {
             <span className="user-role">Administrator</span>
           </div>
         </div>
-
-        <button className="settings-btn">
-          <SettingsIcon size={20} />
-        </button>
+        <Link to="/settings">
+          {" "}
+          <button className="nv-settings-btn">
+            <SettingsIcon size={20} />
+          </button>{" "}
+        </Link>
       </div>
     </nav>
   );

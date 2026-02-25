@@ -11,6 +11,8 @@ import Software from "./pages/SoftwarePage/Software";
 import Notification from "./pages/NotificationPage/Notification";
 import Employees from "./pages/EmployeesPage/Employees";
 import Assignments from "./pages/AssignmentsPage/Assignments";
+import Report from "./pages/ReportsPage/Report";
+import Settings from "./pages/SettingsPage/Settings";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
         <Route path="/software" element={<Software />} />
         <Route path="/employees" element={<Employees />} />
         <Route path="/assignments" element={<Assignments />} />
+        <Route path="/reports" element={<Report />} />
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </>
   );

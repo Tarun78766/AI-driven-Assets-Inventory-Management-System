@@ -28,14 +28,102 @@ const ITEMS_PER_PAGE = 10;
 
 /* ─── Initial Data ─────────────────────── */
 const INITIAL_ASSIGNMENTS = [
-  { id: 1, employeeId: 1, employeeName: "Rajesh Kumar", assetType: "Laptop", assetName: "Dell XPS 15", assetId: 101, assignDate: "2024-01-15", returnDate: null, status: "Active", assignedBy: "Admin" },
-  { id: 2, employeeId: 1, employeeName: "Rajesh Kumar", assetType: "Software", assetName: "Microsoft Office 365", assetId: 201, assignDate: "2024-01-15", returnDate: null, status: "Active", assignedBy: "Admin" },
-  { id: 3, employeeId: 2, employeeName: "Priya Sharma", assetType: "Laptop", assetName: 'MacBook Pro 16"', assetId: 102, assignDate: "2023-11-20", returnDate: null, status: "Active", assignedBy: "IT Ops" },
-  { id: 4, employeeId: 2, employeeName: "Priya Sharma", assetType: "Software", assetName: "GitHub Enterprise", assetId: 202, assignDate: "2023-11-20", returnDate: null, status: "Active", assignedBy: "IT Ops" },
-  { id: 5, employeeId: 3, employeeName: "Amit Patel", assetType: "Laptop", assetName: "HP EliteBook 840 G9", assetId: 103, assignDate: "2024-02-10", returnDate: null, status: "Active", assignedBy: "Admin" },
-  { id: 6, employeeId: 3, employeeName: "Amit Patel", assetType: "Software", assetName: "Adobe Creative Suite", assetId: 203, assignDate: "2024-02-10", returnDate: null, status: "Active", assignedBy: "Admin" },
-  { id: 7, employeeId: 7, employeeName: "Rahul Verma", assetType: "Laptop", assetName: "Lenovo ThinkPad X1", assetId: 104, assignDate: "2023-09-18", returnDate: "2024-12-20", status: "Returned", assignedBy: "IT Ops" },
-  { id: 8, employeeId: 4, employeeName: "Sneha Reddy", assetType: "Software", assetName: "Jira Software", assetId: 204, assignDate: "2024-01-05", returnDate: null, status: "Active", assignedBy: "Admin" },
+  {
+    id: 1,
+    employeeId: 1,
+    employeeName: "Rajesh Kumar",
+    assetType: "Laptop",
+    assetName: "Dell XPS 15",
+    assetId: 101,
+    assignDate: "2024-01-15",
+    returnDate: null,
+    status: "Active",
+    assignedBy: "Admin",
+  },
+  {
+    id: 2,
+    employeeId: 1,
+    employeeName: "Rajesh Kumar",
+    assetType: "Software",
+    assetName: "Microsoft Office 365",
+    assetId: 201,
+    assignDate: "2024-01-15",
+    returnDate: null,
+    status: "Active",
+    assignedBy: "Admin",
+  },
+  {
+    id: 3,
+    employeeId: 2,
+    employeeName: "Priya Sharma",
+    assetType: "Laptop",
+    assetName: 'MacBook Pro 16"',
+    assetId: 102,
+    assignDate: "2023-11-20",
+    returnDate: null,
+    status: "Active",
+    assignedBy: "IT Ops",
+  },
+  {
+    id: 4,
+    employeeId: 2,
+    employeeName: "Priya Sharma",
+    assetType: "Software",
+    assetName: "GitHub Enterprise",
+    assetId: 202,
+    assignDate: "2023-11-20",
+    returnDate: null,
+    status: "Active",
+    assignedBy: "IT Ops",
+  },
+  {
+    id: 5,
+    employeeId: 3,
+    employeeName: "Amit Patel",
+    assetType: "Laptop",
+    assetName: "HP EliteBook 840 G9",
+    assetId: 103,
+    assignDate: "2024-02-10",
+    returnDate: null,
+    status: "Active",
+    assignedBy: "Admin",
+  },
+  {
+    id: 6,
+    employeeId: 3,
+    employeeName: "Amit Patel",
+    assetType: "Software",
+    assetName: "Adobe Creative Suite",
+    assetId: 203,
+    assignDate: "2024-02-10",
+    returnDate: null,
+    status: "Active",
+    assignedBy: "Admin",
+  },
+  {
+    id: 7,
+    employeeId: 7,
+    employeeName: "Rahul Verma",
+    assetType: "Laptop",
+    assetName: "Lenovo ThinkPad X1",
+    assetId: 104,
+    assignDate: "2023-09-18",
+    returnDate: "2024-12-20",
+    status: "Returned",
+    assignedBy: "IT Ops",
+  },
+  {
+    id: 8,
+    employeeId: 4,
+    employeeName: "Sneha Reddy",
+    assetType: "Software",
+    assetName: "Jira Software",
+    assetId: 204,
+    assignDate: "2024-01-05",
+    returnDate: null,
+    status: "Active",
+    assignedBy: "Admin",
+  },
 ];
 
 // Mock data for dropdowns
@@ -49,10 +137,30 @@ const EMPLOYEES = [
 ];
 
 const LAPTOPS = [
-  { id: 101, name: "Dell XPS 15", serialNumber: "DXS-2024-001", available: true },
-  { id: 105, name: 'MacBook Pro 14"', serialNumber: "MBP-2024-002", available: true },
-  { id: 106, name: "HP EliteBook 840", serialNumber: "HPE-2024-003", available: true },
-  { id: 107, name: "Lenovo ThinkPad X1", serialNumber: "LTP-2024-004", available: true },
+  {
+    id: 101,
+    name: "Dell XPS 15",
+    serialNumber: "DXS-2024-001",
+    available: true,
+  },
+  {
+    id: 105,
+    name: 'MacBook Pro 14"',
+    serialNumber: "MBP-2024-002",
+    available: true,
+  },
+  {
+    id: 106,
+    name: "HP EliteBook 840",
+    serialNumber: "HPE-2024-003",
+    available: true,
+  },
+  {
+    id: 107,
+    name: "Lenovo ThinkPad X1",
+    serialNumber: "LTP-2024-004",
+    available: true,
+  },
 ];
 
 const SOFTWARE = [
@@ -94,7 +202,8 @@ const Assignments = () => {
       const matchSearch =
         assign.employeeName.toLowerCase().includes(search.toLowerCase()) ||
         assign.assetName.toLowerCase().includes(search.toLowerCase());
-      const matchStatus = statusFilter === "All" || assign.status === statusFilter;
+      const matchStatus =
+        statusFilter === "All" || assign.status === statusFilter;
       const matchType = typeFilter === "All" || assign.assetType === typeFilter;
       return matchSearch && matchStatus && matchType;
     });
@@ -147,13 +256,20 @@ const Assignments = () => {
     return pages;
   };
 
-  const stats = useMemo(() => ({
-    total: assignments.length,
-    active: assignments.filter((a) => a.status === "Active").length,
-    returned: assignments.filter((a) => a.status === "Returned").length,
-    laptops: assignments.filter((a) => a.assetType === "Laptop" && a.status === "Active").length,
-    software: assignments.filter((a) => a.assetType === "Software" && a.status === "Active").length,
-  }), [assignments]);
+  const stats = useMemo(
+    () => ({
+      total: assignments.length,
+      active: assignments.filter((a) => a.status === "Active").length,
+      returned: assignments.filter((a) => a.status === "Returned").length,
+      laptops: assignments.filter(
+        (a) => a.assetType === "Laptop" && a.status === "Active",
+      ).length,
+      software: assignments.filter(
+        (a) => a.assetType === "Software" && a.status === "Active",
+      ).length,
+    }),
+    [assignments],
+  );
 
   const validate = (f) => {
     const e = {};
@@ -174,13 +290,21 @@ const Assignments = () => {
   };
 
   const handleReturn = (assignment) => {
-    if (window.confirm(`Return ${assignment.assetName} from ${assignment.employeeName}?`)) {
+    if (
+      window.confirm(
+        `Return ${assignment.assetName} from ${assignment.employeeName}?`,
+      )
+    ) {
       setAssignments((prev) =>
         prev.map((a) =>
           a.id === assignment.id
-            ? { ...a, status: "Returned", returnDate: new Date().toISOString().split("T")[0] }
-            : a
-        )
+            ? {
+                ...a,
+                status: "Returned",
+                returnDate: new Date().toISOString().split("T")[0],
+              }
+            : a,
+        ),
       );
       showToast(`Asset returned successfully`);
     }
@@ -200,7 +324,9 @@ const Assignments = () => {
       return;
     }
 
-    const employee = EMPLOYEES.find((emp) => emp.id === Number(formData.employeeId));
+    const employee = EMPLOYEES.find(
+      (emp) => emp.id === Number(formData.employeeId),
+    );
     const asset =
       formData.assetType === "Laptop"
         ? LAPTOPS.find((l) => l.id === Number(formData.assetId))
@@ -226,14 +352,14 @@ const Assignments = () => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    
+
     // Reset asset selection when asset type changes
     if (name === "assetType") {
       setFormData((prev) => ({ ...prev, [name]: value, assetId: "" }));
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
-    
+
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
@@ -254,7 +380,11 @@ const Assignments = () => {
       <div className="assign-page">
         {toast && (
           <div className={`assign-toast assign-toast--${toast.type}`}>
-            {toast.type === "success" ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+            {toast.type === "success" ? (
+              <CheckCircle size={18} />
+            ) : (
+              <AlertCircle size={18} />
+            )}
             <span>{toast.msg}</span>
           </div>
         )}
@@ -266,14 +396,19 @@ const Assignments = () => {
             </div>
             <div>
               <h1 className="assign-title">Asset Assignments</h1>
-              <p className="assign-subtitle">Manage laptop and software assignments</p>
+              <p className="assign-subtitle">
+                Manage laptop and software assignments
+              </p>
             </div>
           </div>
           <div className="assign-header-right">
             <button className="assign-btn assign-btn--outline">
               <Download size={16} /> Export
             </button>
-            <button className="assign-btn assign-btn--primary" onClick={handleAddNew}>
+            <button
+              className="assign-btn assign-btn--primary"
+              onClick={handleAddNew}
+            >
               <Plus size={18} /> New Assignment
             </button>
           </div>
@@ -281,7 +416,10 @@ const Assignments = () => {
 
         <div className="assign-stats">
           <div className="assign-stat-card">
-            <div className="assign-stat-icon" style={{ background: "rgba(99,102,241,0.12)", color: "#6366F1" }}>
+            <div
+              className="assign-stat-icon"
+              style={{ background: "rgba(99,102,241,0.12)", color: "#6366F1" }}
+            >
               <ClipboardList size={22} />
             </div>
             <div>
@@ -290,7 +428,10 @@ const Assignments = () => {
             </div>
           </div>
           <div className="assign-stat-card">
-            <div className="assign-stat-icon" style={{ background: "rgba(16,185,129,0.12)", color: "#10B981" }}>
+            <div
+              className="assign-stat-icon"
+              style={{ background: "rgba(16,185,129,0.12)", color: "#10B981" }}
+            >
               <CheckCircle size={22} />
             </div>
             <div>
@@ -299,7 +440,10 @@ const Assignments = () => {
             </div>
           </div>
           <div className="assign-stat-card">
-            <div className="assign-stat-icon" style={{ background: "rgba(136,146,164,0.12)", color: "#8892A4" }}>
+            <div
+              className="assign-stat-icon"
+              style={{ background: "rgba(136,146,164,0.12)", color: "#8892A4" }}
+            >
               <RotateCcw size={22} />
             </div>
             <div>
@@ -308,7 +452,10 @@ const Assignments = () => {
             </div>
           </div>
           <div className="assign-stat-card">
-            <div className="assign-stat-icon" style={{ background: "rgba(99,102,241,0.12)", color: "#6366f1" }}>
+            <div
+              className="assign-stat-icon"
+              style={{ background: "rgba(99,102,241,0.12)", color: "#6366f1" }}
+            >
               <Laptop size={22} />
             </div>
             <div>
@@ -317,7 +464,10 @@ const Assignments = () => {
             </div>
           </div>
           <div className="assign-stat-card">
-            <div className="assign-stat-icon" style={{ background: "rgba(236,72,153,0.12)", color: "#ec4899" }}>
+            <div
+              className="assign-stat-icon"
+              style={{ background: "rgba(236,72,153,0.12)", color: "#ec4899" }}
+            >
               <Package size={22} />
             </div>
             <div>
@@ -337,7 +487,10 @@ const Assignments = () => {
               onChange={(e) => handleSearch(e.target.value)}
             />
             {search && (
-              <button className="assign-search-clear" onClick={() => handleSearch("")}>
+              <button
+                className="assign-search-clear"
+                onClick={() => handleSearch("")}
+              >
                 <X size={15} />
               </button>
             )}
@@ -345,7 +498,13 @@ const Assignments = () => {
 
           <div className="assign-filter-group">
             <Filter size={15} className="assign-filter-icon" />
-            <select className="assign-select" value={typeFilter} onChange={(e) => handleFilterChange(setTypeFilter)(e.target.value)}>
+            <select
+              className="assign-select"
+              value={typeFilter}
+              onChange={(e) =>
+                handleFilterChange(setTypeFilter)(e.target.value)
+              }
+            >
               {ASSET_TYPES.map((t) => (
                 <option key={t}>{t}</option>
               ))}
@@ -353,7 +512,13 @@ const Assignments = () => {
           </div>
 
           <div className="assign-filter-group">
-            <select className="assign-select" value={statusFilter} onChange={(e) => handleFilterChange(setStatusFilter)(e.target.value)}>
+            <select
+              className="assign-select"
+              value={statusFilter}
+              onChange={(e) =>
+                handleFilterChange(setStatusFilter)(e.target.value)
+              }
+            >
               {STATUSES.map((s) => (
                 <option key={s}>{s}</option>
               ))}
@@ -395,45 +560,69 @@ const Assignments = () => {
                     <tr key={assign.id} className="assign-row">
                       <td>
                         <div className="assign-employee-cell">
-                          <div className="assign-avatar">{assign.employeeName.charAt(0)}</div>
-                          <div className="assign-employee-name">{assign.employeeName}</div>
+                          <div className="assign-avatar">
+                            {assign.employeeName.charAt(0)}
+                          </div>
+                          <div className="assign-employee-name">
+                            {assign.employeeName}
+                          </div>
                         </div>
                       </td>
                       <td>
-                        <span className="assign-type-badge" style={{ background: typeColor.bg, color: typeColor.color }}>
-                          {assign.assetType === "Laptop" ? <Laptop size={13} /> : <Package size={13} />}
+                        <span
+                          className="assign-type-badge"
+                          style={{
+                            background: typeColor.bg,
+                            color: typeColor.color,
+                          }}
+                        >
+                          {assign.assetType === "Laptop" ? (
+                            <Laptop size={13} />
+                          ) : (
+                            <Package size={13} />
+                          )}
                           {assign.assetType}
                         </span>
                       </td>
                       <td>
-                        <span className="assign-asset-name">{assign.assetName}</span>
+                        <span className="assign-asset-name">
+                          {assign.assetName}
+                        </span>
                       </td>
                       <td>
                         <div className="assign-date">
                           <Calendar size={13} />
-                          {new Date(assign.assignDate).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          })}
+                          {new Date(assign.assignDate).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            },
+                          )}
                         </div>
                       </td>
                       <td>
                         {assign.returnDate ? (
                           <div className="assign-date">
                             <Calendar size={13} />
-                            {new Date(assign.returnDate).toLocaleDateString("en-GB", {
-                              day: "2-digit",
-                              month: "short",
-                              year: "numeric",
-                            })}
+                            {new Date(assign.returnDate).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "2-digit",
+                                month: "short",
+                                year: "numeric",
+                              },
+                            )}
                           </div>
                         ) : (
                           <span className="assign-no-date">—</span>
                         )}
                       </td>
                       <td>
-                        <span className={`assign-status-badge assign-status-badge--${assign.status.toLowerCase()}`}>
+                        <span
+                          className={`assign-status-badge assign-status-badge--${assign.status.toLowerCase()}`}
+                        >
                           {assign.status}
                         </span>
                       </td>
@@ -445,11 +634,19 @@ const Assignments = () => {
                       </td>
                       <td>
                         <div className="assign-actions">
-                          <button className="assign-action-btn assign-action-btn--view" title="View details" onClick={() => handleViewDetails(assign)}>
+                          <button
+                            className="assign-action-btn assign-action-btn--view"
+                            title="View details"
+                            onClick={() => handleViewDetails(assign)}
+                          >
                             <Eye size={15} />
                           </button>
                           {assign.status === "Active" && (
-                            <button className="assign-action-btn assign-action-btn--return" title="Return asset" onClick={() => handleReturn(assign)}>
+                            <button
+                              className="assign-action-btn assign-action-btn--return"
+                              title="Return asset"
+                              onClick={() => handleReturn(assign)}
+                            >
                               <RotateCcw size={15} />
                             </button>
                           )}
@@ -466,27 +663,43 @@ const Assignments = () => {
         {filtered.length > 0 && (
           <div className="assign-pagination">
             <p className="assign-pagination-info">
-              Showing {startIndex + 1}-{Math.min(endIndex, filtered.length)} of {filtered.length} assignments
+              Showing {startIndex + 1}-{Math.min(endIndex, filtered.length)} of{" "}
+              {filtered.length} assignments
             </p>
             <div className="assign-pagination-buttons">
-              <button className="assign-btn-page assign-btn-page-nav" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
+              <button
+                className="assign-btn-page assign-btn-page-nav"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
                 <ChevronLeft size={16} />
                 Previous
               </button>
 
               {getPageNumbers().map((page, index) =>
                 page === "..." ? (
-                  <span key={`ellipsis-${index}`} className="assign-pagination-ellipsis">
+                  <span
+                    key={`ellipsis-${index}`}
+                    className="assign-pagination-ellipsis"
+                  >
                     ...
                   </span>
                 ) : (
-                  <button key={page} className={`assign-btn-page ${currentPage === page ? "assign-btn-page--active" : ""}`} onClick={() => handlePageChange(page)}>
+                  <button
+                    key={page}
+                    className={`assign-btn-page ${currentPage === page ? "assign-btn-page--active" : ""}`}
+                    onClick={() => handlePageChange(page)}
+                  >
                     {page}
                   </button>
-                )
+                ),
               )}
 
-              <button className="assign-btn-page assign-btn-page-nav" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>
+              <button
+                className="assign-btn-page assign-btn-page-nav"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
                 Next
                 <ChevronRight size={16} />
               </button>
@@ -505,10 +718,15 @@ const Assignments = () => {
                   </div>
                   <div>
                     <h2 className="assign-modal-title">New Assignment</h2>
-                    <p className="assign-modal-sub">Assign a laptop or software to an employee</p>
+                    <p className="assign-modal-sub">
+                      Assign a laptop or software to an employee
+                    </p>
                   </div>
                 </div>
-                <button className="assign-modal-close" onClick={handleCloseModal}>
+                <button
+                  className="assign-modal-close"
+                  onClick={handleCloseModal}
+                >
                   <X size={20} />
                 </button>
               </div>
@@ -521,7 +739,16 @@ const Assignments = () => {
                         Employee <span style={{ color: "#ef4444" }}>*</span>
                       </label>
                       <div className="assign-select-wrap">
-                        <select name="employeeId" value={formData.employeeId} onChange={handleFormChange} className={formErrors.employeeId ? "assign-input assign-input--error" : "assign-input"}>
+                        <select
+                          name="employeeId"
+                          value={formData.employeeId}
+                          onChange={handleFormChange}
+                          className={
+                            formErrors.employeeId
+                              ? "assign-input assign-input--error"
+                              : "assign-input"
+                          }
+                        >
                           <option value="">Select employee</option>
                           {EMPLOYEES.map((emp) => (
                             <option key={emp.id} value={emp.id}>
@@ -530,7 +757,11 @@ const Assignments = () => {
                           ))}
                         </select>
                       </div>
-                      {formErrors.employeeId && <span className="assign-field-error">{formErrors.employeeId}</span>}
+                      {formErrors.employeeId && (
+                        <span className="assign-field-error">
+                          {formErrors.employeeId}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -538,13 +769,29 @@ const Assignments = () => {
                     <div className="assign-form-group">
                       <label>Asset Type</label>
                       <div className="assign-radio-group">
-                        <label className={`assign-radio-option ${formData.assetType === "Laptop" ? "assign-radio-option--active" : ""}`}>
-                          <input type="radio" name="assetType" value="Laptop" checked={formData.assetType === "Laptop"} onChange={handleFormChange} />
+                        <label
+                          className={`assign-radio-option ${formData.assetType === "Laptop" ? "assign-radio-option--active" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="assetType"
+                            value="Laptop"
+                            checked={formData.assetType === "Laptop"}
+                            onChange={handleFormChange}
+                          />
                           <Laptop size={18} />
                           <span>Laptop</span>
                         </label>
-                        <label className={`assign-radio-option ${formData.assetType === "Software" ? "assign-radio-option--active" : ""}`}>
-                          <input type="radio" name="assetType" value="Software" checked={formData.assetType === "Software"} onChange={handleFormChange} />
+                        <label
+                          className={`assign-radio-option ${formData.assetType === "Software" ? "assign-radio-option--active" : ""}`}
+                        >
+                          <input
+                            type="radio"
+                            name="assetType"
+                            value="Software"
+                            checked={formData.assetType === "Software"}
+                            onChange={handleFormChange}
+                          />
                           <Package size={18} />
                           <span>Software</span>
                         </label>
@@ -555,38 +802,78 @@ const Assignments = () => {
                   <div className="assign-form-row">
                     <div className="assign-form-group assign-form-group--full">
                       <label>
-                        {formData.assetType} <span style={{ color: "#ef4444" }}>*</span>
+                        {formData.assetType}{" "}
+                        <span style={{ color: "#ef4444" }}>*</span>
                       </label>
                       <div className="assign-select-wrap">
-                        <select name="assetId" value={formData.assetId} onChange={handleFormChange} className={formErrors.assetId ? "assign-input assign-input--error" : "assign-input"}>
-                          <option value="">Select {formData.assetType.toLowerCase()}</option>
+                        <select
+                          name="assetId"
+                          value={formData.assetId}
+                          onChange={handleFormChange}
+                          className={
+                            formErrors.assetId
+                              ? "assign-input assign-input--error"
+                              : "assign-input"
+                          }
+                        >
+                          <option value="">
+                            Select {formData.assetType.toLowerCase()}
+                          </option>
                           {getAvailableAssets().map((asset) => (
                             <option key={asset.id} value={asset.id}>
                               {asset.name}
-                              {formData.assetType === "Laptop" ? ` (${asset.serialNumber})` : ` (${asset.available} available)`}
+                              {formData.assetType === "Laptop"
+                                ? ` (${asset.serialNumber})`
+                                : ` (${asset.available} available)`}
                             </option>
                           ))}
                         </select>
                       </div>
-                      {formErrors.assetId && <span className="assign-field-error">{formErrors.assetId}</span>}
+                      {formErrors.assetId && (
+                        <span className="assign-field-error">
+                          {formErrors.assetId}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <div className="assign-form-row">
                     <div className="assign-form-group">
                       <label>
-                        Assignment Date <span style={{ color: "#ef4444" }}>*</span>
+                        Assignment Date{" "}
+                        <span style={{ color: "#ef4444" }}>*</span>
                       </label>
-                      <input type="date" name="assignDate" value={formData.assignDate} onChange={handleFormChange} className={formErrors.assignDate ? "assign-input assign-input--error" : "assign-input"} />
-                      {formErrors.assignDate && <span className="assign-field-error">{formErrors.assignDate}</span>}
+                      <input
+                        type="date"
+                        name="assignDate"
+                        value={formData.assignDate}
+                        onChange={handleFormChange}
+                        className={
+                          formErrors.assignDate
+                            ? "assign-input assign-input--error"
+                            : "assign-input"
+                        }
+                      />
+                      {formErrors.assignDate && (
+                        <span className="assign-field-error">
+                          {formErrors.assignDate}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   <div className="assign-modal-footer">
-                    <button type="button" className="assign-btn assign-btn--ghost" onClick={handleCloseModal}>
+                    <button
+                      type="button"
+                      className="assign-btn assign-btn--ghost"
+                      onClick={handleCloseModal}
+                    >
                       Cancel
                     </button>
-                    <button type="submit" className="assign-btn assign-btn--primary">
+                    <button
+                      type="submit"
+                      className="assign-btn assign-btn--primary"
+                    >
                       <CheckCircle size={16} /> Create Assignment
                     </button>
                   </div>
@@ -598,11 +885,19 @@ const Assignments = () => {
 
         {/* Detail Modal */}
         {showDetail && (
-          <div className="assign-modal-overlay" onClick={() => setShowDetail(null)}>
-            <div className="assign-modal assign-modal--detail" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="assign-modal-overlay"
+            onClick={() => setShowDetail(null)}
+          >
+            <div
+              className="assign-modal assign-modal--detail"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="assign-modal-header">
                 <div className="assign-modal-title-wrap">
-                  <div className="assign-avatar assign-avatar--lg">{showDetail.employeeName.charAt(0)}</div>
+                  <div className="assign-avatar assign-avatar--lg">
+                    {showDetail.employeeName.charAt(0)}
+                  </div>
                   <div>
                     <h2 className="assign-modal-title">Assignment Details</h2>
                     <p className="assign-modal-sub">
@@ -610,7 +905,10 @@ const Assignments = () => {
                     </p>
                   </div>
                 </div>
-                <button className="assign-modal-close" onClick={() => setShowDetail(null)}>
+                <button
+                  className="assign-modal-close"
+                  onClick={() => setShowDetail(null)}
+                >
                   <X size={20} />
                 </button>
               </div>
@@ -627,27 +925,38 @@ const Assignments = () => {
                   <div className="assign-detail-card">
                     <span className="assign-detail-label">Asset Type</span>
                     <span className="assign-detail-value">
-                      {showDetail.assetType === "Laptop" ? <Laptop size={14} style={{ marginRight: 6 }} /> : <Package size={14} style={{ marginRight: 6 }} />}
+                      {showDetail.assetType === "Laptop" ? (
+                        <Laptop size={14} style={{ marginRight: 6 }} />
+                      ) : (
+                        <Package size={14} style={{ marginRight: 6 }} />
+                      )}
                       {showDetail.assetType}
                     </span>
                   </div>
                   <div className="assign-detail-card">
                     <span className="assign-detail-label">Asset Name</span>
-                    <span className="assign-detail-value">{showDetail.assetName}</span>
+                    <span className="assign-detail-value">
+                      {showDetail.assetName}
+                    </span>
                   </div>
                   <div className="assign-detail-card">
                     <span className="assign-detail-label">Asset ID</span>
-                    <span className="assign-detail-value">#{showDetail.assetId}</span>
+                    <span className="assign-detail-value">
+                      #{showDetail.assetId}
+                    </span>
                   </div>
                   <div className="assign-detail-card">
                     <span className="assign-detail-label">Assigned Date</span>
                     <span className="assign-detail-value">
                       <Calendar size={14} style={{ marginRight: 6 }} />
-                      {new Date(showDetail.assignDate).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                      {new Date(showDetail.assignDate).toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        },
+                      )}
                     </span>
                   </div>
                   <div className="assign-detail-card">
@@ -656,11 +965,14 @@ const Assignments = () => {
                       {showDetail.returnDate ? (
                         <>
                           <Calendar size={14} style={{ marginRight: 6 }} />
-                          {new Date(showDetail.returnDate).toLocaleDateString("en-GB", {
-                            day: "2-digit",
-                            month: "long",
-                            year: "numeric",
-                          })}
+                          {new Date(showDetail.returnDate).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "long",
+                              year: "numeric",
+                            },
+                          )}
                         </>
                       ) : (
                         "Not returned"
@@ -669,7 +981,11 @@ const Assignments = () => {
                   </div>
                   <div className="assign-detail-card">
                     <span className="assign-detail-label">Status</span>
-                    <span className={`assign-status-badge assign-status-badge--${showDetail.status.toLowerCase()}`}>{showDetail.status}</span>
+                    <span
+                      className={`assign-status-badge assign-status-badge--${showDetail.status.toLowerCase()}`}
+                    >
+                      {showDetail.status}
+                    </span>
                   </div>
                   <div className="assign-detail-card">
                     <span className="assign-detail-label">Assigned By</span>
@@ -682,7 +998,10 @@ const Assignments = () => {
               </div>
 
               <div className="assign-modal-footer">
-                <button className="assign-btn assign-btn--ghost" onClick={() => setShowDetail(null)}>
+                <button
+                  className="assign-btn assign-btn--ghost"
+                  onClick={() => setShowDetail(null)}
+                >
                   Close
                 </button>
                 {showDetail.status === "Active" && (
