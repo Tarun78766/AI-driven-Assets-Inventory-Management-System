@@ -1,9 +1,10 @@
 .laptop-models {
+  background-color: #f0f4f8;
   position: relative;
-
   right: 0;
-  margin-top: 90px;
-  margin-left: 250px;
+  margin-top: 80px;
+    margin-left: 130px;
+width: calc(100% - 130px);
   padding: 20px;
 }
 
@@ -50,8 +51,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #6366f1;
-  color: white;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #ffffff;
   border: none;
   padding: 12px 24px;
   border-radius: 10px;

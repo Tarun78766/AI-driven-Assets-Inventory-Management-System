@@ -4,8 +4,13 @@
 ═══════════════════════════════════════════ */
 
 .settings-page {
-  padding: 0;
+  background-color: #f0f4f8;
   position: relative;
+  right: 0;
+  margin-top: 80px;
+    margin-left: 130px;
+width: calc(100% - 130px);
+  padding: 20px;
 }
 
 /* ── Toast Notification ─────────────────── */
@@ -126,12 +131,20 @@
 .settings-nav-item:hover {
   background: #f8fafc;
   color: #1e293b;
+  transform: translateX(4px);
 }
 
 .settings-nav-item--active {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: #ffffff;
   box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  transition: all 0.2s ease;
+}
+.settings-nav-item--active:hover {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #f8fafc !important;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 }
 
 /* ── Content Area ───────────────────────── */

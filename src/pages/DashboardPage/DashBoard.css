@@ -1,8 +1,10 @@
 .dashboard {
+  background-color: #f0f4f8;
   position: relative;
   right: 0;
-  margin-top: 90px;
-  margin-left: 250px;
+  margin-top: 80px;
+  margin-left: 130px;
+width: calc(100% - 130px);
   padding: 20px;
 }
 
@@ -34,7 +36,6 @@
   font-weight: 700;
   color: #1e293b;
   margin-bottom: 4px;
-
 }
 
 .dashboard-subtitle {
@@ -397,5 +398,6 @@
 
   .dashboard {
     margin-left: 80px;
+    width: 100%;
   }
 }

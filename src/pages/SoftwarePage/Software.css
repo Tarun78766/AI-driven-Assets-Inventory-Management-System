@@ -4,12 +4,12 @@
 ═══════════════════════════════════════════ */
 
 .sw-page {
-  
+  background-color: #f0f4f8;
   position: relative;
-  
   right: 0;
-  margin-top: 90px;
-  margin-left: 250px;
+  margin-top: 80px;
+    margin-left: 130px;
+width: calc(100% - 130px);
   padding: 20px;
 }
 
@@ -17,7 +17,6 @@
    SOFTWARE PAGE  –  Software.css
    Matches the Laptop Inventory design language
 ═══════════════════════════════════════════ */
-
 
 /* ── Toast Notification ─────────────────── */
 .sw-toast {
@@ -37,8 +36,14 @@
 }
 
 @keyframes toastSlide {
-  from { transform: translateY(20px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .sw-toast--success {
@@ -612,8 +617,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .sw-modal {
@@ -629,8 +638,14 @@
 }
 
 @keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Detail modal is a bit narrower */
@@ -713,10 +728,20 @@
   padding: 26px 28px;
 }
 
-.sw-modal-body::-webkit-scrollbar { width: 6px; }
-.sw-modal-body::-webkit-scrollbar-track { background: #f8fafc; border-radius: 6px; }
-.sw-modal-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
-.sw-modal-body::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.sw-modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.sw-modal-body::-webkit-scrollbar-track {
+  background: #f8fafc;
+  border-radius: 6px;
+}
+.sw-modal-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 6px;
+}
+.sw-modal-body::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 
 /* ── Form Layout ── */
 .sw-form-row {

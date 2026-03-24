@@ -4,11 +4,13 @@
 ═══════════════════════════════════════════ */
 
 .emp-page {
+  width: calc(100% - 130px);
+  background-color: #f0f4f8;
   position: relative;
-
   right: 0;
-  margin-top: 90px;
-  margin-left: 250px;
+  margin-top: 80px;
+    margin-left: 130px;
+
   padding: 20px;
 }
 
