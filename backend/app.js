@@ -8,6 +8,7 @@ const connectDB = require("./db/connect");
 const authRoutes = require("./web-layer/routes/AuthRoutes");
 const adminRoutes = require("./web-layer/routes/AdminRoutes");
 const laptopRoutes = require("./web-layer/routes/LaptopRoutes");
+const softwareRoutes = require("./web-layer/routes/SoftwareRoutes");
 
 // Future routes
 // const inventoryRoutes = require("./web-layer/routes/inventory.routes");
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/laptops", laptopRoutes);
+app.use("/api/software", softwareRoutes);
 
 // app.use("/api/inventory", inventoryRoutes);
 
