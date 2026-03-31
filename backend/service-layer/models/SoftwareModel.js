@@ -34,7 +34,13 @@ const SoftwareModelSchema = new mongoose.Schema(
     usedLicenses: { 
       type: Number, 
       default: 0,
-      min: [0, "Used licenses cannot be negative"]
+      min: [0, "Used licenses cannot be negative"],
+      validate: {
+          validator: function (value) {
+          return value <= this.totalLicenses;
+        },
+        message: "Used licenses cannot exceed total licenses" 
+      }
     },
     expiryDate: { 
       // We can store it as a basic String (YYYY-MM-DD) or Mongoose Date.
