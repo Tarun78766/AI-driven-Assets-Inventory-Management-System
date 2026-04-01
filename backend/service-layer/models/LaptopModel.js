@@ -61,10 +61,7 @@ const LaptopModelSchema = new mongoose.Schema(
       type: Number, 
       default: 0 
     },
-    available: { 
-      type: Number, 
-      default: 0 
-    },
+    
     inUse: { 
       type: Number, 
       default: 0 
