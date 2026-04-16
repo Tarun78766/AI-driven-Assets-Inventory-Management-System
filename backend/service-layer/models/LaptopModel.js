@@ -61,6 +61,10 @@ const LaptopModelSchema = new mongoose.Schema(
       type: Number, 
       default: 0 
     },
+    purchaseDate: {
+      type: String,
+      required: true,
+    },
     
     inUse: { 
       type: Number, 

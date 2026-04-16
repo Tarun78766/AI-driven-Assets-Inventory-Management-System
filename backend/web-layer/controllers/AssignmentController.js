@@ -27,12 +27,12 @@ const createAssignment = async (req, res) => {
 // 2. READ All Assignments
 const getAllAssignments = async (req, res) => {
   try {
-    const filters = req.query || {};
-    const assignments = await assignmentService.getAllAssignments(filters);
+    const result = await assignmentService.getAllAssignments(req.query);
     res.status(200).json({ 
       success: true, 
-      count: assignments.length, 
-      data: assignments 
+      data: result.data,
+      totalCount: result.totalCount,
+      stats: result.stats 
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Server error fetching assignments." });
@@ -74,10 +74,28 @@ const deleteAssignment = async (req, res) => {
   }
 };
 
+// 6. GET My Assignments (Filtered by logged in User ID)
+const getMyAssignments = async (req, res) => {
+  try {
+    // Inject the authenticated employeeId into the query filters
+    const query = { employeeId: req.user.id, ...req.query };
+    const result = await assignmentService.getAllAssignments(query);
+    res.status(200).json({ 
+      success: true, 
+      data: result.data,
+      totalCount: result.totalCount,
+      stats: result.stats
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error fetching assignments." });
+  }
+};
+
 module.exports = {
   createAssignment,
   getAllAssignments,
   getAssignmentById,
   returnAssignment,
-  deleteAssignment
+  deleteAssignment,
+  getMyAssignments
 };

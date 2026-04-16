@@ -1,98 +1,70 @@
-const softwareService = require("../../service-layer/services/SoftwareService");
+const SoftwareService = require("../../service-layer/services/SoftwareService");
 
-/**
- * SoftwareController
- * This file handles HTTP requests from the frontend or Postman.
- * It intercepts the request, grabs any data (req.body or req.params.id),
- * passes it into our service logic, and responds with a neat JSON object.
- */
+const getAllSoftwares = async (req, res) => {
+  try {
+    const { page, limit, search, category, status } = req.query;
+    
+    // Pass raw queries to the service
+    const result = await SoftwareService.getAllSoftwares(
+      Number(page) || 1, 
+      Number(limit) || 10, 
+      search, 
+      category, 
+      status
+    );
 
-// 1. CREATE a new Software (POST /api/software)
+    // Return exact signature expected by the frontend
+    res.status(200).json({
+      success: true,
+      data: result.data,
+      totalCount: result.totalCount,
+      stats: result.stats
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 const createSoftware = async (req, res) => {
   try {
-    // We expect the frontend to send the software details in req.body
-    const newSoftware = await softwareService.createSoftware(req.body);
-    
-    // Status 201: Created
-    res.status(201).json({ 
-      success: true, 
-      message: "Software added successfully!", 
-      data: newSoftware 
-    });
+    const data = await SoftwareService.createSoftware(req.body);
+    res.status(201).json({ success: true, data });
   } catch (error) {
-    // If the service throws an error (e.g. it was a duplicate), we catch it here.
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// 2. READ all Software (GET /api/software)
-const getAllSoftware = async (req, res) => {
-  try {
-    // Use req.query to capture frontend filtering later (e.g. ?vendor=Microsoft)
-    const filters = req.query || {};
-    
-    const softwareList = await softwareService.getAllSoftware(filters);
-    
-    res.status(200).json({ 
-      success: true, 
-      count: softwareList.length, 
-      data: softwareList 
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: "Failed to fetch software licenses." });
-  }
-};
-
-// 3. READ single Software by ID (GET /api/software/:id)
-const getSoftwareById = async (req, res) => {
-  try {
-    // Extract the exact ID from the URL params
-    const softwareId = req.params.id;
-    
-    const software = await softwareService.getSoftwareById(softwareId);
-    
-    res.status(200).json({ success: true, data: software });
-  } catch (error) {
-    res.status(404).json({ success: false, message: error.message });
-  }
-};
-
-// 4. UPDATE a Software (PUT /api/software/:id)
 const updateSoftware = async (req, res) => {
   try {
-    const softwareId = req.params.id;
-    const updateData = req.body;
-    
-    // Call our service to do the heavy lifting of updating MongoDB
-    const updatedSoftware = await softwareService.updateSoftware(softwareId, updateData);
-    
-    res.status(200).json({ 
-      success: true, 
-      message: "Software updated successfully!", 
-      data: updatedSoftware 
-    });
+    const data = await SoftwareService.updateSoftware(req.params.id, req.body);
+    res.status(200).json({ success: true, data });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// 5. DELETE a Software (DELETE /api/software/:id)
 const deleteSoftware = async (req, res) => {
   try {
-    const softwareId = req.params.id;
-    
-    await softwareService.deleteSoftware(softwareId);
-    
-    res.status(200).json({ success: true, message: "Software deleted successfully!" });
+    await SoftwareService.deleteSoftware(req.params.id);
+    res.status(200).json({ success: true, message: "Deleted successfully" });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const getTrackedSoftware = async (req, res) => {
+  try {
+    const data = await SoftwareService.getTrackedSoftware();
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 module.exports = {
+  getAllSoftwares,
   createSoftware,
-  getAllSoftware,
-  getSoftwareById,
   updateSoftware,
-  deleteSoftware
+  deleteSoftware,
+  getTrackedSoftware
 };

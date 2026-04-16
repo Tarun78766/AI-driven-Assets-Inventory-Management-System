@@ -5,30 +5,56 @@ const UserSchema = new mongoose.Schema(
   {
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+    },
+
     phone: { type: String },
     department: { type: String },
+
     role: {
       type: String,
-      enum: ["Employee", "Manager", "Admin"],
-      default: "Employee",
+      enum: ["employee", "manager", "admin"], // 🔥 lowercase for consistency
+      default: "employee",
     },
-    password: { type: String, required: true },
+
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+      select: false, // 🔥 IMPORTANT (hides password in queries)
+    },
+
+    // ❌ REMOVED confirmPassword
+
+    lastLogout: { type: Date, default: null },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-// Hash password before saving to the database
+// 🔐 HASH PASSWORD
 UserSchema.pre("save", async function () {
-  // Only hash if the password was modified (or is new) 
   if (!this.isModified("password")) return;
+
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Helper method to compare passwords
+// 🔐 COMPARE PASSWORD
 UserSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
+};
+
+// 🔐 SAFE RESPONSE
+UserSchema.methods.toSafeObject = function () {
+  const userObj = this.toObject();
+  delete userObj.password;
+  return userObj;
 };
 
 module.exports = mongoose.model("User", UserSchema);

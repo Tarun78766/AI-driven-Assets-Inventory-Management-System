@@ -1,72 +1,175 @@
 const SoftwareModel = require("../models/SoftwareModel");
+const mongoose = require("mongoose");
+const IndividualSoftwareLicenseModel = require("../models/IndividualSoftwareLicenseModel");
 
-/**
- * SoftwareService
- * This file handles all the Business Logic for Software Licenses.
- * Just like LaptopService, it interacts directly with MongoDB.
- */
 
-// 1. CREATE a new Software License entry
-const createSoftware = async (softwareData) => {
-  // Prevent exact duplicates of the same Software + Vendor combination
-  const existingSoftware = await SoftwareModel.findOne({ 
-    name: softwareData.name, 
-    vendor: softwareData.vendor 
-  });
-  
-  if (existingSoftware) {
-    throw new Error("This software product from this vendor already exists in your inventory.");
+// 🔥 helper
+const generateSeatName = (softwareName, index) => {
+  const prefix = softwareName.slice(0, 3).toUpperCase();
+  return `${prefix}-SEAT-${Date.now()}-${index}`;
+};
+
+const createSoftware = async (data) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    console.log("inside create software");
+
+    // 🔥 1. CHECK TRACKED TYPE
+    const trackableTypes = ["Subscription", "Per Seat", "Perpetual"];
+    const isTracked = trackableTypes.includes(data.licenseType);
+
+    // 🔥 2. SET DEFAULT VALUES (IMPORTANT)
+    const software = new SoftwareModel({
+      ...data,
+      usedLicenses: 0,
+      cost: isTracked ? data.cost : 0,
+      expiryDate: isTracked
+        ? data.expiryDate
+        : new Date("2099-12-31"), // dummy future date,
+      totalLicenses: isTracked ? data.totalLicenses : 0,  
+    });
+
+    await software.save({ session });
+
+    // 🔥 3. CREATE SEATS ONLY IF TRACKED
+    if (isTracked) {
+      const seats = [];
+
+      for (let i = 1; i <= data.totalLicenses; i++) {
+        seats.push({
+          softwareModelId: software._id,
+          softwareName: software.name,
+          licenseKeyOrSeatName: generateSeatName(software.name, i),
+          status: "Available",
+        });
+      }
+
+      if (seats.length > 0) {
+        await IndividualSoftwareLicenseModel.insertMany(seats, { session });
+      }
+    }
+
+    await session.commitTransaction();
+
+    return software;
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
   }
-  
-  const software = new SoftwareModel(softwareData);
-  await software.save();
-  
+};
+
+const getAllSoftwares = async (page = 1, limit = 10, search, category, status) => {
+  const query = {};
+
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { vendor: { $regex: search, $options: "i" } }
+    ];
+  }
+
+  if (category && category !== "All") {
+    query.category = category;
+  }
+
+  if (status && status !== "All") {
+    query.renewalStatus = status;
+  }
+
+  const skip = (page - 1) * limit;
+
+  const data = await SoftwareModel.find(query)
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+    
+  const totalCount = await SoftwareModel.countDocuments(query);
+
+  const statsArray = await SoftwareModel.aggregate([
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        active: {
+          $sum: { $cond: [{ $eq: ["$renewalStatus", "Active"] }, 1, 0] },
+        },
+        critical: {
+          $sum: {
+            $cond: [
+              {
+                $or: [
+                  { $eq: ["$renewalStatus", "Critical"] },
+                  { $eq: ["$renewalStatus", "Expired"] },
+                ],
+              },
+              1,
+              0,
+            ],
+          },
+        },
+        upcoming: {
+          $sum: { $cond: [{ $eq: ["$renewalStatus", "Upcoming"] }, 1, 0] },
+        },
+        totalLic: { $sum: "$totalLicenses" },
+        usedLic: { $sum: "$usedLicenses" },
+      },
+    },
+  ]);
+
+  const globalTotalCount = await SoftwareModel.countDocuments();
+
+  let stats = {
+    total: globalTotalCount,
+    active: 0,
+    critical: 0,
+    upcoming: 0,
+    totalLic: 0,
+    usedLic: 0,
+  };
+
+  if (statsArray.length > 0) {
+    stats = {
+      total: globalTotalCount,
+      active: statsArray[0].active,
+      critical: statsArray[0].critical,
+      upcoming: statsArray[0].upcoming,
+      totalLic: statsArray[0].totalLic || 0,
+      usedLic: statsArray[0].usedLic || 0,
+    };
+  }
+
+  return { data, totalCount, stats };
+};
+
+const getTrackedSoftware = async () => {
+  return await SoftwareModel.find({
+    licenseType: { $in: ["Subscription", "Per Seat", "Licensed"] },
+  });
+};
+
+const updateSoftware = async (id, data) => {
+  const software = await SoftwareModel.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  });
+  if (!software) throw new Error("Software not found");
   return software;
 };
 
-// 2. READ (Get) all Software Licenses
-const getAllSoftware = async (filters = {}) => {
-  // Retrieve all software from the DB, sorted from newest to oldest
-  const softwareList = await SoftwareModel.find(filters).sort({ createdAt: -1 });
-  return softwareList;
-};
-
-// 3. READ (Get) a single Software License by ID
-const getSoftwareById = async (softwareId) => {
-  const software = await SoftwareModel.findById(softwareId);
-  if (!software) {
-    throw new Error("Software not found");
-  }
+const deleteSoftware = async (id) => {
+  const software = await SoftwareModel.findByIdAndDelete(id);
+  if (!software) throw new Error("Software not found");
   return software;
-};
-
-// 4. UPDATE a Software License
-const updateSoftware = async (softwareId, updateData) => {
-  const updatedSoftware = await SoftwareModel.findByIdAndUpdate(softwareId, updateData, {
-    new: true, // Returns the newly updated document instead of the old one
-    runValidators: true, // Re-runs schema checks (like ensuring cost is a number)
-  });
-
-  if (!updatedSoftware) {
-    throw new Error("Software not found or could not be updated");
-  }
-
-  return updatedSoftware;
-};
-
-// 5. DELETE a Software License
-const deleteSoftware = async (softwareId) => {
-  const deletedSoftware = await SoftwareModel.findByIdAndDelete(softwareId);
-  if (!deletedSoftware) {
-    throw new Error("Software not found or already deleted");
-  }
-  return true;
 };
 
 module.exports = {
   createSoftware,
-  getAllSoftware,
-  getSoftwareById,
+  getAllSoftwares,
+  getTrackedSoftware,
   updateSoftware,
-  deleteSoftware
+  deleteSoftware,
 };

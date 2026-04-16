@@ -1,3 +1,9 @@
+// ═══════════════════════════════════════════
+// BACKEND - AuthController.js
+// File: backend/controllers/AuthController.js
+// Add these functions to your existing AuthController
+// ═══════════════════════════════════════════
+
 const authService = require("../../service-layer/services/AuthService");
 
 /**
@@ -35,5 +41,60 @@ const login = async (req, res) => {
   }
 };
 
-// Export controllers to attach them to routes
-module.exports = { register, login };
+/**
+ * Controller to handle User Logout
+ * Entry point for POST /api/auth/logout
+ * Protected route - requires authentication
+ */
+const logout = async (req, res) => {
+  try {
+    // User ID is available from the auth middleware (req.user.id)
+    const userId = req.user.id;
+    
+    // Call the logout service to update user's lastLogout timestamp
+    await authService.logoutUser(userId);
+    
+    // Send success response
+    res.status(200).json({ 
+      success: true, 
+      message: "Logged out successfully" 
+    });
+  } catch (error) {
+    // Handle any errors during logout
+    res.status(500).json({ 
+      success: false, 
+      message: error.message 
+    });
+  }
+};
+
+/**
+ * Controller to verify if current token is valid
+ * Entry point for GET /api/auth/verify
+ * Protected route - requires authentication
+ */
+const verifyToken = async (req, res) => {
+  try {
+    // Get user details from database using ID from token
+    const user = await authService.getUserById(req.user.id);
+    
+    // Send user data back (password already excluded)
+    res.status(200).json({ 
+      success: true, 
+      user 
+    });
+  } catch (error) {
+    res.status(401).json({ 
+      success: false, 
+      message: "Invalid token" 
+    });
+  }
+};
+
+// Export all controllers
+module.exports = { 
+  register, 
+  login, 
+  logout, 
+  verifyToken 
+};

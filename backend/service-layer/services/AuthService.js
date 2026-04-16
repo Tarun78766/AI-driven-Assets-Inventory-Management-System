@@ -1,3 +1,9 @@
+// ═══════════════════════════════════════════
+// BACKEND - AuthService.js
+// File: backend/service-layer/services/AuthService.js
+// Add these functions to your existing AuthService
+// ═══════════════════════════════════════════
+
 // Import the User model to interact with the database
 const User = require("../models/User");
 // Import jsonwebtoken to create signed authentication tokens
@@ -18,7 +24,17 @@ const registerUser = async (userData) => {
 
   // Create a new User instance with the provided data
   // Note: userData includes fields from our React signup form (firstName, lastName, etc)
-  const user = new User(userData);
+ const user = new User({
+  firstName: userData.firstName,
+  lastName: userData.lastName,
+  email: userData.email,
+  phone: userData.phone,
+  department: userData.department,
+  password: userData.password,
+
+  // 🔥 FORCE ROLE (VERY IMPORTANT)
+  role: "employee",
+});
   
   // Save the user to the database 
   // This triggers the pre-save hook in User.js which hashes the password securely using bcrypt
@@ -39,7 +55,7 @@ const registerUser = async (userData) => {
  */
 const loginUser = async (credentials) => {
   // Find the user by their email address
-  const user = await User.findOne({ email: credentials.email });
+  const user = await User.findOne({ email: credentials.email }).select("+password");
   if (!user) {
     // If no user is found, throw an error
     throw new Error("Invalid credentials");
@@ -72,8 +88,56 @@ const loginUser = async (credentials) => {
   return { user: userObj, token };
 };
 
+/**
+ * Log a user out by updating their lastLogout timestamp
+ * @param {String} userId - The ID of the user logging out
+ * @returns {Object} - The updated user document
+ */
+const logoutUser = async (userId) => {
+  try {
+    // Update the user's lastLogout field to current timestamp
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { 
+        lastLogout: new Date() 
+      },
+      { returnDocument: "after" }
+    ).select('-password');
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return user;
+  } catch (error) {
+    throw new Error("Logout failed: " + error.message);
+  }
+};
+
+/**
+ * Get user by ID (for token verification)
+ * @param {String} userId - The ID of the user
+ * @returns {Object} - The user document without password
+ */
+const getUserById = async (userId) => {
+  try {
+    const user = await User.findById(userId)
+      .select('-password');
+    
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    return user;
+  } catch (error) {
+    throw new Error("Failed to fetch user: " + error.message);
+  }
+};
+
 // Export the functions to be used in AuthController.js
 module.exports = {
   registerUser,
   loginUser,
+  logoutUser,
+  getUserById,
 };

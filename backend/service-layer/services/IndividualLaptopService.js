@@ -54,9 +54,17 @@ const addPhysicalLaptop = async (data) => {
 };
 
 // 2. READ All physical laptops
-const getAllPhysicalLaptops = async (filters = {}) => {
-  // Can filter by { status: "Available" } or by specific serial number
-  return await IndividualLaptopModel.find(filters).sort({ createdAt: -1 });
+const getAllPhysicalLaptops = async (page, limit, filter) => {
+  const skip = (page - 1) * limit;
+  
+  const hardwareList = await IndividualLaptopModel.find(filter)
+    .sort({ index: 1 })
+    .skip(skip)
+    .limit(limit);
+    
+  const totalCount = await IndividualLaptopModel.countDocuments(filter);
+  
+  return { hardwareList, totalCount };
 };
 
 // 3. READ Single physical laptop by ID
@@ -74,6 +82,20 @@ const updatePhysicalLaptop = async (id, updateData) => {
   try {
     const laptop = await IndividualLaptopModel.findById(id).session(session);
     if (!laptop) throw new Error("Physical laptop not found.");
+
+    // FIX 2: Make serial number and laptopModelId immutable
+    // Check if they exist in the payload and actively differ from the current DB record
+    if (updateData.serialNumber && updateData.serialNumber !== laptop.serialNumber) {
+      throw new Error("Serial number cannot be changed after creation. Delete this record and re-add it if entered incorrectly.");
+    }
+    if (updateData.laptopModelId && updateData.laptopModelId.toString() !== laptop.laptopModelId.toString()) {
+      throw new Error("Parent laptop model cannot be reassigned. Delete this record and create a new one under the correct model.");
+    }
+
+    // FIX 1: Block illegal status transitions from 'Assigned'
+    if (updateData.status && laptop.status === "Assigned" && updateData.status !== "Assigned") {
+      throw new Error(`Cannot change status from Assigned to ${updateData.status}. Please return the asset from the employee first.`);
+    }
 
     // Handle special transition: If they are marking it "Under Repair"
     if (updateData.status === "Under Repair" && laptop.status !== "Under Repair") {

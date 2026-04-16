@@ -32,7 +32,7 @@ const EmployeeModelSchema = new mongoose.Schema(
       required: true 
     },
     joinDate: { 
-      type: String, 
+      type: Date, 
       required: true 
     },
     location: { 

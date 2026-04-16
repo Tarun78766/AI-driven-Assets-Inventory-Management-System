@@ -1,79 +1,64 @@
 const mongoose = require("mongoose");
 
-/**
- * SoftwareModel Schema
- * Represents a software license entry in our database.
- * The schema matches the exact fields needed by the React `Software.jsx` frontend.
- */
 const SoftwareModelSchema = new mongoose.Schema(
   {
-    name: { 
-      type: String, 
-      required: true, 
-      trim: true 
-    },
-    category: { 
-      type: String, 
-      required: true 
-      // Example: 'Productivity', 'Design', 'Communication', 'Development', etc.
-    },
-    licenseType: { 
-      type: String, 
-      required: true 
-      // Example: 'Subscription', 'Per Seat', 'Perpetual', 'Open Source'
-    },
-    vendor: { 
-      type: String, 
-      required: true 
-    },
-    totalLicenses: { 
-      type: Number, 
+    name: {
+      type: String,
       required: true,
-      min: [1, "Total licenses must be at least 1"]
     },
-    usedLicenses: { 
-      type: Number, 
+    vendor: {
+      type: String,
+      required: true,
+    },
+    version: {
+      type: String,
+    },
+    category: {
+      type: String,
+      enum: [
+        "Productivity",
+        "Design",
+        "Communication",
+        "Development",
+        "Engineering",
+        "Project Management",
+        "Analytics",
+        "QA",
+      ],
+    },
+    licenseType: {
+      type: String,
+      enum: ["Subscription", "Per Seat", "Perpetual", "Open Source"],
+    },
+    totalLicenses: {
+      type: Number,
+      required: true,
+      
+    },
+    usedLicenses: {
+      type: Number,
       default: 0,
-      min: [0, "Used licenses cannot be negative"],
-      validate: {
-          validator: function (value) {
-          return value <= this.totalLicenses;
-        },
-        message: "Used licenses cannot exceed total licenses" 
-      }
     },
-    expiryDate: { 
-      // We can store it as a basic String (YYYY-MM-DD) or Mongoose Date.
-      // String is okay if that's what the frontend form sends directly.
-      type: String, 
-      required: true 
+    expiryDate: {
+      type: Date,
+      required: true,
     },
-    renewalStatus: { 
+    renewalStatus: {
       type: String,
       enum: ["Active", "Upcoming", "Critical", "Expired"],
-      default: "Active"
     },
-    cost: { 
-      // Monthly/Annual cost for calculating totals
-      type: Number, 
-      required: true 
+    cost: {
+      type: Number,
+      required: true,
     },
-    assignedTo: { 
-      // Array of strings representing Departments like ['Engineering', 'HR']
+    assignedTo: {
       type: [String],
-      default: []
     },
-    version: { 
-      type: String 
+    notes: {
+      type: String,
     },
-    notes: { 
-      type: String 
-    }
   },
-  { 
-    // Adds createdAt and updatedAt automatic fields
-    timestamps: true 
-  }
+  { timestamps: true }
 );
 
 module.exports = mongoose.model("SoftwareModel", SoftwareModelSchema);

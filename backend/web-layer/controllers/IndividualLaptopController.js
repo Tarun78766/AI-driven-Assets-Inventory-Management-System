@@ -1,3 +1,4 @@
+
 const individualLaptopService = require("../../service-layer/services/IndividualLaptopService");
 
 /**
@@ -8,6 +9,7 @@ const individualLaptopService = require("../../service-layer/services/Individual
 // 1. ADD a new physical laptop
 const addPhysicalLaptop = async (req, res) => {
   try {
+
     const newHardware = await individualLaptopService.addPhysicalLaptop(req.body);
     res.status(201).json({
       success: true,
@@ -22,12 +24,36 @@ const addPhysicalLaptop = async (req, res) => {
 // 2. READ All physical laptops
 const getAllPhysicalLaptops = async (req, res) => {
   try {
-    const filters = req.query || {};
-    const hardwareList = await individualLaptopService.getAllPhysicalLaptops(filters);
+    const filter = {};
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+    const status = req.query.status || "";
+
+    if(search){
+      filter.$or = [
+        {name: {$regex: search, $options: "i"}},
+        {serialNumber: {$regex: search, $options: "i"}},
+        {modelName: {$regex: search, $options: "i"}},
+      ]
+    }
+    
+    if(status && status !== "All"){
+      filter.status = status;
+    }
+    
+    if(req.query.laptopModelId){
+      filter.laptopModelId = req.query.laptopModelId;
+    }
+    
+    const { hardwareList, totalCount } = await individualLaptopService.getAllPhysicalLaptops(page, limit, filter);
+    
     res.status(200).json({
       success: true,
-      count: hardwareList.length,
-      data: hardwareList
+      data: hardwareList,
+      currentPage: page,
+      totalPages: Math.ceil(totalCount / limit),
+      totalModels: totalCount
     });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error fetching physical laptops." });

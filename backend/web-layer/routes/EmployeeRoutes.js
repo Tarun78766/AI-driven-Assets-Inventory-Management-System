@@ -3,7 +3,8 @@ const router = express.Router();
 
 // Import our Employee Controller and our Security Middleware
 const employeeController = require("../controllers/EmployeeController");
-const authMiddleware = require("../middlewares/AuthMiddleware");
+const authMiddleware = require("../middlewares/authMiddleware");
+const restrictTo = authMiddleware.restrictTo;
 
 /**
  * Employee Routes 
@@ -16,22 +17,22 @@ router.use(authMiddleware);
 
 // Route:  POST /api/employees
 // Action: Save a newly hired employee to the system
-router.post("/", employeeController.createEmployee);
+router.post("/",restrictTo("admin", "manager"), employeeController.createEmployee);
 
 // Route:  GET /api/employees
 // Action: Send back the array of all employees
-router.get("/", employeeController.getAllEmployees);
+router.get("/",restrictTo("admin", "manager"), employeeController.getAllEmployees);
 
 // Route:  GET /api/employees/:id
 // Action: Fetch exactly one employee file based on their MongoDB ID
-router.get("/:id", employeeController.getEmployeeById);
+router.get("/:id",restrictTo("admin", "manager"), employeeController.getEmployeeById);
 
 // Route:  PUT /api/employees/:id
 // Action: Edit an existing employee's details (like promoting them or changing their location)
-router.put("/:id", employeeController.updateEmployee);
+router.put("/:id",restrictTo("admin", "manager"), employeeController.updateEmployee);
 
 // Route:  DELETE /api/employees/:id
 // Action: Remove an employee completely
-router.delete("/:id", employeeController.deleteEmployee);
+router.delete("/:id",restrictTo("admin", "manager"), employeeController.deleteEmployee);
 
 module.exports = router;

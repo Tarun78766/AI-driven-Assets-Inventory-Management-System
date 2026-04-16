@@ -8,49 +8,52 @@ const mongoose = require("mongoose");
  */
 const IndividualLaptopSchema = new mongoose.Schema(
   {
+    index: {
+      type: Number,
+    },
     // The "Parent" Catalog Model (e.g., links to "Dell XPS 15")
     laptopModelId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "LaptopModel",
-      required: true
+      required: true,
     },
     // The unique identifier physically stamped on the laptop chassis
     serialNumber: {
       type: String,
       required: true,
       unique: true, // Prevents accidentally adding the same physical laptop twice
-      trim: true
+      trim: true,
     },
     // Useful for grouping in UI without a huge JOIN
     modelName: {
       type: String,
-      required: true
+      required: true,
     },
     // Where is the physical laptop right now?
     status: {
       type: String,
       enum: ["Available", "Assigned", "Under Repair", "Retired"],
-      default: "Available"
+      default: "Available",
     },
     // If "Assigned", who currently holds it?
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "EmployeeModel",
-      default: null
+      default: null,
     },
     // Details on when the company acquired this specific slice of hardware
     purchaseDate: {
-      type: String
+      type: String,
     },
     // Extra notes if a screen is scratched or a key is broken
     conditionNotes: {
       type: String,
-      default: ""
-    }
+      default: "",
+    },
   },
-  { 
-    timestamps: true 
-  }
+  {
+    timestamps: true,
+  },
 );
 
 module.exports = mongoose.model("IndividualLaptop", IndividualLaptopSchema);

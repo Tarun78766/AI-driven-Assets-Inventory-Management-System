@@ -1,35 +1,32 @@
 const express = require("express");
 const router = express.Router();
+const SoftwareController = require("../controllers/SoftwareController");
 
-// Import our Controller and the Authentication Middleware
-const softwareController = require("../controllers/SoftwareController");
-const authMiddleware = require("../middlewares/AuthMiddleware");
+// Middlewares
+const authMiddleware = require("../middlewares/authMiddleware");
 
-/**
- * Software Routes (Mounted at /api/software in app.js)
- * We use `router.use(authMiddleware)` to make sure every request
- * hitting these endpoints carries a valid JSON Web Token from a logged-in user.
- */
+// Custom restrictTo middleware for this module
+const restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: "Access Denied: You do not have permission to perform this action.",
+      });
+    }
+    next();
+  };
+};
+
+// All software routes require authentication and manager/admin role
 router.use(authMiddleware);
+router.use(restrictTo("Admin", "Manager"));
 
-// Route:  POST /api/software
-// Action: Create a new software record
-router.post("/", softwareController.createSoftware);
-
-// Route:  GET /api/software
-// Action: Get all software records
-router.get("/", softwareController.getAllSoftware);
-
-// Route:  GET /api/software/:id
-// Action: Get a single specific software record by database ID
-router.get("/:id", softwareController.getSoftwareById);
-
-// Route:  PUT /api/software/:id
-// Action: Update existing software details
-router.put("/:id", softwareController.updateSoftware);
-
-// Route:  DELETE /api/software/:id
-// Action: Wipe the software record completely
-router.delete("/:id", softwareController.deleteSoftware);
+// Order is crucial here. /tracked MUST come before /:id
+router.get("/tracked", SoftwareController.getTrackedSoftware);
+router.get("/", SoftwareController.getAllSoftwares);
+router.post("/", SoftwareController.createSoftware);
+router.put("/:id", SoftwareController.updateSoftware);
+router.delete("/:id", SoftwareController.deleteSoftware);
 
 module.exports = router;
