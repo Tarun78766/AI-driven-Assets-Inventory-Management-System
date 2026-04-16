@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import "./Software.css";
 import {
   Search,
@@ -24,132 +24,18 @@ import {
 } from "lucide-react";
 import Navbar from "../../components/navBar/NavBar";
 import SideBar from "../../components/sideBar/SideBar";
+import {
+  addSoftware,
+  getSoftwares,
+  updateSoftware,
+  deleteSoftware,
+} from "./SoftwareAPI";
+import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 10;
 
 /* ─── Initial Data ─────────────────────── */
-const INITIAL_SOFTWARE = [
-  {
-    id: 1,
-    name: "Microsoft Office 365",
-    category: "Productivity",
-    licenseType: "Subscription",
-    vendor: "Microsoft",
-    totalLicenses: 300,
-    usedLicenses: 278,
-    expiryDate: "2025-12-31",
-    renewalStatus: "Upcoming",
-    cost: 12.5,
-    assignedTo: ["Engineering", "HR", "Finance"],
-    version: "16.0",
-    notes: "Enterprise plan, includes Teams & SharePoint",
-  },
-  {
-    id: 2,
-    name: "Adobe Creative Suite",
-    category: "Design",
-    licenseType: "Subscription",
-    vendor: "Adobe",
-    totalLicenses: 50,
-    usedLicenses: 48,
-    expiryDate: "2025-03-15",
-    renewalStatus: "Critical",
-    cost: 54.99,
-    assignedTo: ["Design", "Marketing"],
-    version: "2024",
-    notes: "Full Creative Cloud access",
-  },
-  {
-    id: 3,
-    name: "Slack",
-    category: "Communication",
-    licenseType: "Subscription",
-    vendor: "Salesforce",
-    totalLicenses: 1000,
-    usedLicenses: 842,
-    expiryDate: "2026-01-15",
-    renewalStatus: "Active",
-    cost: 7.25,
-    assignedTo: ["All Departments"],
-    version: "Business+",
-    notes: "Company-wide communication tool",
-  },
-  {
-    id: 4,
-    name: "GitHub Enterprise",
-    category: "Development",
-    licenseType: "Per Seat",
-    vendor: "GitHub Inc.",
-    totalLicenses: 120,
-    usedLicenses: 115,
-    expiryDate: "2025-08-30",
-    renewalStatus: "Upcoming",
-    cost: 21.0,
-    assignedTo: ["Engineering"],
-    version: "Enterprise 3.x",
-    notes: "Includes Actions, Packages, Security",
-  },
-  {
-    id: 5,
-    name: "Zoom Business",
-    category: "Communication",
-    licenseType: "Subscription",
-    vendor: "Zoom",
-    totalLicenses: 200,
-    usedLicenses: 134,
-    expiryDate: "2026-03-01",
-    renewalStatus: "Active",
-    cost: 19.99,
-    assignedTo: ["Management", "HR", "Sales"],
-    version: "5.x",
-    notes: "Video conferencing for remote teams",
-  },
-  {
-    id: 6,
-    name: "AutoCAD",
-    category: "Engineering",
-    licenseType: "Perpetual",
-    vendor: "Autodesk",
-    totalLicenses: 15,
-    usedLicenses: 15,
-    expiryDate: "2025-02-28",
-    renewalStatus: "Expired",
-    cost: 220.0,
-    assignedTo: ["Engineering"],
-    version: "2024",
-    notes: "CAD design tool — renewal overdue",
-  },
-  {
-    id: 7,
-    name: "Jira Software",
-    category: "Project Management",
-    licenseType: "Subscription",
-    vendor: "Atlassian",
-    totalLicenses: 150,
-    usedLicenses: 102,
-    expiryDate: "2026-06-30",
-    renewalStatus: "Active",
-    cost: 8.15,
-    assignedTo: ["Engineering", "QA", "Management"],
-    version: "Cloud",
-    notes: "Agile project tracking",
-  },
-  {
-    id: 8,
-    name: "Tableau Desktop",
-    category: "Analytics",
-    licenseType: "Per Seat",
-    vendor: "Salesforce",
-    totalLicenses: 25,
-    usedLicenses: 22,
-    expiryDate: "2025-11-10",
-    renewalStatus: "Upcoming",
-    cost: 70.0,
-    assignedTo: ["Analytics", "Finance"],
-    version: "2024.1",
-    notes: "Data visualisation and BI",
-  },
-];
+const INITIAL_SOFTWARE = [];
 
 const CATEGORIES = [
   "All",
@@ -193,7 +79,6 @@ const EMPTY_FORM = {
   licenseType: "Subscription",
   vendor: "",
   totalLicenses: "",
-  usedLicenses: "",
   expiryDate: "",
   renewalStatus: "Active",
   cost: "",
@@ -201,9 +86,13 @@ const EMPTY_FORM = {
   version: "",
   notes: "",
 };
+const isTrackedType = (type) =>
+  ["Subscription", "Per Seat", "Licensed"].includes(type);
 
-const usagePercent = (s) =>
-  Math.round((s.usedLicenses / s.totalLicenses) * 100);
+const usagePercent = (s) => {
+  if (!s.totalLicenses || s.totalLicenses === 0) return 0;
+  return Math.round((s.usedLicenses / s.totalLicenses) * 100);
+};
 const daysUntilExpiry = (d) =>
   Math.ceil((new Date(d) - new Date()) / (1000 * 60 * 60 * 24));
 
@@ -219,7 +108,9 @@ const statusConfig = {
 };
 
 const Software = () => {
+  const navigate = useNavigate();
   const [software, setSoftware] = useState(INITIAL_SOFTWARE);
+  const TRACKED_TYPES = ["Subscription", "Per Seat", "Licensed"];
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -231,29 +122,52 @@ const Software = () => {
   const [formErrors, setFormErrors] = useState({});
   const [toast, setToast] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [dashboardStats, setDashboardStats] = useState({
+    total: 0,
+    active: 0,
+    critical: 0,
+    upcoming: 0,
+    totalLic: 0,
+    usedLic: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const isTracked = TRACKED_TYPES.includes(formData.licenseType);
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3200);
   };
 
-  const filtered = useMemo(() => {
-    return software.filter((s) => {
-      const matchSearch =
-        s.name.toLowerCase().includes(search.toLowerCase()) ||
-        s.vendor.toLowerCase().includes(search.toLowerCase());
-      const matchCat = catFilter === "All" || s.category === catFilter;
-      const matchStatus =
-        statusFilter === "All" || s.renewalStatus === statusFilter;
-      return matchSearch && matchCat && matchStatus;
-    });
-  }, [software, search, catFilter, statusFilter]);
+  const fetchSoftwares = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getSoftwares(
+        currentPage,
+        ITEMS_PER_PAGE,
+        search,
+        catFilter,
+        statusFilter,
+      );
+      setSoftware(response.data);
+      setTotalCount(response.totalCount || 0);
+      if (response.stats) setDashboardStats(response.stats);
+    } catch (error) {
+      console.error("Error fetching softwares:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSoftwares();
+  }, [currentPage, search, catFilter, statusFilter]);
 
   // Pagination
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedSoftware = filtered.slice(startIndex, endIndex);
+  const endIndex = startIndex + software.length;
 
   const handleSearch = (value) => {
     setSearch(value);
@@ -296,30 +210,23 @@ const Software = () => {
     return pages;
   };
 
-  const stats = useMemo(
-    () => ({
-      total: software.length,
-      active: software.filter((s) => s.renewalStatus === "Active").length,
-      critical: software.filter(
-        (s) => s.renewalStatus === "Critical" || s.renewalStatus === "Expired",
-      ).length,
-      upcoming: software.filter((s) => s.renewalStatus === "Upcoming").length,
-      totalLic: software.reduce((a, s) => a + s.totalLicenses, 0),
-      usedLic: software.reduce((a, s) => a + s.usedLicenses, 0),
-    }),
-    [software],
-  );
+  // dashboardStats replaces local useMemo stats.
 
   const validate = (f) => {
     const e = {};
     if (!f.name.trim()) e.name = "Software name is required";
     if (!f.vendor.trim()) e.vendor = "Vendor is required";
-    if (!f.totalLicenses || f.totalLicenses < 1)
-      e.totalLicenses = "Must be at least 1";
+
     if (Number(f.usedLicenses) > Number(f.totalLicenses))
       e.usedLicenses = "Cannot exceed total";
-    if (!f.expiryDate) e.expiryDate = "Expiry date is required";
-    if (!f.cost || f.cost < 0) e.cost = "Enter a valid cost";
+    const isTracked = TRACKED_TYPES.includes(f.licenseType);
+
+    if (isTracked) {
+      if (!f.expiryDate) e.expiryDate = "Expiry date is required";
+      if (!f.cost || f.cost < 0) e.cost = "Enter a valid cost";
+      if (!f.totalLicenses || f.totalLicenses < 1)
+        e.totalLicenses = "Must be at least 1";
+    }
     return e;
   };
 
@@ -332,7 +239,11 @@ const Software = () => {
 
   const handleEdit = (item) => {
     setEditItem(item);
-    setFormData({ ...item, assignedTo: [...item.assignedTo] });
+    setFormData({
+      ...item,
+      expiryDate: item.expiryDate ? item.expiryDate.split("T")[0] : "",
+      assignedTo: [...item.assignedTo],
+    });
     setFormErrors({});
     setShowModal(true);
   };
@@ -345,18 +256,21 @@ const Software = () => {
     setDeleteConfirm(item);
   };
 
-  const handleDelete = (id) => {
-    const name = software.find((s) => s.id === id)?.name;
-    setSoftware((prev) => prev.filter((s) => s.id !== id));
-    setDeleteConfirm(null);
+  const handleDelete = async (id) => {
+    try {
+      await deleteSoftware(id);
+      setDeleteConfirm(null);
+      showToast(`Removed successfully`, "error");
 
-    const newFilteredLength = filtered.length - 1;
-    const newTotalPages = Math.ceil(newFilteredLength / ITEMS_PER_PAGE);
-    if (currentPage > newTotalPages && newTotalPages > 0) {
-      setCurrentPage(newTotalPages);
+      // Attempting to maintain current page if not empty after deletion
+      if (software.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      } else {
+        fetchSoftwares();
+      }
+    } catch (error) {
+      showToast("Failed to remove software", "error");
     }
-
-    showToast(`"${name}" removed`, "error");
   };
 
   const handleCloseModal = () => {
@@ -366,7 +280,7 @@ const Software = () => {
     setFormErrors({});
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate(formData);
     if (Object.keys(errs).length) {
@@ -375,40 +289,47 @@ const Software = () => {
     }
 
     if (editItem) {
-      setSoftware((prev) =>
-        prev.map((s) =>
-          s.id === editItem.id
-            ? {
-                ...formData,
-                id: editItem.id,
-                totalLicenses: Number(formData.totalLicenses),
-                usedLicenses: Number(formData.usedLicenses),
-                cost: Number(formData.cost),
-              }
-            : s,
-        ),
-      );
-      showToast(`"${formData.name}" updated successfully`);
+      try {
+        await updateSoftware(editItem._id, formData);
+        showToast(`"${formData.name}" updated successfully`);
+        fetchSoftwares();
+      } catch (error) {
+        showToast(`"${formData.name}" failed to update`, "error");
+      }
     } else {
-      setSoftware((prev) => [
-        {
-          ...formData,
-          id: Date.now(),
-          totalLicenses: Number(formData.totalLicenses),
-          usedLicenses: Number(formData.usedLicenses),
-          cost: Number(formData.cost),
-        },
-        ...prev,
-      ]);
-      showToast(`"${formData.name}" added successfully`);
+      try {
+        await addSoftware(formData);
+        showToast(`"${formData.name}" added successfully`);
+        if (currentPage === 1) fetchSoftwares();
+        else setCurrentPage(1);
+      } catch (error) {
+        showToast(`"${formData.name}" failed to add`, "error");
+      }
     }
     handleCloseModal();
   };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "licenseType") {
+      const isTracked = TRACKED_TYPES.includes(value);
+
+      setFormData((prev) => ({
+        ...prev,
+        licenseType: value,
+        cost: isTracked ? prev.cost : "",
+        expiryDate: isTracked ? prev.expiryDate : "",
+        totalLicenses: isTracked ? prev.totalLicenses : 1, // 🔥 FIX
+      }));
+
+      return;
+    }
+
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const toggleDept = (dept) => {
@@ -467,7 +388,7 @@ const Software = () => {
               <Package size={22} />
             </div>
             <div>
-              <div className="sw-stat-value">{stats.total}</div>
+              <div className="sw-stat-value">{dashboardStats.total}</div>
               <div className="sw-stat-label">Total Software</div>
             </div>
           </div>
@@ -479,7 +400,7 @@ const Software = () => {
               <CheckCircle size={22} />
             </div>
             <div>
-              <div className="sw-stat-value">{stats.active}</div>
+              <div className="sw-stat-value">{dashboardStats.active}</div>
               <div className="sw-stat-label">Active Licenses</div>
             </div>
           </div>
@@ -491,7 +412,7 @@ const Software = () => {
               <AlertTriangle size={22} />
             </div>
             <div>
-              <div className="sw-stat-value">{stats.critical}</div>
+              <div className="sw-stat-value">{dashboardStats.critical}</div>
               <div className="sw-stat-label">Critical / Expired</div>
             </div>
           </div>
@@ -503,7 +424,7 @@ const Software = () => {
               <Clock size={22} />
             </div>
             <div>
-              <div className="sw-stat-value">{stats.upcoming}</div>
+              <div className="sw-stat-value">{dashboardStats.upcoming}</div>
               <div className="sw-stat-label">Upcoming Renewals</div>
             </div>
           </div>
@@ -516,8 +437,8 @@ const Software = () => {
             </div>
             <div>
               <div className="sw-stat-value">
-                {stats.usedLic}
-                <span>/{stats.totalLic}</span>
+                {dashboardStats.usedLic}
+                <span>/{dashboardStats.totalLic}</span>
               </div>
               <div className="sw-stat-label">Licenses Used</div>
             </div>
@@ -544,36 +465,41 @@ const Software = () => {
           </div>
 
           <div className="sw-filter-group">
-            <Filter size={15} className="sw-filter-icon" />
-            <select
-              className="sw-select"
-              value={catFilter}
-              onChange={(e) => handleFilterChange(setCatFilter)(e.target.value)}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-            <ChevronDown size={14} className="sw-select-arrow" />
+            <span className="sw-filter-label">Category:</span>
+            <div className="sw-select-wrap">
+              <select
+                className="sw-select"
+                value={catFilter}
+                onChange={(e) =>
+                  handleFilterChange(setCatFilter)(e.target.value)
+                }
+              >
+                {CATEGORIES.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="sw-filter-group">
-            <select
-              className="sw-select"
-              value={statusFilter}
-              onChange={(e) =>
-                handleFilterChange(setStatusFilter)(e.target.value)
-              }
-            >
-              {STATUSES.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
-            <ChevronDown size={14} className="sw-select-arrow" />
+            <span className="sw-filter-label">Status:</span>
+            <div className="sw-select-wrap">
+              <select
+                className="sw-select"
+                value={statusFilter}
+                onChange={(e) =>
+                  handleFilterChange(setStatusFilter)(e.target.value)
+                }
+              >
+                {STATUSES.map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <span className="sw-result-count">
-            {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            {totalCount} result{totalCount !== 1 ? "s" : ""}
           </span>
         </div>
 
@@ -593,7 +519,22 @@ const Software = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedSoftware.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan="9" className="sw-empty">
+                    <RefreshCw
+                      size={40}
+                      style={{
+                        animation: "spin 1s linear infinite",
+                        color: "#6366f1",
+                        marginBottom: "10px",
+                        opacity: 1,
+                      }}
+                    />
+                    <p>Fetching software...</p>
+                  </td>
+                </tr>
+              ) : software.length === 0 ? (
                 <tr>
                   <td colSpan="9" className="sw-empty">
                     <Package size={48} strokeWidth={1.2} />
@@ -602,14 +543,14 @@ const Software = () => {
                   </td>
                 </tr>
               ) : (
-                paginatedSoftware.map((item) => {
+                software.map((item) => {
                   const pct = usagePercent(item);
                   const days = daysUntilExpiry(item.expiryDate);
                   const cfg = statusConfig[item.renewalStatus];
                   const Icon = cfg.icon;
 
                   return (
-                    <tr key={item.id} className="sw-row">
+                    <tr key={item._id} className="sw-row">
                       <td>
                         <div className="sw-name-cell">
                           <div className="sw-name-avatar">
@@ -646,35 +587,27 @@ const Software = () => {
                         </div>
                       </td>
                       <td>
-                        <div className="sw-usage-wrap">
-                          <div className="sw-usage-bar-bg">
-                            <div
-                              className="sw-usage-bar-fill"
-                              style={{
-                                width: `${pct}%`,
-                                background:
-                                  pct >= 95
-                                    ? "#F43F5E"
-                                    : pct >= 80
-                                      ? "#F59E0B"
-                                      : "#6366F1",
-                              }}
-                            />
+                        {isTrackedType(item.licenseType) ? (
+                          <div className="sw-usage-wrap">
+                            <div className="sw-usage-bar-bg">
+                              <div
+                                className="sw-usage-bar-fill"
+                                style={{
+                                  width: `${pct}%`,
+                                  background:
+                                    pct >= 95
+                                      ? "#F43F5E"
+                                      : pct >= 80
+                                        ? "#F59E0B"
+                                        : "#6366F1",
+                                }}
+                              />
+                            </div>
+                            <span className="sw-usage-pct">{pct}%</span>
                           </div>
-                          <span
-                            className="sw-usage-pct"
-                            style={{
-                              color:
-                                pct >= 95
-                                  ? "#F43F5E"
-                                  : pct >= 80
-                                    ? "#F59E0B"
-                                    : "#6366F1",
-                            }}
-                          >
-                            {pct}%
-                          </span>
-                        </div>
+                        ) : (
+                          <span className="sw-na">N/A</span>
+                        )}
                       </td>
                       <td>
                         <div className="sw-expiry">
@@ -730,6 +663,22 @@ const Software = () => {
                           >
                             <Eye size={15} />
                           </button>
+
+                          {/* ✅ Only show for tracked license types */}
+                          {TRACKED_TYPES.includes(item.licenseType) && (
+                            <button
+                              className="sw-action-btn sw-action-btn--seats"
+                              title="View License Seats"
+                              onClick={() =>
+                                navigate(
+                                  `/software/individual?softwareId=${item._id}&softwareName=${item.name}`,
+                                )
+                              }
+                            >
+                              <Key size={15} />
+                            </button>
+                          )}
+
                           <button
                             className="sw-action-btn sw-action-btn--edit"
                             title="Edit"
@@ -755,11 +704,11 @@ const Software = () => {
         </div>
 
         {/* Enhanced Pagination */}
-        {filtered.length > 0 && (
+        {totalCount > 0 && (
           <div className="sw-pagination">
             <p className="sw-pagination-info">
-              Showing {startIndex + 1}-{Math.min(endIndex, filtered.length)} of{" "}
-              {filtered.length} software
+              Showing {startIndex + 1}-{Math.min(endIndex, totalCount)} of{" "}
+              {totalCount} software
             </p>
             <div className="sw-pagination-buttons">
               <button
@@ -935,15 +884,16 @@ const Software = () => {
                       <input
                         type="number"
                         name="totalLicenses"
-                        value={formData.totalLicenses}
+                        value={isTracked ? formData.totalLicenses : 1}
                         onChange={handleFormChange}
                         placeholder="e.g. 100"
-                        min="1"
-                        className={
-                          formErrors.totalLicenses
-                            ? "sw-input sw-input--error"
-                            : "sw-input"
-                        }
+                        min={isTracked ? "1" : "0"}
+                        disabled={!isTracked}
+                        className={`
+                          sw-input
+                          ${formErrors.totalLicenses ? "sw-input--error" : ""}
+                          ${!isTracked ? "sw-input--default" : ""}
+                        `}
                       />
                       {formErrors.totalLicenses && (
                         <span className="sw-field-error">
@@ -952,23 +902,28 @@ const Software = () => {
                       )}
                     </div>
                     <div className="sw-form-group">
-                      <label>Used Licenses</label>
+                      <label>
+                        Cost / Month ($){" "}
+                        <span style={{ color: "#ef4444" }}>*</span>
+                      </label>
                       <input
                         type="number"
-                        name="usedLicenses"
-                        value={formData.usedLicenses}
+                        name="cost"
+                        value={formData.cost}
+                        step="0.01"
                         onChange={handleFormChange}
-                        placeholder="e.g. 80"
+                        disabled={!isTracked}
+                        placeholder="e.g. 12.50"
                         min="0"
-                        className={
-                          formErrors.usedLicenses
-                            ? "sw-input sw-input--error"
-                            : "sw-input"
-                        }
+                        className={`
+                          sw-input
+                          ${formErrors.cost ? "sw-input--error" : ""}
+                          ${!isTracked ? "sw-input--default" : ""}
+                        `}
                       />
-                      {formErrors.usedLicenses && (
+                      {formErrors.cost && (
                         <span className="sw-field-error">
-                          {formErrors.usedLicenses}
+                          {formErrors.cost}
                         </span>
                       )}
                     </div>
@@ -984,11 +939,12 @@ const Software = () => {
                         name="expiryDate"
                         value={formData.expiryDate}
                         onChange={handleFormChange}
-                        className={
-                          formErrors.expiryDate
-                            ? "sw-input sw-input--error"
-                            : "sw-input"
-                        }
+                        disabled={!isTracked}
+                        className={`
+                          sw-input
+                          ${formErrors.expiryDate ? "sw-input--error" : ""}
+                          ${!isTracked ? "sw-input--default" : ""}
+                        `}
                       />
                       {formErrors.expiryDate && (
                         <span className="sw-field-error">
@@ -996,34 +952,6 @@ const Software = () => {
                         </span>
                       )}
                     </div>
-                    <div className="sw-form-group">
-                      <label>
-                        Cost / Month ($){" "}
-                        <span style={{ color: "#ef4444" }}>*</span>
-                      </label>
-                      <input
-                        type="number"
-                        name="cost"
-                        value={formData.cost}
-                        step="0.01"
-                        onChange={handleFormChange}
-                        placeholder="e.g. 12.50"
-                        min="0"
-                        className={
-                          formErrors.cost
-                            ? "sw-input sw-input--error"
-                            : "sw-input"
-                        }
-                      />
-                      {formErrors.cost && (
-                        <span className="sw-field-error">
-                          {formErrors.cost}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="sw-form-row">
                     <div className="sw-form-group">
                       <label>Renewal Status</label>
                       <div className="sw-select-wrap">
@@ -1313,7 +1241,7 @@ const Software = () => {
                 </button>
                 <button
                   className="sw-btn sw-btn--danger"
-                  onClick={() => handleDelete(deleteConfirm.id)}
+                  onClick={() => handleDelete(deleteConfirm._id)}
                 >
                   <Trash2 size={15} /> Delete
                 </button>

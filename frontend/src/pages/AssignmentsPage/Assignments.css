@@ -198,7 +198,7 @@
 .assign-filters {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 40px;
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
@@ -259,6 +259,7 @@
 .assign-filter-group {
   position: relative;
   display: flex;
+  gap:8px;
   align-items: center;
 }
 
@@ -288,6 +289,12 @@
 
 .assign-filter-group .assign-filter-icon + .assign-select {
   padding-left: 34px;
+}
+.assign-filter-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  white-space: nowrap;
 }
 
 .assign-select:focus {

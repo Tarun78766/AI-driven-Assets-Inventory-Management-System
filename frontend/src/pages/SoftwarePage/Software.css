@@ -216,7 +216,7 @@ width: calc(100% - 130px);
 .sw-filters {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 40px;
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
@@ -279,7 +279,14 @@ width: calc(100% - 130px);
 .sw-filter-group {
   position: relative;
   display: flex;
-  align-items: center;
+   align-items: center;
+  gap: 8px;
+}
+.sw-filter-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  white-space: nowrap;
 }
 
 .sw-filter-icon {
@@ -553,6 +560,14 @@ width: calc(100% - 130px);
   display: flex;
   gap: 8px;
 }
+.sw-action-btn--seats {
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.sw-action-btn--seats:hover {
+  background: rgba(99, 102, 241, 0.18);
+}
 
 .sw-action-btn {
   width: 32px;
@@ -791,6 +806,21 @@ width: calc(100% - 130px);
 
 .sw-input--error:focus {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Default (auto-filled) field styling */
+.sw-input--default {
+  background-color: #f3f4f6;   /* light grey */
+  color: #6b7280;              /* muted text */
+  cursor: not-allowed;
+  border: 1px dashed #9ca3af;
+  opacity: 0.9;
+}
+
+/* Optional: add subtle label hint */
+.sw-input--default::placeholder {
+  color: #9ca3af;
+  font-style: italic;
 }
 
 .sw-select-wrap {

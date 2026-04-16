@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { registerUser } from "./RegisterAPI";
+
 import {
   Mail,
   Lock,
@@ -28,10 +30,9 @@ const SignUp = () => {
     email: "",
     phone: "",
     department: "",
-    role: "Employee",
     password: "",
     confirmPassword: "",
-    agreeTerms: false,
+    // agreeTerms: false,
   });
 
   const [fieldErrors, setFieldErrors] = useState({});
@@ -85,7 +86,7 @@ const SignUp = () => {
     const newValue = type === "checkbox" ? checked : value;
     setError("");
     setFormData((prev) => ({ ...prev, [name]: newValue }));
-    if (name !== "agreeTerms" && name !== "role" && name !== "department") {
+    if (name !== "agreeTerms"  && name !== "department") {
       setFieldErrors((prev) => ({
         ...prev,
         [name]: validateField(name, newValue),
@@ -93,39 +94,55 @@ const SignUp = () => {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    /* run all validations */
-    const errors = {};
-    [
-      "firstName",
-      "lastName",
-      "email",
-      "phone",
-      "password",
-      "confirmPassword",
-    ].forEach((f) => {
-      const msg = validateField(f, formData[f]);
-      if (msg) errors[f] = msg;
-    });
-    if (!formData.agreeTerms) errors.agreeTerms = "You must accept the terms";
+  setError("");
+  setLoading(true);
 
-    if (Object.keys(errors).length) {
-      setFieldErrors(errors);
-      setError("Please fix the errors below before continuing.");
-      return;
-    }
+  // 🔥 VALIDATION
+  const errors = {};
+  ["firstName", "lastName", "email", "password", "confirmPassword"].forEach((f) => {
+    const msg = validateField(f, formData[f]);
+    if (msg) errors[f] = msg;
+  });
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      setTimeout(() => navigate("/login"), 2500);
-    }, 1500);
-  };
+  if (Object.keys(errors).length) {
+    setFieldErrors(errors);
+    setError("Please fix the errors below");
+    setLoading(false);
+    return;
+  }
 
+  // 🔥 PASSWORD MATCH CHECK
+  if (formData.password !== formData.confirmPassword) {
+    setError("Passwords do not match");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    // 🔥 CLEAN DATA (VERY IMPORTANT)
+    const cleanData = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      phone: formData.phone,
+      department: formData.department,
+    };
+
+    await registerUser(cleanData);
+
+    setSuccess(true);
+
+    setTimeout(() => navigate("/login"), 2000);
+  } catch (err) {
+    setError(err.response?.data?.message || "Registration failed");
+  } finally {
+    setLoading(false);
+  }
+};
   const strength = getPasswordStrength(formData.password);
 
   if (success) {
@@ -310,25 +327,6 @@ const SignUp = () => {
                     onChange={handleChange}
                   />
                 </div>
-              </div>
-            </div>
-
-            {/* ── Role ── */}
-            <div className="form-group">
-              <label htmlFor="role">Role</label>
-              <div className="input-wrapper">
-                <ShieldCheck className="input-icon" size={20} />
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="Employee">Employee</option>
-                  <option value="Manager">Manager</option>
-                  <option value="Admin">Admin</option>
-                </select>
               </div>
             </div>
 

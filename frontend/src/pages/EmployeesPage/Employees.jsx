@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import "./Employees.css";
 import {
   Search,
@@ -19,37 +19,69 @@ import {
   MapPin,
   Calendar,
   Shield,
+  RefreshCw,
 } from "lucide-react";
 
 import Navbar from "../../components/navBar/NavBar";
 import Sidebar from "../../components/sideBar/SideBar";
+import {
+  addEmployee,
+  getEmployees,
+  deleteEmployee,
+  updateEmployee,
+} from "./EmployeesAPI";
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 5;
 
 /* ─── Initial Data ─────────────────────── */
 const INITIAL_EMPLOYEES = [
-  { id: 1, name: "Rajesh Kumar", email: "rajesh.kumar@company.com", phone: "+91 98765 43210", role: "Admin", department: "IT Operations", joinDate: "2020-01-15", location: "Mumbai", status: "Active", assignedLaptops: 1, assignedSoftware: 12 },
-  { id: 2, name: "Priya Sharma", email: "priya.sharma@company.com", phone: "+91 98765 43211", role: "Manager", department: "Engineering", joinDate: "2019-03-20", location: "Bangalore", status: "Active", assignedLaptops: 1, assignedSoftware: 15 },
-  { id: 3, name: "Amit Patel", email: "amit.patel@company.com", phone: "+91 98765 43212", role: "Employee", department: "Design", joinDate: "2021-06-10", location: "Ahmedabad", status: "Active", assignedLaptops: 1, assignedSoftware: 8 },
-  { id: 4, name: "Sneha Reddy", email: "sneha.reddy@company.com", phone: "+91 98765 43213", role: "IT Operations", department: "IT Operations", joinDate: "2020-11-25", location: "Hyderabad", status: "Active", assignedLaptops: 1, assignedSoftware: 10 },
-  { id: 5, name: "Vikram Singh", email: "vikram.singh@company.com", phone: "+91 98765 43214", role: "Manager", department: "Sales", joinDate: "2018-07-14", location: "Delhi", status: "Active", assignedLaptops: 1, assignedSoftware: 9 },
-  { id: 6, name: "Ananya Iyer", email: "ananya.iyer@company.com", phone: "+91 98765 43215", role: "Employee", department: "Marketing", joinDate: "2022-02-01", location: "Chennai", status: "Active", assignedLaptops: 1, assignedSoftware: 7 },
-  { id: 7, name: "Rahul Verma", email: "rahul.verma@company.com", phone: "+91 98765 43216", role: "Employee", department: "Engineering", joinDate: "2021-09-18", location: "Pune", status: "Inactive", assignedLaptops: 0, assignedSoftware: 0 },
-  { id: 8, name: "Kavya Nair", email: "kavya.nair@company.com", phone: "+91 98765 43217", role: "Employee", department: "HR", joinDate: "2020-05-22", location: "Kochi", status: "Active", assignedLaptops: 1, assignedSoftware: 6 },
+  // { id: 1, name: "Rajesh Kumar", email: "rajesh.kumar@company.com", phone: "+91 98765 43210", role: "Admin", department: "IT Operations", joinDate: "2020-01-15", location: "Mumbai", status: "Active", assignedLaptops: 1, assignedSoftware: 12 },
+  // { id: 2, name: "Priya Sharma", email: "priya.sharma@company.com", phone: "+91 98765 43211", role: "Manager", department: "Engineering", joinDate: "2019-03-20", location: "Bangalore", status: "Active", assignedLaptops: 1, assignedSoftware: 15 },
+  // { id: 3, name: "Amit Patel", email: "amit.patel@company.com", phone: "+91 98765 43212", role: "Employee", department: "Design", joinDate: "2021-06-10", location: "Ahmedabad", status: "Active", assignedLaptops: 1, assignedSoftware: 8 },
+  // { id: 4, name: "Sneha Reddy", email: "sneha.reddy@company.com", phone: "+91 98765 43213", role: "IT Operations", department: "IT Operations", joinDate: "2020-11-25", location: "Hyderabad", status: "Active", assignedLaptops: 1, assignedSoftware: 10 },
+  // { id: 5, name: "Vikram Singh", email: "vikram.singh@company.com", phone: "+91 98765 43214", role: "Manager", department: "Sales", joinDate: "2018-07-14", location: "Delhi", status: "Active", assignedLaptops: 1, assignedSoftware: 9 },
+  // { id: 6, name: "Ananya Iyer", email: "ananya.iyer@company.com", phone: "+91 98765 43215", role: "Employee", department: "Marketing", joinDate: "2022-02-01", location: "Chennai", status: "Active", assignedLaptops: 1, assignedSoftware: 7 },
+  // { id: 7, name: "Rahul Verma", email: "rahul.verma@company.com", phone: "+91 98765 43216", role: "Employee", department: "Engineering", joinDate: "2021-09-18", location: "Pune", status: "Inactive", assignedLaptops: 0, assignedSoftware: 0 },
+  // { id: 8, name: "Kavya Nair", email: "kavya.nair@company.com", phone: "+91 98765 43217", role: "Employee", department: "HR", joinDate: "2020-05-22", location: "Kochi", status: "Active", assignedLaptops: 1, assignedSoftware: 6 },
 ];
 
 const ROLES = ["Admin", "IT Operations", "Manager", "Employee"];
-const DEPARTMENTS = ["Engineering", "IT Operations", "HR", "Finance", "Design", "Marketing", "Sales", "Analytics", "QA"];
-const LOCATIONS = ["Mumbai", "Delhi", "Bangalore", "Hyderabad", "Chennai", "Pune", "Ahmedabad", "Kochi"];
+const DEPARTMENTS = [
+  "Engineering",
+  "IT Operations",
+  "HR",
+  "Finance",
+  "Design",
+  "Marketing",
+  "Sales",
+  "Analytics",
+  "QA",
+];
+const LOCATIONS = [
+  "Mumbai",
+  "Delhi",
+  "Bangalore",
+  "Hyderabad",
+  "Chennai",
+  "Pune",
+  "Ahmedabad",
+  "Kochi",
+];
 const STATUSES = ["All", "Active", "Inactive"];
 
 const EMPTY_FORM = {
-  name: "", email: "", phone: "", role: "Employee", department: "", 
-  joinDate: "", location: "", status: "Active"
+  name: "",
+  email: "",
+  phone: "",
+  role: "Employee",
+  department: "",
+  joinDate: "",
+  location: "",
+  status: "Active",
 };
 
 const Employees = () => {
-  const [employees, setEmployees] = useState(INITIAL_EMPLOYEES);
+  const [employees, setEmployees] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [showModal, setShowModal] = useState(false);
@@ -60,28 +92,63 @@ const Employees = () => {
   const [formErrors, setFormErrors] = useState({});
   const [toast, setToast] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [totalEmployees, setTotalEmployees] = useState(0);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+    totalLaptops: 0,
+    totalSoftware: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setCurrentPage(1);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const fetchEmployees = async () => {
+
+    try {
+      setIsLoading(true);
+      const limitNum = Math.min(50, Number(ITEMS_PER_PAGE));
+      const pageNum = Math.max(1, Number(currentPage));
+      const response = await getEmployees(
+        pageNum,
+        limitNum,
+        debouncedSearch,
+        statusFilter,
+      );
+      setEmployees(response.data.data);
+      setTotalPages(response.data.totalPages);
+      setStats(response.data.stats);
+
+      setTotalEmployees(response.data.totalEmployees);
+    } catch (error) {
+      console.log("Failed to fetch employees. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchEmployees();
+  }, [currentPage, debouncedSearch, statusFilter]);
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3200);
   };
 
-  const filtered = useMemo(() => {
-    return employees.filter((emp) => {
-      const matchSearch =
-        emp.name.toLowerCase().includes(search.toLowerCase()) ||
-        emp.email.toLowerCase().includes(search.toLowerCase()) ||
-        emp.department.toLowerCase().includes(search.toLowerCase());
-      const matchStatus = statusFilter === "All" || emp.status === statusFilter;
-      return matchSearch && matchStatus;
-    });
-  }, [employees, search, statusFilter]);
 
   // Pagination
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedEmployees = filtered.slice(startIndex, endIndex);
+  const paginatedEmployees = employees;
 
   const handleSearch = (value) => {
     setSearch(value);
@@ -124,22 +191,13 @@ const Employees = () => {
     return pages;
   };
 
-  const stats = useMemo(
-    () => ({
-      total: employees.length,
-      active: employees.filter((e) => e.status === "Active").length,
-      inactive: employees.filter((e) => e.status === "Inactive").length,
-      totalLaptops: employees.reduce((sum, e) => sum + e.assignedLaptops, 0),
-      totalSoftware: employees.reduce((sum, e) => sum + e.assignedSoftware, 0),
-    }),
-    [employees]
-  );
 
   const validate = (f) => {
     const e = {};
     if (!f.name.trim()) e.name = "Name is required";
     if (!f.email.trim()) e.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) e.email = "Invalid email format";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email))
+      e.email = "Invalid email format";
     if (!f.department) e.department = "Department is required";
     if (!f.joinDate) e.joinDate = "Join date is required";
     if (!f.location) e.location = "Location is required";
@@ -155,7 +213,10 @@ const Employees = () => {
 
   const handleEdit = (item) => {
     setEditItem(item);
-    setFormData({ ...item });
+    setFormData({
+    ...item,
+    joinDate: item.joinDate ? item.joinDate.split("T")[0] : "", // ✅ trims to yyyy-MM-dd
+  });
     setFormErrors({});
     setShowModal(true);
   };
@@ -168,18 +229,17 @@ const Employees = () => {
     setDeleteConfirm(item);
   };
 
-  const handleDelete = (id) => {
-    const name = employees.find((e) => e.id === id)?.name;
-    setEmployees((prev) => prev.filter((e) => e.id !== id));
-    setDeleteConfirm(null);
-
-    const newFilteredLength = filtered.length - 1;
-    const newTotalPages = Math.ceil(newFilteredLength / ITEMS_PER_PAGE);
-    if (currentPage > newTotalPages && newTotalPages > 0) {
-      setCurrentPage(newTotalPages);
+  // ✅ Fix — clean version
+  const handleDelete = async (id) => {
+    const name = employees.find((e) => e._id === id)?.name;
+    try {
+      await deleteEmployee(id);
+      await fetchEmployees();
+      setDeleteConfirm(null);
+      showToast(`"${name}" removed`, "error");
+    } catch (error) {
+      showToast("Failed to delete employee.", "error");
     }
-
-    showToast(`"${name}" removed`, "error");
   };
 
   const handleCloseModal = () => {
@@ -189,31 +249,26 @@ const Employees = () => {
     setFormErrors({});
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const errs = validate(formData);
     if (Object.keys(errs).length) {
       setFormErrors(errs);
       return;
     }
-
-    if (editItem) {
-      setEmployees((prev) =>
-        prev.map((emp) =>
-          emp.id === editItem.id
-            ? { ...formData, id: editItem.id }
-            : emp
-        )
-      );
-      showToast(`"${formData.name}" updated successfully`);
-    } else {
-      setEmployees((prev) => [
-        { ...formData, id: Date.now(), assignedLaptops: 0, assignedSoftware: 0 },
-        ...prev,
-      ]);
-      showToast(`"${formData.name}" added successfully`);
+    try {
+      if (editItem) {
+        await updateEmployee(editItem._id, formData);
+        showToast(`"${formData.name}" updated successfully`);
+      } else {
+        await addEmployee(formData);
+        showToast(`"${formData.name}" added successfully`);
+      }
+      await fetchEmployees();
+      handleCloseModal();
+    } catch (error) {
+      showToast("Failed to save employee.", "error");
     }
-    handleCloseModal();
   };
 
   const handleFormChange = (e) => {
@@ -239,7 +294,11 @@ const Employees = () => {
       <div className="emp-page">
         {toast && (
           <div className={`emp-toast emp-toast--${toast.type}`}>
-            {toast.type === "success" ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+            {toast.type === "success" ? (
+              <CheckCircle size={18} />
+            ) : (
+              <AlertCircle size={18} />
+            )}
             <span>{toast.msg}</span>
           </div>
         )}
@@ -251,7 +310,9 @@ const Employees = () => {
             </div>
             <div>
               <h1 className="emp-title">Employees</h1>
-              <p className="emp-subtitle">Manage employee records and assignments</p>
+              <p className="emp-subtitle">
+                Manage employee records and assignments
+              </p>
             </div>
           </div>
           <button className="emp-btn emp-btn--primary" onClick={handleAddNew}>
@@ -261,7 +322,10 @@ const Employees = () => {
 
         <div className="emp-stats">
           <div className="emp-stat-card">
-            <div className="emp-stat-icon" style={{ background: "rgba(99,102,241,0.12)", color: "#6366F1" }}>
+            <div
+              className="emp-stat-icon"
+              style={{ background: "rgba(99,102,241,0.12)", color: "#6366F1" }}
+            >
               <Users size={22} />
             </div>
             <div>
@@ -270,7 +334,10 @@ const Employees = () => {
             </div>
           </div>
           <div className="emp-stat-card">
-            <div className="emp-stat-icon" style={{ background: "rgba(16,185,129,0.12)", color: "#10B981" }}>
+            <div
+              className="emp-stat-icon"
+              style={{ background: "rgba(16,185,129,0.12)", color: "#10B981" }}
+            >
               <CheckCircle size={22} />
             </div>
             <div>
@@ -279,7 +346,10 @@ const Employees = () => {
             </div>
           </div>
           <div className="emp-stat-card">
-            <div className="emp-stat-icon" style={{ background: "rgba(136,146,164,0.12)", color: "#8892A4" }}>
+            <div
+              className="emp-stat-icon"
+              style={{ background: "rgba(136,146,164,0.12)", color: "#8892A4" }}
+            >
               <AlertCircle size={22} />
             </div>
             <div>
@@ -288,7 +358,10 @@ const Employees = () => {
             </div>
           </div>
           <div className="emp-stat-card">
-            <div className="emp-stat-icon" style={{ background: "rgba(139,92,246,0.12)", color: "#8b5cf6" }}>
+            <div
+              className="emp-stat-icon"
+              style={{ background: "rgba(139,92,246,0.12)", color: "#8b5cf6" }}
+            >
               <Briefcase size={22} />
             </div>
             <div>
@@ -297,7 +370,10 @@ const Employees = () => {
             </div>
           </div>
           <div className="emp-stat-card">
-            <div className="emp-stat-icon" style={{ background: "rgba(236,72,153,0.12)", color: "#ec4899" }}>
+            <div
+              className="emp-stat-icon"
+              style={{ background: "rgba(236,72,153,0.12)", color: "#ec4899" }}
+            >
               <Shield size={22} />
             </div>
             <div>
@@ -317,23 +393,33 @@ const Employees = () => {
               onChange={(e) => handleSearch(e.target.value)}
             />
             {search && (
-              <button className="emp-search-clear" onClick={() => handleSearch("")}>
+              <button
+                className="emp-search-clear"
+                onClick={() => handleSearch("")}
+              >
                 <X size={15} />
               </button>
             )}
           </div>
 
           <div className="emp-filter-group">
-            <Filter size={15} className="emp-filter-icon" />
-            <select className="emp-select" value={statusFilter} onChange={(e) => handleFilterChange(e.target.value)}>
+            <span className="emp-filter-label">Status:</span>
+          <div className="emp-search-wrap">
+
+            <select
+              className="emp-select"
+              value={statusFilter}
+              onChange={(e) => handleFilterChange(e.target.value)}
+            >
               {STATUSES.map((s) => (
                 <option key={s}>{s}</option>
               ))}
-            </select>
+              </select>
+              </div>
           </div>
 
           <span className="emp-result-count">
-            {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            {/* {filtered.length} result{filtered.length !== 1 ? "s" : ""} */}
           </span>
         </div>
 
@@ -352,7 +438,14 @@ const Employees = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedEmployees.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan="8" className="emp-empty">
+                    <RefreshCw size={40} style={{ animation: 'spin 1s linear infinite', color: '#6366f1', marginBottom: '10px', opacity: 1 }} />
+                    <p>Fetching employees...</p>
+                  </td>
+                </tr>
+              ) : employees.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="emp-empty">
                     <Users size={48} strokeWidth={1.2} />
@@ -361,10 +454,10 @@ const Employees = () => {
                   </td>
                 </tr>
               ) : (
-                paginatedEmployees.map((emp) => {
+                employees.map((emp) => {
                   const roleColor = getRoleBadgeColor(emp.role);
                   return (
-                    <tr key={emp.id} className="emp-row">
+                    <tr key={emp._id} className="emp-row">
                       <td>
                         <div className="emp-name-cell">
                           <div className="emp-avatar">{emp.name.charAt(0)}</div>
@@ -375,7 +468,13 @@ const Employees = () => {
                         </div>
                       </td>
                       <td>
-                        <span className="emp-role-badge" style={{ background: roleColor.bg, color: roleColor.color }}>
+                        <span
+                          className="emp-role-badge"
+                          style={{
+                            background: roleColor.bg,
+                            color: roleColor.color,
+                          }}
+                        >
                           {emp.role}
                         </span>
                       </td>
@@ -395,24 +494,43 @@ const Employees = () => {
                       </td>
                       <td>
                         <div className="emp-assets">
-                          <span className="emp-asset-chip">{emp.assignedLaptops} Laptop{emp.assignedLaptops !== 1 ? 's' : ''}</span>
-                          <span className="emp-asset-chip">{emp.assignedSoftware} Software</span>
+                          <span className="emp-asset-chip">
+                            {emp.assignedLaptops} Laptop
+                            {emp.assignedLaptops !== 1 ? "s" : ""}
+                          </span>
+                          <span className="emp-asset-chip">
+                            {emp.assignedSoftware} Software
+                          </span>
                         </div>
                       </td>
                       <td>
-                        <span className={`emp-status-badge emp-status-badge--${emp.status.toLowerCase()}`}>
+                        <span
+                          className={`emp-status-badge emp-status-badge--${emp.status.toLowerCase()}`}
+                        >
                           {emp.status}
                         </span>
                       </td>
                       <td>
                         <div className="emp-actions">
-                          <button className="emp-action-btn emp-action-btn--view" title="View details" onClick={() => handleViewDetails(emp)}>
+                          <button
+                            className="emp-action-btn emp-action-btn--view"
+                            title="View details"
+                            onClick={() => handleViewDetails(emp)}
+                          >
                             <Eye size={15} />
                           </button>
-                          <button className="emp-action-btn emp-action-btn--edit" title="Edit" onClick={() => handleEdit(emp)}>
+                          <button
+                            className="emp-action-btn emp-action-btn--edit"
+                            title="Edit"
+                            onClick={() => handleEdit(emp)}
+                          >
                             <Edit2 size={15} />
                           </button>
-                          <button className="emp-action-btn emp-action-btn--delete" title="Delete" onClick={() => handleDeleteConfirm(emp)}>
+                          <button
+                            className="emp-action-btn emp-action-btn--delete"
+                            title="Delete"
+                            onClick={() => handleDeleteConfirm(emp)}
+                          >
                             <Trash2 size={15} />
                           </button>
                         </div>
@@ -425,10 +543,11 @@ const Employees = () => {
           </table>
         </div>
 
-        {filtered.length > 0 && (
+        {employees.length > 0 && (
           <div className="emp-pagination">
             <p className="emp-pagination-info">
-              Showing {startIndex + 1}-{Math.min(endIndex, filtered.length)} of {filtered.length} employees
+              Showing {startIndex + 1}-{Math.min(endIndex, totalEmployees)} of{" "}
+              {totalEmployees} employees
             </p>
             <div className="emp-pagination-buttons">
               <button
@@ -442,7 +561,10 @@ const Employees = () => {
 
               {getPageNumbers().map((page, index) =>
                 page === "..." ? (
-                  <span key={`ellipsis-${index}`} className="emp-pagination-ellipsis">
+                  <span
+                    key={`ellipsis-${index}`}
+                    className="emp-pagination-ellipsis"
+                  >
                     ...
                   </span>
                 ) : (
@@ -453,7 +575,7 @@ const Employees = () => {
                   >
                     {page}
                   </button>
-                )
+                ),
               )}
 
               <button
@@ -478,8 +600,14 @@ const Employees = () => {
                     <Users size={22} />
                   </div>
                   <div>
-                    <h2 className="emp-modal-title">{editItem ? "Edit Employee" : "Add New Employee"}</h2>
-                    <p className="emp-modal-sub">{editItem ? "Update employee information" : "Register a new employee"}</p>
+                    <h2 className="emp-modal-title">
+                      {editItem ? "Edit Employee" : "Add New Employee"}
+                    </h2>
+                    <p className="emp-modal-sub">
+                      {editItem
+                        ? "Update employee information"
+                        : "Register a new employee"}
+                    </p>
                   </div>
                 </div>
                 <button className="emp-modal-close" onClick={handleCloseModal}>
@@ -499,9 +627,17 @@ const Employees = () => {
                         value={formData.name}
                         onChange={handleFormChange}
                         placeholder="e.g. Rajesh Kumar"
-                        className={formErrors.name ? "emp-input emp-input--error" : "emp-input"}
+                        className={
+                          formErrors.name
+                            ? "emp-input emp-input--error"
+                            : "emp-input"
+                        }
                       />
-                      {formErrors.name && <span className="emp-field-error">{formErrors.name}</span>}
+                      {formErrors.name && (
+                        <span className="emp-field-error">
+                          {formErrors.name}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -516,9 +652,17 @@ const Employees = () => {
                         value={formData.email}
                         onChange={handleFormChange}
                         placeholder="name@company.com"
-                        className={formErrors.email ? "emp-input emp-input--error" : "emp-input"}
+                        className={
+                          formErrors.email
+                            ? "emp-input emp-input--error"
+                            : "emp-input"
+                        }
                       />
-                      {formErrors.email && <span className="emp-field-error">{formErrors.email}</span>}
+                      {formErrors.email && (
+                        <span className="emp-field-error">
+                          {formErrors.email}
+                        </span>
+                      )}
                     </div>
                     <div className="emp-form-group">
                       <label>Phone</label>
@@ -537,7 +681,12 @@ const Employees = () => {
                     <div className="emp-form-group">
                       <label>Role</label>
                       <div className="emp-select-wrap">
-                        <select name="role" value={formData.role} onChange={handleFormChange} className="emp-input">
+                        <select
+                          name="role"
+                          value={formData.role}
+                          onChange={handleFormChange}
+                          className="emp-input"
+                        >
                           {ROLES.map((r) => (
                             <option key={r}>{r}</option>
                           ))}
@@ -553,7 +702,11 @@ const Employees = () => {
                           name="department"
                           value={formData.department}
                           onChange={handleFormChange}
-                          className={formErrors.department ? "emp-input emp-input--error" : "emp-input"}
+                          className={
+                            formErrors.department
+                              ? "emp-input emp-input--error"
+                              : "emp-input"
+                          }
                         >
                           <option value="">Select department</option>
                           {DEPARTMENTS.map((d) => (
@@ -561,7 +714,11 @@ const Employees = () => {
                           ))}
                         </select>
                       </div>
-                      {formErrors.department && <span className="emp-field-error">{formErrors.department}</span>}
+                      {formErrors.department && (
+                        <span className="emp-field-error">
+                          {formErrors.department}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -575,9 +732,17 @@ const Employees = () => {
                         name="joinDate"
                         value={formData.joinDate}
                         onChange={handleFormChange}
-                        className={formErrors.joinDate ? "emp-input emp-input--error" : "emp-input"}
+                        className={
+                          formErrors.joinDate
+                            ? "emp-input emp-input--error"
+                            : "emp-input"
+                        }
                       />
-                      {formErrors.joinDate && <span className="emp-field-error">{formErrors.joinDate}</span>}
+                      {formErrors.joinDate && (
+                        <span className="emp-field-error">
+                          {formErrors.joinDate}
+                        </span>
+                      )}
                     </div>
                     <div className="emp-form-group">
                       <label>
@@ -588,7 +753,11 @@ const Employees = () => {
                           name="location"
                           value={formData.location}
                           onChange={handleFormChange}
-                          className={formErrors.location ? "emp-input emp-input--error" : "emp-input"}
+                          className={
+                            formErrors.location
+                              ? "emp-input emp-input--error"
+                              : "emp-input"
+                          }
                         >
                           <option value="">Select location</option>
                           {LOCATIONS.map((l) => (
@@ -596,7 +765,11 @@ const Employees = () => {
                           ))}
                         </select>
                       </div>
-                      {formErrors.location && <span className="emp-field-error">{formErrors.location}</span>}
+                      {formErrors.location && (
+                        <span className="emp-field-error">
+                          {formErrors.location}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -604,7 +777,12 @@ const Employees = () => {
                     <div className="emp-form-group">
                       <label>Status</label>
                       <div className="emp-select-wrap">
-                        <select name="status" value={formData.status} onChange={handleFormChange} className="emp-input">
+                        <select
+                          name="status"
+                          value={formData.status}
+                          onChange={handleFormChange}
+                          className="emp-input"
+                        >
                           <option value="Active">Active</option>
                           <option value="Inactive">Inactive</option>
                         </select>
@@ -613,7 +791,11 @@ const Employees = () => {
                   </div>
 
                   <div className="emp-modal-footer">
-                    <button type="button" className="emp-btn emp-btn--ghost" onClick={handleCloseModal}>
+                    <button
+                      type="button"
+                      className="emp-btn emp-btn--ghost"
+                      onClick={handleCloseModal}
+                    >
                       Cancel
                     </button>
                     <button type="submit" className="emp-btn emp-btn--primary">
@@ -636,11 +818,19 @@ const Employees = () => {
 
         {/* Detail Modal */}
         {showDetail && (
-          <div className="emp-modal-overlay" onClick={() => setShowDetail(null)}>
-            <div className="emp-modal emp-modal--detail" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="emp-modal-overlay"
+            onClick={() => setShowDetail(null)}
+          >
+            <div
+              className="emp-modal emp-modal--detail"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="emp-modal-header">
                 <div className="emp-modal-title-wrap">
-                  <div className="emp-avatar emp-avatar--lg">{showDetail.name.charAt(0)}</div>
+                  <div className="emp-avatar emp-avatar--lg">
+                    {showDetail.name.charAt(0)}
+                  </div>
                   <div>
                     <h2 className="emp-modal-title">{showDetail.name}</h2>
                     <p className="emp-modal-sub">
@@ -648,7 +838,10 @@ const Employees = () => {
                     </p>
                   </div>
                 </div>
-                <button className="emp-modal-close" onClick={() => setShowDetail(null)}>
+                <button
+                  className="emp-modal-close"
+                  onClick={() => setShowDetail(null)}
+                >
                   <X size={20} />
                 </button>
               </div>
@@ -687,16 +880,21 @@ const Employees = () => {
                     <span className="emp-detail-label">Join Date</span>
                     <span className="emp-detail-value">
                       <Calendar size={14} style={{ marginRight: 6 }} />
-                      {new Date(showDetail.joinDate).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      })}
+                      {new Date(showDetail.joinDate).toLocaleDateString(
+                        "en-GB",
+                        {
+                          day: "2-digit",
+                          month: "long",
+                          year: "numeric",
+                        },
+                      )}
                     </span>
                   </div>
                   <div className="emp-detail-card">
                     <span className="emp-detail-label">Status</span>
-                    <span className={`emp-status-badge emp-status-badge--${showDetail.status.toLowerCase()}`}>
+                    <span
+                      className={`emp-status-badge emp-status-badge--${showDetail.status.toLowerCase()}`}
+                    >
                       {showDetail.status}
                     </span>
                   </div>
@@ -705,20 +903,35 @@ const Employees = () => {
                 <div className="emp-detail-asset-summary">
                   <p className="emp-detail-section-title">Asset Assignment</p>
                   <div className="emp-asset-summary-row">
-                    <div className="emp-asset-detail-chip" style={{ background: "#e0e7ff", color: "#6366f1" }}>
-                      <span className="emp-asset-chip-num">{showDetail.assignedLaptops}</span>
+                    <div
+                      className="emp-asset-detail-chip"
+                      style={{ background: "#e0e7ff", color: "#6366f1" }}
+                    >
+                      <span className="emp-asset-chip-num">
+                        {showDetail.assignedLaptops}
+                      </span>
                       <span className="emp-asset-chip-label">Laptops</span>
                     </div>
-                    <div className="emp-asset-detail-chip" style={{ background: "#fce7f3", color: "#ec4899" }}>
-                      <span className="emp-asset-chip-num">{showDetail.assignedSoftware}</span>
-                      <span className="emp-asset-chip-label">Software Licenses</span>
+                    <div
+                      className="emp-asset-detail-chip"
+                      style={{ background: "#fce7f3", color: "#ec4899" }}
+                    >
+                      <span className="emp-asset-chip-num">
+                        {showDetail.assignedSoftware}
+                      </span>
+                      <span className="emp-asset-chip-label">
+                        Software Licenses
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="emp-modal-footer">
-                <button className="emp-btn emp-btn--ghost" onClick={() => setShowDetail(null)}>
+                <button
+                  className="emp-btn emp-btn--ghost"
+                  onClick={() => setShowDetail(null)}
+                >
                   Close
                 </button>
                 <button
@@ -737,20 +950,34 @@ const Employees = () => {
 
         {/* Delete Confirm Modal */}
         {deleteConfirm && (
-          <div className="emp-modal-overlay" onClick={() => setDeleteConfirm(null)}>
-            <div className="emp-modal emp-modal--confirm" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="emp-modal-overlay"
+            onClick={() => setDeleteConfirm(null)}
+          >
+            <div
+              className="emp-modal emp-modal--confirm"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="emp-confirm-icon">
                 <Trash2 size={28} color="#ef4444" />
               </div>
               <h3 className="emp-confirm-title">Delete Employee?</h3>
               <p className="emp-confirm-text">
-                Are you sure you want to remove <strong>"{deleteConfirm.name}"</strong>? This action cannot be undone.
+                Are you sure you want to remove{" "}
+                <strong>"{deleteConfirm.name}"</strong>? This action cannot be
+                undone.
               </p>
               <div className="emp-confirm-actions">
-                <button className="emp-btn emp-btn--ghost" onClick={() => setDeleteConfirm(null)}>
+                <button
+                  className="emp-btn emp-btn--ghost"
+                  onClick={() => setDeleteConfirm(null)}
+                >
                   Cancel
                 </button>
-                <button className="emp-btn emp-btn--danger" onClick={() => handleDelete(deleteConfirm.id)}>
+                <button
+                  className="emp-btn emp-btn--danger"
+                  onClick={() => handleDelete(deleteConfirm._id)}
+                >
                   <Trash2 size={15} /> Delete
                 </button>
               </div>

@@ -13,15 +13,25 @@ import {
   AlertCircle,
   ChevronLeft,
   ChevronRight,
+  RefreshCw,
 } from "lucide-react";
 
 import Navbar from "../../components/navBar/NavBar";
 import Sidebar from "../../components/sideBar/SideBar";
 import AddEditLaptopModal from "./EditModal/AddEditLaptopModal ";
+import {
+  getLaptopModels,
+  addLaptopModel,
+  updateLaptopModel,
+  deleteLaptopModel,
+} from "./LaptopModelAPI";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 10;
 
 const LaptopModels = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedModel, setSelectedModel] = useState(null);
@@ -30,150 +40,65 @@ const LaptopModels = () => {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [toast, setToast] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [laptopModels, setLaptopModels] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalModels, setTotalModels] = useState(0); // replaces laptopModels.length
+  const [statusFilter, setStatusFilter] = useState("");
+  const [stats, setStats] = useState({
+    totalAssets: 0,
+    totalAvailable: 0,
+    totalInUse: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [laptopModels, setLaptopModels] = useState([
-    {
-      id: 1,
-      modelName: "Dell XPS 15",
-      brand: "Dell",
-      processor: "Intel Core i7-13700H",
-      ram: "16GB DDR5",
-      storage: "512GB SSD",
-      screenSize: '15.6"',
-      graphicsCard: "NVIDIA RTX 3050",
-      weight: "1.86 kg",
-      batteryLife: "Up to 12 hours",
-      ports: "2x Thunderbolt 4, 1x USB-C, SD Card",
-      operatingSystem: "Windows 11 Pro",
-      warranty: "3 years",
-      price: "135000",
-      totalAssets: 45,
-      available: 12,
-      inUse: 30,
-      underRepair: 3,
-    },
-    {
-      id: 2,
-      modelName: 'MacBook Pro 16"',
-      brand: "Apple",
-      processor: "Apple M2 Pro",
-      ram: "32GB Unified",
-      storage: "1TB SSD",
-      screenSize: '16.2"',
-      graphicsCard: "Integrated",
-      weight: "2.15 kg",
-      batteryLife: "Up to 22 hours",
-      ports: "3x Thunderbolt 4, HDMI, SD Card",
-      operatingSystem: "macOS",
-      warranty: "1 year",
-      price: "245000",
-      totalAssets: 38,
-      available: 8,
-      inUse: 28,
-      underRepair: 2,
-    },
-    {
-      id: 3,
-      modelName: "HP EliteBook 840 G9",
-      brand: "HP",
-      processor: "Intel Core i5-1235U",
-      ram: "8GB DDR4",
-      storage: "256GB SSD",
-      screenSize: '14"',
-      graphicsCard: "Intel Iris Xe",
-      weight: "1.36 kg",
-      batteryLife: "Up to 10 hours",
-      ports: "2x Thunderbolt 4, 2x USB-A, HDMI",
-      operatingSystem: "Windows 11 Pro",
-      warranty: "3 years",
-      price: "85000",
-      totalAssets: 62,
-      available: 18,
-      inUse: 42,
-      underRepair: 2,
-    },
-    {
-      id: 4,
-      modelName: "Lenovo ThinkPad X1 Carbon",
-      brand: "Lenovo",
-      processor: "Intel Core i7-1260P",
-      ram: "16GB LPDDR5",
-      storage: "512GB SSD",
-      screenSize: '14"',
-      graphicsCard: "Intel Iris Xe",
-      weight: "1.12 kg",
-      batteryLife: "Up to 16 hours",
-      ports: "2x Thunderbolt 4, 2x USB-A",
-      operatingSystem: "Windows 11 Pro",
-      warranty: "3 years",
-      price: "125000",
-      totalAssets: 50,
-      available: 15,
-      inUse: 33,
-      underRepair: 2,
-    },
-    {
-      id: 5,
-      modelName: "ASUS ROG Zephyrus G14",
-      brand: "ASUS",
-      processor: "AMD Ryzen 9 6900HS",
-      ram: "16GB DDR5",
-      storage: "1TB SSD",
-      screenSize: '14"',
-      graphicsCard: "NVIDIA RTX 3060",
-      weight: "1.65 kg",
-      batteryLife: "Up to 10 hours",
-      ports: "2x USB-C, 2x USB-A, HDMI",
-      operatingSystem: "Windows 11 Home",
-      warranty: "2 years",
-      price: "155000",
-      totalAssets: 20,
-      available: 5,
-      inUse: 14,
-      underRepair: 1,
-    },
-    {
-      id: 6,
-      modelName: "Microsoft Surface Laptop 5",
-      brand: "Microsoft",
-      processor: "Intel Core i7-1255U",
-      ram: "16GB LPDDR5x",
-      storage: "512GB SSD",
-      screenSize: '13.5"',
-      graphicsCard: "Intel Iris Xe",
-      weight: "1.29 kg",
-      batteryLife: "Up to 18 hours",
-      ports: "1x USB-C, 1x USB-A, Surface Connect",
-      operatingSystem: "Windows 11 Pro",
-      warranty: "1 year",
-      price: "145000",
-      totalAssets: 30,
-      available: 9,
-      inUse: 20,
-      underRepair: 1,
-    },
-  ]);
+  const fetchLaptopModels = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getLaptopModels(
+        currentPage,
+        ITEMS_PER_PAGE,
+        debouncedSearch,
+        statusFilter,
+      );
+      setLaptopModels(response.data.data);
+
+      setTotalPages(response.data.totalPages);
+      setTotalModels(response.data.totalModels);
+      setStats(response.data.stats);
+    } catch (error) {
+      console.log("Failed to fetch laptop models.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLaptopModels();
+  }, [currentPage, debouncedSearch, statusFilter]);
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3200);
   };
 
-  const filteredModels = laptopModels.filter(
-    (model) =>
-      model.modelName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      model.brand.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredModels.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedModels = filteredModels.slice(startIndex, endIndex);
 
   // Reset to page 1 when search changes
   const handleSearch = (value) => {
     setSearchTerm(value.trim());
+    setCurrentPage(1);
+  };
+  const handleFilterChange = (setter) => (value) => {
+    setter(value);
     setCurrentPage(1);
   };
 
@@ -181,17 +106,6 @@ const LaptopModels = () => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  const totalModels = laptopModels.length;
-  const totalAssets = laptopModels.reduce(
-    (sum, model) => sum + model.totalAssets,
-    0,
-  );
-  const totalAvailable = laptopModels.reduce(
-    (sum, model) => sum + model.available,
-    0,
-  );
-  const totalInUse = laptopModels.reduce((sum, model) => sum + model.inUse, 0);
 
   const handleAddNew = () => {
     setSelectedModel(null);
@@ -213,36 +127,35 @@ const LaptopModels = () => {
     setDeleteConfirm(model);
   };
 
-  const handleDelete = (id) => {
-    const name = laptopModels.find((m) => m.id === id)?.modelName;
-    setLaptopModels((prev) => prev.filter((m) => m.id !== id));
-    setDeleteConfirm(null);
-
-    // Adjust page if needed after deletion
-    const newFilteredLength = filteredModels.length - 1;
-    const newTotalPages = Math.ceil(newFilteredLength / ITEMS_PER_PAGE);
-    if (currentPage > newTotalPages && newTotalPages > 0) {
-      setCurrentPage(newTotalPages);
+  const handleDelete = async (id) => {
+    const name = laptopModels.find((m) => m._id === id)?.modelName;
+    try {
+      await deleteLaptopModel(id);
+      await fetchLaptopModels();
+      setDeleteConfirm(null);
+      showToast(`"${name}" removed`, "error");
+    } catch (error) {
+      showToast("Failed to delete model.", "error");
     }
-
-    showToast(`"${name}" removed`, "error");
   };
 
-  const handleSave = (modelData) => {
-    if (isEditing) {
-      setLaptopModels((prevModels) =>
-        prevModels.map((m) => (m.id === modelData.id ? modelData : m)),
-      );
-      showToast(`"${modelData.modelName}" updated successfully`);
-    } else {
-      setLaptopModels((prevModels) => [...prevModels, modelData]);
-      showToast(`"${modelData.modelName}" added successfully`);
+  const handleSave = async (modelData) => {
+    try {
+      if (isEditing) {
+        await updateLaptopModel(selectedModel._id, modelData);
+        showToast(`"${modelData.modelName}" updated successfully`);
+      } else {
+        await addLaptopModel(modelData);
+        showToast(`"${modelData.modelName}" added successfully`);
+      }
+      await fetchLaptopModels();
+      setShowAddModal(false);
+      setSelectedModel(null);
+      setIsEditing(false);
+    } catch (error) {
+      showToast("Failed to save model.", "error");
     }
-    setShowAddModal(false);
-    setSelectedModel(null);
-    setIsEditing(false);
   };
-
   const handleCloseModal = () => {
     setShowAddModal(false);
     setSelectedModel(null);
@@ -310,7 +223,7 @@ const LaptopModels = () => {
             <Plus size={20} />
             Add New Model
           </button>
-        </div>   
+        </div>
 
         <div className="stats-row">
           <div className="stat-card-small">
@@ -334,7 +247,7 @@ const LaptopModels = () => {
             </div>
             <div className="stat-content-small">
               <p className="stat-label-small">Total Assets</p>
-              <h3 className="stat-value-small">{totalAssets}</h3>
+              <h3 className="stat-value-small">{stats.totalAssets}</h3>
             </div>
           </div>
           <div className="stat-card-small">
@@ -346,7 +259,7 @@ const LaptopModels = () => {
             </div>
             <div className="stat-content-small">
               <p className="stat-label-small">Available</p>
-              <h3 className="stat-value-small">{totalAvailable}</h3>
+              <h3 className="stat-value-small">{stats.totalAvailable}</h3>
             </div>
           </div>
           <div className="stat-card-small">
@@ -358,7 +271,7 @@ const LaptopModels = () => {
             </div>
             <div className="stat-content-small">
               <p className="stat-label-small">In Use</p>
-              <h3 className="stat-value-small">{totalInUse}</h3>
+              <h3 className="stat-value-small">{stats.totalInUse}</h3>
             </div>
           </div>
         </div>
@@ -374,10 +287,24 @@ const LaptopModels = () => {
               className="search-input"
             />
           </div>
-          <button className="btn-filter">
-            <Filter size={18} />
-            Filter
-          </button>
+          <div className="lm-filter-group">
+            <span className="lm-filter-label">Status:</span>
+
+            <div className="lm-select-wrap">
+              <select
+                className="lm-select"
+                value={statusFilter}
+                onChange={(e) =>
+                  handleFilterChange(setStatusFilter)(e.target.value)
+                }
+              >
+                <option value="">All</option>
+                <option value="available">Available</option>
+                <option value="inUse">In Use</option>
+                <option value="underRepair">Under Repair</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div className="table-container">
@@ -398,9 +325,25 @@ const LaptopModels = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedModels.length > 0 ? (
-                paginatedModels.map((model) => (
-                  <tr key={model.id}>
+              {isLoading ? (
+                <tr>
+                  <td colSpan="11" className="no-data">
+                    <RefreshCw
+                      size={40}
+                      className="il-loading-icon"
+                      style={{
+                        animation: "spin 1s linear infinite",
+                        color: "#6366f1",
+                        marginBottom: "10px",
+                        opacity: 1,
+                      }}
+                    />
+                    <p>Fetching models...</p>
+                  </td>
+                </tr>
+              ) : laptopModels.length > 0 ? (
+                laptopModels.map((model) => (
+                  <tr key={model._id}>
                     <td>
                       <div className="model-name-cell">
                         <div className="model-name-cell-icon">
@@ -423,7 +366,9 @@ const LaptopModels = () => {
                     </td>
                     <td>
                       <span className="badge-table badge-available">
-                        {model.available}
+                        {model.totalAssets -
+                          model.inUse -
+                          (model.underRepair || 0)}
                       </span>
                     </td>
                     <td>
@@ -477,12 +422,11 @@ const LaptopModels = () => {
         </div>
 
         {/* Enhanced Pagination */}
-        {filteredModels.length > 0 && (
+        {laptopModels.length > 0 && (
           <div className="pagination">
             <p className="pagination-info">
-              Showing {startIndex + 1}-
-              {Math.min(endIndex, filteredModels.length)} of{" "}
-              {filteredModels.length} models
+              Showing {startIndex + 1}-{Math.min(endIndex, laptopModels.length)}{" "}
+              of {laptopModels.length} models
             </p>
             <div className="pagination-buttons">
               <button
@@ -638,7 +582,9 @@ const LaptopModels = () => {
                       style={{ background: "#d1fae5", color: "#10b981" }}
                     >
                       <span className="lm-asset-chip-num">
-                        {showDetail.available}
+                        {showDetail.totalAssets -
+                          showDetail.inUse -
+                          (showDetail.underRepair || 0)}
                       </span>
                       <span className="lm-asset-chip-label">Available</span>
                     </div>
@@ -683,6 +629,16 @@ const LaptopModels = () => {
                 <button
                   className="lm-btn lm-btn--primary"
                   onClick={() => {
+                    navigate("/laptops/individual", {
+                      state: { filterByModelId: showDetail._id },
+                    });
+                  }}
+                >
+                  <Laptop size={15} /> View Physical Assets
+                </button>
+                <button
+                  className="lm-btn lm-btn--primary"
+                  onClick={() => {
                     setShowDetail(null);
                     handleEdit(showDetail);
                   }}
@@ -721,7 +677,7 @@ const LaptopModels = () => {
                 </button>
                 <button
                   className="lm-btn lm-btn--danger"
-                  onClick={() => handleDelete(deleteConfirm.id)}
+                  onClick={() => handleDelete(deleteConfirm._id)}
                 >
                   <Trash2 size={15} /> Delete
                 </button>

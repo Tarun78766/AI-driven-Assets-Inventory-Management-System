@@ -1,4 +1,10 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import {
+  getAssignments,
+  createAssignmentApi,
+  returnAssignmentApi,
+} from "./AssignmentAPI";
+import { getEmployees, getLaptopModels, getAvailableLaptops, getAvailableLaptopsByModel } from "../../API/dataAPI";
 import "./Assignments.css";
 import {
   Search,
@@ -19,6 +25,7 @@ import {
   TrendingUp,
   Download,
   AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 
 import Navbar from "../../components/navBar/NavBar";
@@ -26,162 +33,167 @@ import Sidebar from "../../components/sideBar/SideBar";
 
 const ITEMS_PER_PAGE = 10;
 
-/* ─── Initial Data ─────────────────────── */
-const INITIAL_ASSIGNMENTS = [
-  {
-    id: 1,
-    employeeId: 1,
-    employeeName: "Rajesh Kumar",
-    assetType: "Laptop",
-    assetName: "Dell XPS 15",
-    assetId: 101,
-    assignDate: "2024-01-15",
-    returnDate: null,
-    status: "Active",
-    assignedBy: "Admin",
-  },
-  {
-    id: 2,
-    employeeId: 1,
-    employeeName: "Rajesh Kumar",
-    assetType: "Software",
-    assetName: "Microsoft Office 365",
-    assetId: 201,
-    assignDate: "2024-01-15",
-    returnDate: null,
-    status: "Active",
-    assignedBy: "Admin",
-  },
-  {
-    id: 3,
-    employeeId: 2,
-    employeeName: "Priya Sharma",
-    assetType: "Laptop",
-    assetName: 'MacBook Pro 16"',
-    assetId: 102,
-    assignDate: "2023-11-20",
-    returnDate: null,
-    status: "Active",
-    assignedBy: "IT Ops",
-  },
-  {
-    id: 4,
-    employeeId: 2,
-    employeeName: "Priya Sharma",
-    assetType: "Software",
-    assetName: "GitHub Enterprise",
-    assetId: 202,
-    assignDate: "2023-11-20",
-    returnDate: null,
-    status: "Active",
-    assignedBy: "IT Ops",
-  },
-  {
-    id: 5,
-    employeeId: 3,
-    employeeName: "Amit Patel",
-    assetType: "Laptop",
-    assetName: "HP EliteBook 840 G9",
-    assetId: 103,
-    assignDate: "2024-02-10",
-    returnDate: null,
-    status: "Active",
-    assignedBy: "Admin",
-  },
-  {
-    id: 6,
-    employeeId: 3,
-    employeeName: "Amit Patel",
-    assetType: "Software",
-    assetName: "Adobe Creative Suite",
-    assetId: 203,
-    assignDate: "2024-02-10",
-    returnDate: null,
-    status: "Active",
-    assignedBy: "Admin",
-  },
-  {
-    id: 7,
-    employeeId: 7,
-    employeeName: "Rahul Verma",
-    assetType: "Laptop",
-    assetName: "Lenovo ThinkPad X1",
-    assetId: 104,
-    assignDate: "2023-09-18",
-    returnDate: "2024-12-20",
-    status: "Returned",
-    assignedBy: "IT Ops",
-  },
-  {
-    id: 8,
-    employeeId: 4,
-    employeeName: "Sneha Reddy",
-    assetType: "Software",
-    assetName: "Jira Software",
-    assetId: 204,
-    assignDate: "2024-01-05",
-    returnDate: null,
-    status: "Active",
-    assignedBy: "Admin",
-  },
-];
+// /* ─── Initial Data ─────────────────────── */
+// const INITIAL_ASSIGNMENTS = [
+//   {
+//     id: 1,
+//     employeeId: 1,
+//     employeeName: "Rajesh Kumar",
+//     assetType: "Laptop",
+//     assetName: "Dell XPS 15",
+//     assetId: 101,
+//     assignDate: "2024-01-15",
+//     returnDate: null,
+//     status: "Active",
+//     assignedBy: "Admin",
+//   },
+//   {
+//     id: 2,
+//     employeeId: 1,
+//     employeeName: "Rajesh Kumar",
+//     assetType: "Software",
+//     assetName: "Microsoft Office 365",
+//     assetId: 201,
+//     assignDate: "2024-01-15",
+//     returnDate: null,
+//     status: "Active",
+//     assignedBy: "Admin",
+//   },
+//   {
+//     id: 3,
+//     employeeId: 2,
+//     employeeName: "Priya Sharma",
+//     assetType: "Laptop",
+//     assetName: 'MacBook Pro 16"',
+//     assetId: 102,
+//     assignDate: "2023-11-20",
+//     returnDate: null,
+//     status: "Active",
+//     assignedBy: "IT Ops",
+//   },
+//   {
+//     id: 4,
+//     employeeId: 2,
+//     employeeName: "Priya Sharma",
+//     assetType: "Software",
+//     assetName: "GitHub Enterprise",
+//     assetId: 202,
+//     assignDate: "2023-11-20",
+//     returnDate: null,
+//     status: "Active",
+//     assignedBy: "IT Ops",
+//   },
+//   {
+//     id: 5,
+//     employeeId: 3,
+//     employeeName: "Amit Patel",
+//     assetType: "Laptop",
+//     assetName: "HP EliteBook 840 G9",
+//     assetId: 103,
+//     assignDate: "2024-02-10",
+//     returnDate: null,
+//     status: "Active",
+//     assignedBy: "Admin",
+//   },
+//   {
+//     id: 6,
+//     employeeId: 3,
+//     employeeName: "Amit Patel",
+//     assetType: "Software",
+//     assetName: "Adobe Creative Suite",
+//     assetId: 203,
+//     assignDate: "2024-02-10",
+//     returnDate: null,
+//     status: "Active",
+//     assignedBy: "Admin",
+//   },
+//   {
+//     id: 7,
+//     employeeId: 7,
+//     employeeName: "Rahul Verma",
+//     assetType: "Laptop",
+//     assetName: "Lenovo ThinkPad X1",
+//     assetId: 104,
+//     assignDate: "2023-09-18",
+//     returnDate: "2024-12-20",
+//     status: "Returned",
+//     assignedBy: "IT Ops",
+//   },
+//   {
+//     id: 8,
+//     employeeId: 4,
+//     employeeName: "Sneha Reddy",
+//     assetType: "Software",
+//     assetName: "Jira Software",
+//     assetId: 204,
+//     assignDate: "2024-01-05",
+//     returnDate: null,
+//     status: "Active",
+//     assignedBy: "Admin",
+//   },
+// ];
 
-// Mock data for dropdowns
-const EMPLOYEES = [
-  { id: 1, name: "Rajesh Kumar", department: "IT Operations" },
-  { id: 2, name: "Priya Sharma", department: "Engineering" },
-  { id: 3, name: "Amit Patel", department: "Design" },
-  { id: 4, name: "Sneha Reddy", department: "IT Operations" },
-  { id: 5, name: "Vikram Singh", department: "Sales" },
-  { id: 6, name: "Ananya Iyer", department: "Marketing" },
-];
+// // Mock data for dropdowns
+// const EMPLOYEES = [
+//   { id: 1, name: "Rajesh Kumar", department: "IT Operations" },
+//   { id: 2, name: "Priya Sharma", department: "Engineering" },
+//   { id: 3, name: "Amit Patel", department: "Design" },
+//   { id: 4, name: "Sneha Reddy", department: "IT Operations" },
+//   { id: 5, name: "Vikram Singh", department: "Sales" },
+//   { id: 6, name: "Ananya Iyer", department: "Marketing" },
+// ];
 
-const LAPTOPS = [
-  {
-    id: 101,
-    name: "Dell XPS 15",
-    serialNumber: "DXS-2024-001",
-    available: true,
-  },
-  {
-    id: 105,
-    name: 'MacBook Pro 14"',
-    serialNumber: "MBP-2024-002",
-    available: true,
-  },
-  {
-    id: 106,
-    name: "HP EliteBook 840",
-    serialNumber: "HPE-2024-003",
-    available: true,
-  },
-  {
-    id: 107,
-    name: "Lenovo ThinkPad X1",
-    serialNumber: "LTP-2024-004",
-    available: true,
-  },
-];
+// const LAPTOPS = [
+//   {
+//     id: 101,
+//     name: "Dell XPS 15",
+//     serialNumber: "DXS-2024-001",
+//     available: true,
+//   },
+//   {
+//     id: 105,
+//     name: 'MacBook Pro 14"',
+//     serialNumber: "MBP-2024-002",
+//     available: true,
+//   },
+//   {
+//     id: 106,
+//     name: "HP EliteBook 840",
+//     serialNumber: "HPE-2024-003",
+//     available: true,
+//   },
+//   {
+//     id: 107,
+//     name: "Lenovo ThinkPad X1",
+//     serialNumber: "LTP-2024-004",
+//     available: true,
+//   },
+// ];
 
-const SOFTWARE = [
-  { id: 201, name: "Microsoft Office 365", available: 22 },
-  { id: 205, name: "Slack Business", available: 158 },
-  { id: 206, name: "Zoom Pro", available: 66 },
-  { id: 207, name: "Tableau Desktop", available: 3 },
-];
+// const SOFTWARE = [
+//   { id: 201, name: "Microsoft Office 365", available: 22 },
+//   { id: 205, name: "Slack Business", available: 158 },
+//   { id: 206, name: "Zoom Pro", available: 66 },
+//   { id: 207, name: "Tableau Desktop", available: 3 },
+// ];
 
-const STATUSES = ["All", "Active", "Returned"];
+const STATUSES = ["All", "Assigned", "Returned"];
 const ASSET_TYPES = ["All", "Laptop", "Software"];
+const userData = JSON.parse(localStorage.getItem("user"))
 
 const EMPTY_FORM = {
   employeeId: "",
   assetType: "Laptop",
-  assetId: "",
+  laptopModelId: "",
+  laptopAssetId: "",
+  softwareId: "",
+  assignedBy:  userData?.role || "",
+  status:"Assigned",
   assignDate: new Date().toISOString().split("T")[0],
 };
 
 const Assignments = () => {
-  const [assignments, setAssignments] = useState(INITIAL_ASSIGNMENTS);
+  const [assignments, setAssignments] = useState([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [typeFilter, setTypeFilter] = useState("All");
@@ -191,29 +203,89 @@ const Assignments = () => {
   const [formErrors, setFormErrors] = useState({});
   const [toast, setToast] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [employees, setEmployees] = useState([]);
+  const [laptopModels, setLaptopModels] = useState([]);
+  const [availableLaptops, setAvailableLaptops] = useState([]);
+  const [filteredLaptopAssets, setFilteredLaptopAssets] = useState([]);
+  
+  // Backend Pagination States
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState({
+    total: 0,
+    assigned: 0,
+    returned: 0,
+    laptops: 0,
+    software: 0,
+  });
+
+useEffect(() => {
+  const fetchData = async () => {
+    const [emp, lapModels, availLaps] = await Promise.all([
+      getEmployees(),
+      getLaptopModels(),
+      getAvailableLaptops(),
+    ]);
+
+    setEmployees(emp);
+
+    setLaptopModels(lapModels);
+    setAvailableLaptops(availLaps);
+  };
+
+  fetchData();
+}, []);
+  
+  useEffect(() => {
+    const fetchModelLaptops = async () => {
+      if (formData.assetType === "Laptop" && formData.laptopModelId) {
+        try {
+          const laptops = await getAvailableLaptopsByModel(formData.laptopModelId);
+          setFilteredLaptopAssets(laptops || []);
+        } catch (err) {
+          console.error("Error fetching laptops by model", err);
+          setFilteredLaptopAssets([]);
+        }
+      } else {
+        setFilteredLaptopAssets([]);
+      }
+    };
+    fetchModelLaptops();
+  }, [formData.laptopModelId, formData.assetType]);
+
+  const fetchAssignments = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getAssignments(
+        currentPage,
+        ITEMS_PER_PAGE,
+        search,
+        statusFilter,
+        typeFilter
+      );
+      setAssignments(response.data || []);
+      setTotalCount(response.totalCount || 0);
+      if (response.stats) setStats(response.stats);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAssignments();
+  }, [currentPage, search, statusFilter, typeFilter]);
 
   const showToast = (msg, type = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3200);
   };
 
-  const filtered = useMemo(() => {
-    return assignments.filter((assign) => {
-      const matchSearch =
-        assign.employeeName.toLowerCase().includes(search.toLowerCase()) ||
-        assign.assetName.toLowerCase().includes(search.toLowerCase());
-      const matchStatus =
-        statusFilter === "All" || assign.status === statusFilter;
-      const matchType = typeFilter === "All" || assign.assetType === typeFilter;
-      return matchSearch && matchStatus && matchType;
-    });
-  }, [assignments, search, statusFilter, typeFilter]);
-
-  // Pagination
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
+  // Pagination Variables based on Server State
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const paginatedAssignments = filtered.slice(startIndex, endIndex);
+  const endIndex = startIndex + assignments.length;
 
   const handleSearch = (value) => {
     setSearch(value);
@@ -256,25 +328,10 @@ const Assignments = () => {
     return pages;
   };
 
-  const stats = useMemo(
-    () => ({
-      total: assignments.length,
-      active: assignments.filter((a) => a.status === "Active").length,
-      returned: assignments.filter((a) => a.status === "Returned").length,
-      laptops: assignments.filter(
-        (a) => a.assetType === "Laptop" && a.status === "Active",
-      ).length,
-      software: assignments.filter(
-        (a) => a.assetType === "Software" && a.status === "Active",
-      ).length,
-    }),
-    [assignments],
-  );
-
   const validate = (f) => {
+    console.log(f);
     const e = {};
     if (!f.employeeId) e.employeeId = "Employee is required";
-    if (!f.assetId) e.assetId = "Asset is required";
     if (!f.assignDate) e.assignDate = "Assignment date is required";
     return e;
   };
@@ -289,67 +346,49 @@ const Assignments = () => {
     setShowDetail(item);
   };
 
-  const handleReturn = (assignment) => {
-    if (
-      window.confirm(
-        `Return ${assignment.assetName} from ${assignment.employeeName}?`,
-      )
-    ) {
-      setAssignments((prev) =>
-        prev.map((a) =>
-          a.id === assignment.id
-            ? {
-                ...a,
-                status: "Returned",
-                returnDate: new Date().toISOString().split("T")[0],
-              }
-            : a,
-        ),
-      );
-      showToast(`Asset returned successfully`);
-    }
-  };
+ const handleReturn = async (assignment) => {
+  if (!window.confirm("Return this asset?")) return;
+
+  try {
+    const updated = await returnAssignmentApi(assignment._id);
+
+    setAssignments((prev) =>
+      prev.map((a) => (a._id === updated._id ? updated : a))
+    );
+
+    showToast("Returned successfully");
+  } catch (err) {
+    showToast(err.response?.data?.message || "Error", "error");
+  }
+};
 
   const handleCloseModal = () => {
     setShowModal(false);
     setFormData(EMPTY_FORM);
     setFormErrors({});
   };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+console.log("inside submit")
     const errs = validate(formData);
+    console.log(errs);
     if (Object.keys(errs).length) {
       setFormErrors(errs);
       return;
     }
 
-    const employee = EMPLOYEES.find(
-      (emp) => emp.id === Number(formData.employeeId),
-    );
-    const asset =
-      formData.assetType === "Laptop"
-        ? LAPTOPS.find((l) => l.id === Number(formData.assetId))
-        : SOFTWARE.find((s) => s.id === Number(formData.assetId));
+    try {
+      const newAssignment = await createAssignmentApi(formData);
 
-    const newAssignment = {
-      id: Date.now(),
-      employeeId: employee.id,
-      employeeName: employee.name,
-      assetType: formData.assetType,
-      assetName: asset.name,
-      assetId: asset.id,
-      assignDate: formData.assignDate,
-      returnDate: null,
-      status: "Active",
-      assignedBy: "Current User",
-    };
+      setAssignments((prev) => [newAssignment, ...prev]);
 
-    setAssignments((prev) => [newAssignment, ...prev]);
-    showToast(`${asset.name} assigned to ${employee.name}`);
-    handleCloseModal();
+      showToast(`${newAssignment.assetName} assigned to ${newAssignment.employeeName}`);
+
+      handleCloseModal();
+    } catch (err) {
+      showToast(err.response?.data?.message || "Error", "error");
+    }
   };
-
   const handleFormChange = (e) => {
     const { name, value } = e.target;
 
@@ -370,7 +409,7 @@ const Assignments = () => {
   };
 
   const getAvailableAssets = () => {
-    return formData.assetType === "Laptop" ? LAPTOPS : SOFTWARE;
+    return formData.assetType === "Laptop" ? laptops : software;
   };
 
   return (
@@ -435,8 +474,8 @@ const Assignments = () => {
               <CheckCircle size={22} />
             </div>
             <div>
-              <div className="assign-stat-value">{stats.active}</div>
-              <div className="assign-stat-label">Active</div>
+              <div className="assign-stat-value">{stats.assigned}</div>
+              <div className="assign-stat-label">Assigned</div>
             </div>
           </div>
           <div className="assign-stat-card">
@@ -497,7 +536,8 @@ const Assignments = () => {
           </div>
 
           <div className="assign-filter-group">
-            <Filter size={15} className="assign-filter-icon" />
+            {/* <Filter size={15} className="assign-filter-icon" /> */}
+            <span className="assign-filter-label">Category:</span>
             <select
               className="assign-select"
               value={typeFilter}
@@ -512,6 +552,8 @@ const Assignments = () => {
           </div>
 
           <div className="assign-filter-group">
+            <span className="assign-filter-label">Status:</span>
+
             <select
               className="assign-select"
               value={statusFilter}
@@ -526,7 +568,7 @@ const Assignments = () => {
           </div>
 
           <span className="assign-result-count">
-            {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            {totalCount} result{totalCount !== 1 ? "s" : ""}
           </span>
         </div>
 
@@ -545,7 +587,14 @@ const Assignments = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedAssignments.length === 0 ? (
+              {isLoading ? (
+                 <tr>
+                  <td colSpan="8" className="emp-empty">
+                    <RefreshCw size={40} style={{ animation: 'spin 1s linear infinite', color: '#6366f1', marginBottom: '10px', opacity: 1 }} />
+                    <p>Fetching assignments...</p>
+                  </td>
+                </tr>
+              ) : assignments.length === 0 ? (
                 <tr>
                   <td colSpan="8" className="assign-empty">
                     <ClipboardList size={48} strokeWidth={1.2} />
@@ -554,7 +603,7 @@ const Assignments = () => {
                   </td>
                 </tr>
               ) : (
-                paginatedAssignments.map((assign) => {
+                assignments.map((assign) => {
                   const typeColor = getAssetTypeColor(assign.assetType);
                   return (
                     <tr key={assign.id} className="assign-row">
@@ -641,7 +690,7 @@ const Assignments = () => {
                           >
                             <Eye size={15} />
                           </button>
-                          {assign.status === "Active" && (
+                          {assign.status === "Assigned" && (
                             <button
                               className="assign-action-btn assign-action-btn--return"
                               title="Return asset"
@@ -660,11 +709,11 @@ const Assignments = () => {
           </table>
         </div>
 
-        {filtered.length > 0 && (
+        {totalCount > 0 && (
           <div className="assign-pagination">
             <p className="assign-pagination-info">
-              Showing {startIndex + 1}-{Math.min(endIndex, filtered.length)} of{" "}
-              {filtered.length} assignments
+              Showing {startIndex + 1}-{Math.min(endIndex, totalCount)} of{" "}
+              {totalCount} assignments
             </p>
             <div className="assign-pagination-buttons">
               <button
@@ -735,8 +784,14 @@ const Assignments = () => {
                 <form onSubmit={handleSubmit} noValidate>
                   <div className="assign-form-row">
                     <div className="assign-form-group assign-form-group--full">
+                      <input
+                            type="text"
+                            name="assignedBy"
+                            value={formData.role}
+                         hidden
+                          />
                       <label>
-                        Employee <span style={{ color: "#ef4444" }}>*</span>
+                        Employee <span style={{ color: "#EF4444" }}>*</span>
                       </label>
                       <div className="assign-select-wrap">
                         <select
@@ -750,8 +805,8 @@ const Assignments = () => {
                           }
                         >
                           <option value="">Select employee</option>
-                          {EMPLOYEES.map((emp) => (
-                            <option key={emp.id} value={emp.id}>
+                          {employees.map((emp) => (
+                            <option key={emp._id} value={emp._id}>
                               {emp.name} - {emp.department}
                             </option>
                           ))}
@@ -770,7 +825,11 @@ const Assignments = () => {
                       <label>Asset Type</label>
                       <div className="assign-radio-group">
                         <label
-                          className={`assign-radio-option ${formData.assetType === "Laptop" ? "assign-radio-option--active" : ""}`}
+                          className={`assign-radio-option ${
+                            formData.assetType === "Laptop"
+                              ? "assign-radio-option--active"
+                              : ""
+                          }`}
                         >
                           <input
                             type="radio"
@@ -782,8 +841,13 @@ const Assignments = () => {
                           <Laptop size={18} />
                           <span>Laptop</span>
                         </label>
+
                         <label
-                          className={`assign-radio-option ${formData.assetType === "Software" ? "assign-radio-option--active" : ""}`}
+                          className={`assign-radio-option ${
+                            formData.assetType === "Software"
+                              ? "assign-radio-option--active"
+                              : ""
+                          }`}
                         >
                           <input
                             type="radio"
@@ -799,49 +863,139 @@ const Assignments = () => {
                     </div>
                   </div>
 
-                  <div className="assign-form-row">
-                    <div className="assign-form-group assign-form-group--full">
-                      <label>
-                        {formData.assetType}{" "}
-                        <span style={{ color: "#ef4444" }}>*</span>
-                      </label>
-                      <div className="assign-select-wrap">
-                        <select
-                          name="assetId"
-                          value={formData.assetId}
-                          onChange={handleFormChange}
-                          className={
-                            formErrors.assetId
-                              ? "assign-input assign-input--error"
-                              : "assign-input"
-                          }
-                        >
-                          <option value="">
-                            Select {formData.assetType.toLowerCase()}
-                          </option>
-                          {getAvailableAssets().map((asset) => (
-                            <option key={asset.id} value={asset.id}>
-                              {asset.name}
-                              {formData.assetType === "Laptop"
-                                ? ` (${asset.serialNumber})`
-                                : ` (${asset.available} available)`}
-                            </option>
-                          ))}
-                        </select>
+                  {formData.assetType === "Laptop" && (
+                    <>
+                      <div className="assign-form-row">
+                        <div className="assign-form-group assign-form-group--full">
+                          <label>
+                            Laptop Model{" "}
+                            <span style={{ color: "#EF4444" }}>*</span>
+                          </label>
+                          <div className="assign-select-wrap">
+                            <select
+                              name="laptopModelId"
+                              value={formData.laptopModelId}
+                              onChange={handleFormChange}
+                              className={
+                                formErrors.laptopModelId
+                                  ? "assign-input assign-input--error"
+                                  : "assign-input"
+                              }
+                            >
+                              <option value="">Select laptop model</option>
+                              {laptopModels.map((item) => (
+                                <option key={item._id} value={item._id}>
+                                  {item.modelName}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          {formErrors.laptopModelId && (
+                            <span className="assign-field-error">
+                              {formErrors.laptopModelId}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      {formErrors.assetId && (
-                        <span className="assign-field-error">
-                          {formErrors.assetId}
-                        </span>
-                      )}
-                    </div>
-                  </div>
+
+                      <div className="assign-form-row">
+                        <div className="assign-form-group assign-form-group--full">
+                          <label>
+                            Individual Laptop Asset{" "}
+                            <span style={{ color: "#EF4444" }}>*</span>
+                          </label>
+                          <div className="assign-select-wrap">
+                            <select
+                              name="laptopAssetId"
+                              value={formData.laptopAssetId}
+                              onChange={handleFormChange}
+                              className={
+                                formErrors.laptopAssetId
+                                  ? "assign-input assign-input--error"
+                                  : "assign-input"
+                              }
+                              disabled={!formData.laptopModelId}
+                            >
+                              <option value="">
+                                {formData.laptopModelId
+                                  ? "Select individual laptop asset"
+                                  : "First select laptop model"}
+                              </option>
+                              {filteredLaptopAssets.map((asset) => (
+                                <option key={asset._id} value={asset._id}>
+                                  {asset.serialNumber}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          {formErrors.laptopAssetId && (
+                            <span className="assign-field-error">
+                              {formErrors.laptopAssetId}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {formData.assetType === "Software" && (
+                    <>
+                      <div className="assign-form-row">
+                        <div className="assign-form-group assign-form-group--full">
+                          <label>
+                            Software <span style={{ color: "#EF4444" }}>*</span>
+                          </label>
+                          <div className="assign-select-wrap">
+                            <select
+                              name="softwareId"
+                              value={formData.softwareId}
+                              onChange={handleFormChange}
+                              className={
+                                formErrors.softwareId
+                                  ? "assign-input assign-input--error"
+                                  : "assign-input"
+                              }
+                            >
+                              <option value="">Select software</option>
+                              {software.map((item) => (
+                                <option key={item._id} value={item._id}>
+                                  {item.softwareName}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          {formErrors.softwareId && (
+                            <span className="assign-field-error">
+                              {formErrors.softwareId}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="assign-form-row">
+                        <div className="assign-form-group assign-form-group--full">
+                          <label>Software Details</label>
+                          <input
+                            type="text"
+                            className="assign-input"
+                            readOnly
+                            value={
+                              selectedSoftwareDetails
+                                ? `${selectedSoftwareDetails.softwareName}${selectedSoftwareDetails.version ? ` - ${selectedSoftwareDetails.version}` : ""}`
+                                : ""
+                            }
+                            placeholder="Selected software details will appear here"
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   <div className="assign-form-row">
                     <div className="assign-form-group">
                       <label>
                         Assignment Date{" "}
-                        <span style={{ color: "#ef4444" }}>*</span>
+                        <span style={{ color: "#EF4444" }}>*</span>
                       </label>
                       <input
                         type="date"
@@ -870,6 +1024,7 @@ const Assignments = () => {
                     >
                       Cancel
                     </button>
+
                     <button
                       type="submit"
                       className="assign-btn assign-btn--primary"

@@ -17,6 +17,8 @@ const AddEditLaptopModal = ({ isOpen, onClose, model, onSave }) => {
     operatingSystem: "",
     warranty: "",
     price: "",
+    totalAssets: "",
+    purchaseDate:  new Date().toISOString().split("T")[0] ,
     specifications: "",
   });
 
@@ -99,6 +101,9 @@ const AddEditLaptopModal = ({ isOpen, onClose, model, onSave }) => {
     if (!formData.screenSize.trim()) {
       newErrors.screenSize = "Screen size is required";
     }
+    if (!formData.purchaseDate) {
+      newErrors.purchaseDate = "Purchase date is required";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -110,11 +115,11 @@ const AddEditLaptopModal = ({ isOpen, onClose, model, onSave }) => {
     if (validateForm()) {
       const dataToSave = {
         ...formData,
-        id: model ? model.id : Date.now(), // Generate ID for new model
         totalAssets: model ? model.totalAssets : 0,
         available: model ? model.available : 0,
         inUse: model ? model.inUse : 0,
         underRepair: model ? model.underRepair : 0,
+        totalAssets: Number(formData.totalAssets),
       };
 
       onSave(dataToSave);
@@ -396,6 +401,30 @@ const AddEditLaptopModal = ({ isOpen, onClose, model, onSave }) => {
                     placeholder="e.g., 85000"
                   />
                 </div>
+                <div className="form-group">
+                  <label className="form-label">
+                    Total Assets <span className="required">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="totalAssets"
+                    value={formData.totalAssets || ""}
+                    onChange={handleChange}
+                    className="form-input"
+                    placeholder="e.g., 50"
+                  />
+                </div>
+                <div className="form-group">
+                    <label className="form-label">Purchase Date <span className="required">*</span></label>
+                    <input
+                      type="date"
+                      name="purchaseDate"
+                      value={formData.purchaseDate}
+                      onChange={handleChange}
+                      className="form-input"
+                    />
+                   
+                  </div>
               </div>
 
               <div className="form-group">

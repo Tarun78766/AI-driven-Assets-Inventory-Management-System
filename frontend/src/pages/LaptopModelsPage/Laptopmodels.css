@@ -54,7 +54,7 @@ width: calc(100% - 130px);
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: #ffffff;
   border: none;
-  padding: 12px 24px;
+  padding: 11px 22px;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
@@ -120,11 +120,11 @@ width: calc(100% - 130px);
 
 /* Table Controls */
 .table-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  gap: 16px;
+      display: flex;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .search-box {
@@ -156,24 +156,43 @@ width: calc(100% - 130px);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
-.btn-filter {
+.lm-filter-group {
+ position: relative;
   display: flex;
-  align-items: center;
+   align-items: center;
   gap: 8px;
-  background: white;
-  color: #475569;
+}
+.lm-filter-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  white-space: nowrap;
+}
+.lm-select-wrap select {
+  width: 100%;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23475569' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+.lm-select {
+  appearance: none;
+  padding: 11px 36px 11px 14px;
   border: 2px solid #e2e8f0;
-  padding: 12px 20px;
   border-radius: 10px;
   font-size: 14px;
-  font-weight: 600;
+  color: #475569;
+  background: #ffffff;
   cursor: pointer;
+  font-weight: 500;
   transition: all 0.3s ease;
 }
-
-.btn-filter:hover {
+.lm-select:focus {
+  outline: none;
   border-color: #6366f1;
-  color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 /* Table Container */
