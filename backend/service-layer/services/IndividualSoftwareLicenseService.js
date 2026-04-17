@@ -69,7 +69,7 @@ const getAllSoftwareLicenseSeats = async (filters = {}, page = 1, limit = 10) =>
   const skip = (page - 1) * limit;
 
   const [data, totalCount, statsOutput] = await Promise.all([
-    IndividualSoftwareLicenseModel.find(filters).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    IndividualSoftwareLicenseModel.find(filters).populate("assignedTo", "name email").sort({ createdAt: -1 }).skip(skip).limit(limit),
     IndividualSoftwareLicenseModel.countDocuments(filters),
     IndividualSoftwareLicenseModel.aggregate([
       // We pass an empty match to get global stats across the ENTIRE system if we want, 

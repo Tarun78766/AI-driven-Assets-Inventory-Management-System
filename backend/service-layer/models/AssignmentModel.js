@@ -35,11 +35,7 @@ const assignmentSchema=new mongoose.Schema(
     },
 
 
-    softwareAssetId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Software",
-      default: null
-    },
+    
     assignDate: {
       type: Date,
       required: true
@@ -55,6 +51,10 @@ const assignmentSchema=new mongoose.Schema(
     },
     assignedBy:{
      type:String
+    },
+    purchaseDate:{
+        type:Date,
+        default:null
     }
     },
     {

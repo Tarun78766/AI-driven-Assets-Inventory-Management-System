@@ -14,41 +14,32 @@ const createSoftware = async (data) => {
   session.startTransaction();
 
   try {
-    console.log("inside create software");
 
-    // 🔥 1. CHECK TRACKED TYPE
-    const trackableTypes = ["Subscription", "Per Seat", "Perpetual"];
-    const isTracked = trackableTypes.includes(data.licenseType);
-
-    // 🔥 2. SET DEFAULT VALUES (IMPORTANT)
+    // 🔥 1. SET DEFAULT VALUES
     const software = new SoftwareModel({
       ...data,
       usedLicenses: 0,
-      cost: isTracked ? data.cost : 0,
-      expiryDate: isTracked
-        ? data.expiryDate
-        : new Date("2099-12-31"), // dummy future date,
-      totalLicenses: isTracked ? data.totalLicenses : 0,  
+      cost: data.cost,
+      expiryDate: data.expiryDate,
+      totalLicenses: data.totalLicenses,  
     });
 
     await software.save({ session });
 
-    // 🔥 3. CREATE SEATS ONLY IF TRACKED
-    if (isTracked) {
-      const seats = [];
+    // 🔥 2. CREATE SEATS
+    const seats = [];
 
-      for (let i = 1; i <= data.totalLicenses; i++) {
+    for (let i = 1; i <= data.totalLicenses; i++) {
         seats.push({
-          softwareModelId: software._id,
-          softwareName: software.name,
-          licenseKeyOrSeatName: generateSeatName(software.name, i),
-          status: "Available",
+            softwareModelId: software._id,
+            softwareName: software.name,
+            licenseKeyOrSeatName: generateSeatName(software.name, i),
+            status: "Available",
         });
-      }
+    }
 
-      if (seats.length > 0) {
+    if (seats.length > 0) {
         await IndividualSoftwareLicenseModel.insertMany(seats, { session });
-      }
     }
 
     await session.commitTransaction();

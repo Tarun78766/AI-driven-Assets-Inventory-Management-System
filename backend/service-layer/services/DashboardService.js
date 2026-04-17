@@ -1,165 +1,134 @@
 const LaptopModel = require("../models/LaptopModel");
-const IndividualLaptopModel = require("../models/IndividualLaptopModel");
 const SoftwareModel = require("../models/SoftwareModel");
-const IndividualSoftwareLicenseModel = require("../models/IndividualSoftwareLicenseModel");
-const EmployeeModel = require("../models/EmployeeModel");
 const AssignmentModel = require("../models/AssignmentModel");
 
-/**
- * DashboardService
- * Aggregates statistics across the entire database for the frontend dashboard.
- */
-
-const getDashboardStats = async () => {
-  // 1. STATS (Top Four Cards)
-  const totalLaptops = await IndividualLaptopModel.countDocuments();
-
-  // Software represents "Total Products we use".
-  const totalSoftware = await SoftwareModel.countDocuments();
-
-  const activeEmployees = await EmployeeModel.countDocuments();
-
-  // Only count active assignments currently held by employees, not returned ones
-  const activeAssignments = await AssignmentModel.countDocuments({
-    status: "Active",
-  });
-
-  const stats = {
-    totalLaptops,
-    totalSoftware,
-    activeEmployees,
-    totalAssignments: activeAssignments,
-  };
-
-  // 2. QUICK STATS (Bottom Bars)
-  const availableLaptops = await IndividualLaptopModel.countDocuments({
-    status: "Available",
-  });
-  const inUseLaptops = await IndividualLaptopModel.countDocuments({
-    status: "Assigned",
-  });
-  const underMaintenanceLaptops = await IndividualLaptopModel.countDocuments({
-    status: "Under Repair",
-  });
-
-  // Summing up total software licenses vs used
-  const softwareAggregation = await SoftwareModel.aggregate([
+const getDashboardData = async () => {
+  // ========================
+  // 1. LAPTOP STATS
+  // ========================
+  const laptopStats = await LaptopModel.aggregate([
     {
       $group: {
         _id: null,
-        totalLicensesSum: { $sum: "$totalLicenses" },
-        usedLicensesSum: { $sum: "$usedLicenses" },
+        total: { $sum: "$totalAssets" },
+        inUse: { $sum: "$inUse" },
+        underRepair: { $sum: "$underRepair" },
       },
     },
   ]);
 
-  let totalSoftwareLicenses = 0;
-  let usedSoftwareLicenses = 0;
-
-  if (softwareAggregation.length > 0) {
-    totalSoftwareLicenses = softwareAggregation[0].totalLicensesSum;
-    usedSoftwareLicenses = softwareAggregation[0].usedLicensesSum;
-  }
-
-  const quickStats = {
-    availableLaptops,
-    inUseLaptops,
-    underMaintenance: underMaintenanceLaptops,
-    softwareLicenses: {
-      total: totalSoftwareLicenses,
-      used: usedSoftwareLicenses,
-    },
+  const laptops = laptopStats[0] || {
+    total: 0,
+    inUse: 0,
+    underRepair: 0,
   };
 
-  // 3. RECENT ACTIVITY
-  // Fetch the 5 most recent history entries
+  laptops.available = laptops.total - (laptops.inUse + laptops.underRepair);
+
+  // ========================
+  // 2. SOFTWARE STATS
+  // ========================
+  const softwareStats = await SoftwareModel.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalLicenses: { $sum: "$totalLicenses" },
+        usedLicenses: { $sum: "$usedLicenses" },
+      },
+    },
+  ]);
+
+  const software = softwareStats[0] || {
+    totalLicenses: 0,
+    usedLicenses: 0,
+  };
+
+  software.availableLicenses =
+    software.totalLicenses - software.usedLicenses;
+
+  // ========================
+  // 3. ASSIGNMENTS STATS
+  // ========================
+  const totalAssignments = await AssignmentModel.countDocuments();
+  const activeAssignments = await AssignmentModel.countDocuments({
+    status: "Assigned",
+  });
+  const returnedAssignments = await AssignmentModel.countDocuments({
+    status: "Returned",
+  });
+
+  // ========================
+  // 4. RECENT ACTIVITY 🔥
+  // ========================
   const recentAssignments = await AssignmentModel.find()
     .sort({ createdAt: -1 })
     .limit(5);
 
-  const recentActivity = recentAssignments.map((a) => {
-    // Determine friendly text action and status based on action
-    let actionText = "";
-    let statusText = "success";
+  const activity = recentAssignments.map((a) => ({
+    id: a._id,
+    action:
+      a.status === "Returned"
+        ? "Asset returned"
+        : "Asset assigned",
+    item: a.assetName,
+    employee: a.employeeName,
+    time: a.createdAt,
+    status: a.status === "Returned" ? "warning" : "success",
+  }));
 
-    if (a.status === "Active") {
-      actionText =
-        a.assetType === "Laptop" ? "Laptop assigned" : "Software installed";
-      statusText = "success";
-    } else {
-      actionText =
-        a.assetType === "Laptop" ? "Laptop returned" : "Software revoked";
-      statusText = "warning";
-    }
-
-    // Rough approximation of "Time Ago" based on standard ISO Date Output
-    // The frontend can parse this better if we pass ISO directly, or we format it.
-    const timeAgo = a.updatedAt;
-
-    return {
-      id: a._id.toString(),
-      action: actionText,
-      item: a.assetName,
-      employee: a.employeeName,
-      time: timeAgo,
-      status: statusText,
-    };
-  });
-
-  // 4. LOW STOCK ALERTS
-  // We will mathematically calculate stock warnings. Custom threshold is 5.
-  const THRESHOLD = 5;
-  const lowStockAlerts = [];
-
-  // Find laptops grouped by Model that have very few "Available" left
-  const availableLaptopsByGroup = await IndividualLaptopModel.aggregate([
-    { $match: { status: "Available" } },
-    {
-      $group: {
-        _id: "$laptopModelId",
-        count: { $sum: 1 },
-        modelName: { $first: "$modelName" },
-      },
-    },
-  ]);
-
-  availableLaptopsByGroup.forEach((group) => {
-    if (group.count <= THRESHOLD) {
-      lowStockAlerts.push({
-        id: `LAP-${group._id}`,
-        item: group.modelName,
-        stock: group.count,
-        threshold: THRESHOLD,
-      });
-    }
-  });
-
-  // Find software that is almost fully consumed
-  const lowSoftwareKeys = await SoftwareModel.find({
+  // ========================
+  // 5. LOW STOCK ALERTS 🔥
+  // ========================
+  const laptopAlerts = await LaptopModel.find({
     $expr: {
-      $lte: [{ $subtract: ["$totalLicenses", "$usedLicenses"] }, THRESHOLD],
+      $lt: [
+        {
+          $subtract: [
+            "$totalAssets",
+            { $add: ["$inUse", "$underRepair"] },
+          ],
+        },
+        5, // threshold
+      ],
     },
-  });
+  }).limit(5);
 
-  lowSoftwareKeys.forEach((sw) => {
-    const remaining = sw.totalLicenses - sw.usedLicenses;
-    lowStockAlerts.push({
-      id: `SW-${sw._id}`,
-      item: `${sw.name} License`,
-      stock: remaining,
-      threshold: THRESHOLD,
-    });
-  });
+  const softwareAlerts = await SoftwareModel.find({
+    $expr: {
+      $lt: [
+        { $subtract: ["$totalLicenses", "$usedLicenses"] },
+        5,
+      ],
+    },
+  }).limit(5);
 
-  // Construct Final Master Object
+  const alerts = [
+    ...laptopAlerts.map((l) => ({
+      id: l._id,
+      item: l.modelName,
+      stock:
+        l.totalAssets - (l.inUse + l.underRepair),
+      threshold: 5,
+    })),
+    ...softwareAlerts.map((s) => ({
+      id: s._id,
+      item: s.name,
+      stock: s.totalLicenses - s.usedLicenses,
+      threshold: 5,
+    })),
+  ];
+
   return {
-    stats,
-    quickStats,
-    recentActivity,
-    lowStockAlerts,
+    laptops,
+    software,
+    assignments: {
+      total: totalAssignments,
+      active: activeAssignments,
+      returned: returnedAssignments,
+    },
+    activity,
+    alerts,
   };
 };
 
-module.exports = {
-  getDashboardStats,
-};
+module.exports = { getDashboardData };

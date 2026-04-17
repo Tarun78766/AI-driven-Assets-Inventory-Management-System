@@ -3,7 +3,7 @@ const router = express.Router();
 const SoftwareController = require("../controllers/SoftwareController");
 
 // Middlewares
-const authMiddleware = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middlewares/AuthMiddleware");
 
 // Custom restrictTo middleware for this module
 const restrictTo = (...roles) => {
@@ -20,7 +20,7 @@ const restrictTo = (...roles) => {
 
 // All software routes require authentication and manager/admin role
 router.use(authMiddleware);
-router.use(restrictTo("Admin", "Manager"));
+router.use(restrictTo("admin", "manager"));
 
 // Order is crucial here. /tracked MUST come before /:id
 router.get("/tracked", SoftwareController.getTrackedSoftware);

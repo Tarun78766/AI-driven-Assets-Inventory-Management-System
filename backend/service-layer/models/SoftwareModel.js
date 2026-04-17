@@ -28,7 +28,7 @@ const SoftwareModelSchema = new mongoose.Schema(
     },
     licenseType: {
       type: String,
-      enum: ["Subscription", "Per Seat", "Perpetual", "Open Source"],
+      enum: ["Subscription", "Per Seat", "Perpetual"],
     },
     totalLicenses: {
       type: Number,

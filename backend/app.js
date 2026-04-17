@@ -14,6 +14,8 @@ const individualSoftwareRoutes = require("./web-layer/routes/IndividualSoftwareL
 const employeeRoutes = require("./web-layer/routes/EmployeeRoutes");
 const assignmentRoutes = require("./web-layer/routes/AssignmentRoutes");
 const dashboardRoutes = require("./web-layer/routes/DashboardRoutes");
+const userRoutes = require("./web-layer/routes/UserRoutes");
+const reportRoutes = require("./web-layer/routes/ReportRoutes");
 
 // Future routes
 // const inventoryRoutes = require("./web-layer/routes/inventory.routes");
@@ -34,6 +36,8 @@ app.use("/api/software", softwareRoutes);
 app.use("/api/individual-software", individualSoftwareRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/assignments", assignmentRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/reports", reportRoutes);
 
 // app.use("/api/inventory", inventoryRoutes);
 

@@ -43,7 +43,8 @@ const IndividualLaptopSchema = new mongoose.Schema(
     },
     // Details on when the company acquired this specific slice of hardware
     purchaseDate: {
-      type: String,
+      type: Date,
+      required: true
     },
     // Extra notes if a screen is scratched or a key is broken
     conditionNotes: {

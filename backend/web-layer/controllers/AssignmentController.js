@@ -11,7 +11,7 @@ const createAssignment = async (req, res) => {
     // In a full production app, you can extract the Admin's name from `req.user`
     // (set by AuthMiddleware) to record exactly who handed out the equipment!
     // For now, we will default it to "System Admin" or whatever role is in the JWT.
-    const assignedByAdmin = req.user ? req.user.role : "System Admin";
+    const assignedByAdmin = req.user ? req.user.role : "Admin";
 
     const newAssignment = await assignmentService.createAssignment(req.body, assignedByAdmin);
     res.status(201).json({ 

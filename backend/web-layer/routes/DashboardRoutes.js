@@ -1,18 +1,11 @@
 const express = require("express");
 const router = express.Router();
-
-const dashboardController = require("../controllers/DashboardController");
 const authMiddleware = require("../middlewares/authMiddleware");
-
-/**
- * Dashboard Routes
- * (Mounted at /api/dashboard in app.js)
- */
+const restrictTo = authMiddleware.restrictTo;
+const dashboardController = require("../controllers/DashboardController");
 
 router.use(authMiddleware);
 
-// GET /api/dashboard
-router.get("/", dashboardController.getDashboardData);
-
+router.get("/", restrictTo("admin", "manager"), dashboardController.getDashboard);
 
 module.exports = router;

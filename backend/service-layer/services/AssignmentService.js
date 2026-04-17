@@ -18,87 +18,107 @@ const createAssignment = async (data, assignedByAdmin) => {
 
   try {
     const employee = await EmployeeModel.findById(data.employeeId).session(session);
-    if (!employee) throw new Error("Employee not found in database.");
+    if (!employee) throw new Error("Employee not found");
 
     let assetName = "";
-
+    let purchaseDate = null;
+    // ================= LAPTOP =================
     if (data.assetType === "Laptop") {
+      const existingLaptop = await AssignmentModel.findOne({
+    employeeId: new mongoose.Types.ObjectId(data.employeeId),
+    assetType: "Laptop",
+    status: "Assigned",
+  }).session(session);
+
+  if (existingLaptop) {
+    throw new Error("Employee already has a laptop assigned");
+  }
+
+  // 🔥 2. Validate input
+  if (!data.laptopAssetId) {
+    throw new Error("Laptop asset ID is required");
+  }
       const laptop = await IndividualLaptopModel.findById(data.laptopAssetId).session(session);
-      if (!laptop) throw new Error("Physical Laptop Asset not found.");
+
+      if (!laptop) throw new Error("Laptop not found");
       if (laptop.status !== "Available") {
-        throw new Error(`This laptop is currently ${laptop.status} and cannot be assigned.`);
+        throw new Error(`Laptop is ${laptop.status}`);
       }
 
       laptop.status = "Assigned";
       laptop.assignedTo = employee._id;
       await laptop.save({ session });
 
-      const parentCatalog = await LaptopModel.findById(laptop.laptopModelId).session(session);
-      if (parentCatalog) {
-        parentCatalog.inUse += 1;
-        await parentCatalog.save({ session });
+      const parent = await LaptopModel.findById(laptop.laptopModelId).session(session);
+      if (parent) {
+        parent.inUse += 1;
+        await parent.save({ session });
       }
 
       assetName = `${laptop.modelName} (SN: ${laptop.serialNumber})`;
+      purchaseDate = laptop.purchaseDate; // 🔥 FIX
+
       employee.assignedLaptops += 1;
+    }
 
-    } else if (data.assetType === "Software") {
-      // DUAL PATH LOGIC: Check if data.assetId is an exact tracked seat, or a generic software parent
-      let seat = await IndividualSoftwareLicenseModel.findById(data.assetId).session(session);
-      
-      if (seat) {
-        // [PATH A] Tracked Specific Seat
-        if (seat.status !== "Available") throw new Error("This specific license seat is already assigned.");
-        seat.status = "Assigned";
-        seat.assignedTo = employee._id;
-        await seat.save({ session });
+    // ================= SOFTWARE =================
+    else if (data.assetType === "Software") {
+  const seat = await IndividualSoftwareLicenseModel
+    .findById(data.softwareId)
+    .session(session);
 
-        const parent = await SoftwareModel.findById(seat.softwareModelId).session(session);
-        if (parent) {
-          parent.usedLicenses += 1;
-          await parent.save({ session });
-        }
-        assetName = `${seat.softwareName} (Key: ${seat.licenseKeyOrSeatName})`;
+  if (!seat) throw new Error("Software seat not found");
 
-      } else {
-        // [PATH B] Untracked / Unlimited Software (e.g., Open Source)
-        const parentSoftware = await SoftwareModel.findById(data.assetId).session(session);
-        if (!parentSoftware) throw new Error("Software asset or seat not found.");
+  if (seat.status !== "Available") {
+    throw new Error("License already assigned");
+  }
 
-        const trackedTypes = ["Subscription", "Licensed", "Per Seat"];
-        if (trackedTypes.includes(parentSoftware.licenseType)) {
-          throw new Error(`This software (${parentSoftware.licenseType}) requires you to assign a specific tracked Seat/License Key, rather than the generic catalog entry.`);
-        }
+  // Assign seat
+  seat.status = "Assigned";
+  seat.assignedTo = employee._id;
+  await seat.save({ session });
 
-        // Technically unlimited, but we still increment the used counter just to see how many people use it
-        parentSoftware.usedLicenses += 1;
-        await parentSoftware.save({ session });
-        assetName = parentSoftware.name;
-      }
+  // Update parent
+  const parent = await SoftwareModel
+    .findById(seat.softwareModelId)
+    .session(session);
 
-      employee.assignedSoftware += 1;
+  if (parent) {
+    parent.usedLicenses += 1;
+    await parent.save({ session });
+  }
 
-    } else {
-      throw new Error("Invalid Asset Type. Must be 'Laptop' or 'Software'.");
+  assetName = `${seat.softwareName} (${seat.licenseKeyOrSeatName})`;
+
+  employee.assignedSoftware += 1;
+}
+    else {
+      throw new Error("Invalid asset type");
     }
 
     await employee.save({ session });
 
+    // ================= CREATE ASSIGNMENT =================
     const assignment = new AssignmentModel({
       employeeId: employee._id,
       employeeName: employee.name,
       assetType: data.assetType,
-      laptopAssetId: data.laptopAssetId,
-      softwareAssetId: data.softwareAssetId,
-      assetName: assetName,
+
+      laptopModelId: data.laptopModelId || null,
+      laptopAssetId: data.laptopAssetId || null,
+      softwareId: data.softwareId || null,
+
+      assetName,
       assignDate: data.assignDate,
       assignedBy: assignedByAdmin,
+      purchaseDate, // 🔥 FIX
     });
-    console.log(assignment);
 
     await assignment.save({ session });
-    await session.commitTransaction(); // CRITICAL BUG FIX PRESERVED!
+
+    await session.commitTransaction();
     return assignment;
+
   } catch (error) {
     await session.abortTransaction();
     throw error;
@@ -229,10 +249,9 @@ const returnAssignment = async (id) => {
       }
 
     } else if (assignment.assetType === "Software") {
-      let seat = await IndividualSoftwareLicenseModel.findById(assignment.softwareAssetId).session(session);
+      let seat = await IndividualSoftwareLicenseModel.findById(assignment.softwareId).session(session);
       
       if (seat) {
-        // Restoring a specific tracked seat
         seat.status = "Available";
         seat.assignedTo = null;
         await seat.save({ session });
@@ -241,13 +260,6 @@ const returnAssignment = async (id) => {
         if (parent) {
           parent.usedLicenses = Math.max(0, parent.usedLicenses - 1);
           await parent.save({ session });
-        }
-      } else {
-        // Restoring an untracked generic software assignment
-        const parentSoftware = await SoftwareModel.findById(assignment.softwareAssetId).session(session);
-        if (parentSoftware) {
-          parentSoftware.usedLicenses = Math.max(0, parentSoftware.usedLicenses - 1);
-          await parentSoftware.save({ session });
         }
       }
 

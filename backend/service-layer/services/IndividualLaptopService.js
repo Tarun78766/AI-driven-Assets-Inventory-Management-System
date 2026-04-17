@@ -58,6 +58,7 @@ const getAllPhysicalLaptops = async (page, limit, filter) => {
   const skip = (page - 1) * limit;
   
   const hardwareList = await IndividualLaptopModel.find(filter)
+    .populate("assignedTo", "name email")
     .sort({ index: 1 })
     .skip(skip)
     .limit(limit);

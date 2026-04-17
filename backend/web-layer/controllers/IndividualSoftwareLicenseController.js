@@ -20,7 +20,7 @@ const addSoftwareLicenseSeat = async (req, res) => {
 
 const getAllSoftwareLicenseSeats = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, status } = req.query;
+    const { page = 1, limit = 10, search, status, softwareModelId } = req.query;
     
     const filters = {};
     
@@ -33,6 +33,10 @@ const getAllSoftwareLicenseSeats = async (req, res) => {
     
     if (status && status !== "All") {
       filters.status = status;
+    }
+
+    if (softwareModelId) {
+      filters.softwareModelId = softwareModelId;
     }
 
     const result = await individualSoftwareService.getAllSoftwareLicenseSeats(
