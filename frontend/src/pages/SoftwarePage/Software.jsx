@@ -48,7 +48,7 @@ const CATEGORIES = [
   "Analytics",
 ];
 const STATUSES = ["All", "Active", "Upcoming", "Critical", "Expired"];
-const LIC_TYPES = ["Subscription", "Per Seat", "Perpetual", "Open Source"];
+const LIC_TYPES = ["Subscription", "Per Seat", "Perpetual"];
 const VENDORS = [
   "Microsoft",
   "Adobe",

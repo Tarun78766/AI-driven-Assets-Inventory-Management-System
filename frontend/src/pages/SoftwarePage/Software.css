@@ -94,6 +94,7 @@ width: calc(100% - 130px);
 .sw-subtitle {
   font-size: 14px;
   color: #64748b;
+  margin-bottom: 0;
 }
 
 .sw-header-right {

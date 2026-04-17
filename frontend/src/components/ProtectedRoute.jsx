@@ -4,11 +4,13 @@
 // Wraps routes that require authentication
 // ═══════════════════════════════════════════
 
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { RefreshCw } from 'lucide-react';
 
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { user, loading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   // Show loading spinner while checking authentication
   if (loading) {
@@ -21,7 +23,16 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
         fontSize: '18px',
         color: '#6366f1'
       }}>
-        Loading...
+       <RefreshCw
+                      size={40}
+                      style={{
+                        animation: "spin 1s linear infinite",
+                        color: "#6366f1",
+                        marginBottom: "10px",
+                        opacity: 1,
+                      }}
+                    />
+                    <p>Loading...</p>
       </div>
     );
   }
@@ -53,7 +64,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
             You don't have permission to access this page.
           </p>
           <button
-            onClick={() => window.history.back()}
+            onClick={() => navigate(-1)}
             style={{
               padding: '10px 20px',
               background: '#6366f1',

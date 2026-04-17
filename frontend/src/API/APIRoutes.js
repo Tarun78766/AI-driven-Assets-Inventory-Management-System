@@ -8,5 +8,9 @@ export const APIRoutes = {
   INDIVIDUAL_LAPTOP_API: "individual-laptops",
   SOFTWARE_API: "software",
   INDIVIDUAL_SOFTWARE_API: "individual-software",
-  ASSIGNMENTS_API: "assignments"
+  ASSIGNMENTS_API: "assignments",
+  USERS_API: "users",
+  DASHBOARD_API: "dashboard",
+  REPORTS_API: "reports",
+  
 };

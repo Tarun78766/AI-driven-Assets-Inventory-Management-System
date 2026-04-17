@@ -41,6 +41,15 @@ width: calc(100% - 130px);
 .dashboard-subtitle {
   font-size: 15px;
   color: #64748b;
+  margin-bottom: 0;
+}
+
+
+/* loader */
+.no-data {
+  text-align: center;
+  padding: 60px 20px !important;
+  color: #94a3b8;
 }
 
 /* Statistics Cards Grid */

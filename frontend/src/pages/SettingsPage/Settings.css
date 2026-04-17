@@ -89,6 +89,7 @@ width: calc(100% - 130px);
 .settings-subtitle {
   font-size: 14px;
   color: #64748b;
+  margin-bottom: 0;
 }
 
 /* ── Main Container ─────────────────────── */

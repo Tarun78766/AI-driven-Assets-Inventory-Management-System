@@ -22,7 +22,7 @@ import Login from "./components/Login/Login";
 import SignUp from "./components/signUp/SignUp";
 
 // Page Components
-import Dashboard from "./pages/DashboardPage/DashBoard";
+import Dashboard from "./pages/DashboardPage/Dashboard";
 import LaptopModels from "./pages/LaptopModelsPage/Laptopmodels";
 import Software from "./pages/SoftwarePage/Software";
 import Notification from "./pages/NotificationPage/Notification";
@@ -30,7 +30,7 @@ import Employees from "./pages/EmployeesPage/Employees";
 import Assignments from "./pages/AssignmentsPage/Assignments";
 import Reports from "./pages/ReportsPage/Report";
 import Settings from "./pages/SettingsPage/Settings";
-import AddManager from "./pages/AdminAddManager/AddManager";
+import UserManagement from "./pages/UserManagementPage/UserManagement";
 
 // Navbar and Sidebar
 import Navbar from "./components/navBar/NavBar";
@@ -78,7 +78,7 @@ function App() {
         <Route
           path="/laptops"
           element={
-            <ProtectedRoute allowedRoles={["Admin", "Manager"]}>
+            <ProtectedRoute allowedRoles={["admin", "manager"]}>
               <LaptopModels />
             </ProtectedRoute>
           }
@@ -86,7 +86,7 @@ function App() {
         <Route
           path="/laptops/individual"
           element={
-            <ProtectedRoute allowedRoles={["Admin", "Manager"]}>
+            <ProtectedRoute allowedRoles={["admin", "manager"]}>
               <IndividualLaptops />
             </ProtectedRoute>
           }
@@ -95,7 +95,7 @@ function App() {
         <Route
           path="/software"
           element={
-            <ProtectedRoute allowedRoles={["Admin", "Manager"]}>
+            <ProtectedRoute allowedRoles={["admin", "manager"]}>
               <Software />
             </ProtectedRoute>
           }
@@ -103,7 +103,7 @@ function App() {
         <Route
           path="/software/individual"
           element={
-            <ProtectedRoute allowedRoles={["Admin", "Manager"]}>
+            <ProtectedRoute allowedRoles={["admin", "manager"]}>
               <IndividualSoftware />
             </ProtectedRoute>
           }
@@ -112,7 +112,7 @@ function App() {
         <Route
           path="/assignments"
           element={
-            <ProtectedRoute allowedRoles={["Admin", "Manager"]}>
+            <ProtectedRoute allowedRoles={["admin", "manager"]}>
               <Assignments />
             </ProtectedRoute>
           }
@@ -121,7 +121,7 @@ function App() {
         <Route
           path="/reports"
           element={
-            <ProtectedRoute allowedRoles={["Admin", "Manager"]}>
+            <ProtectedRoute allowedRoles={["admin", "manager"]}>
               <Reports />
             </ProtectedRoute>
           }
@@ -131,16 +131,17 @@ function App() {
         <Route
           path="/employees"
           element={
-            <ProtectedRoute allowedRoles={["Admin"]}>
+            <ProtectedRoute allowedRoles={["admin"]}>
               <Employees />
             </ProtectedRoute>
           }
       />
-      <Route
-          path="/add-manager"
+        
+        <Route
+          path="/user-management"
           element={
-            <ProtectedRoute allowedRoles={["Admin"]}>
-              <AddManager />
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <UserManagement />
             </ProtectedRoute>
           }
         />

@@ -1,4 +1,5 @@
 import { useLocation, Link } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import "./Sidebar.css";
 import {
   LayoutDashboard,
@@ -9,27 +10,33 @@ import {
   FileText,
   Settings,
   UserPlus,
+  ShieldAlert,
 } from "lucide-react";
 
 const Sidebar = () => {
+  const { user } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname.replace("/", "") || "dashboard";
+  
+  const userRole = user?.role?.toLowerCase() || "employee";
 
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "laptops", label: "Laptops", icon: Laptop },
-    { id: "software", label: "Software", icon: Package },
-    { id: "employees", label: "Employees", icon: Users },
-    { id: "add-manager", label: "Add Manager", icon: UserPlus },
-    { id: "assignments", label: "Assignments", icon: ClipboardList },
-    { id: "reports", label: "Reports", icon: FileText },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["employee", "manager", "admin"] },
+    { id: "laptops", label: "Laptops", icon: Laptop, roles: ["manager", "admin"] },
+    { id: "software", label: "Software", icon: Package, roles: ["manager", "admin"] },
+    { id: "employees", label: "Employees", icon: Users, roles: ["admin"] },
+    { id: "user-management", label: "User Roles", icon: ShieldAlert, roles: ["admin"] },
+    { id: "assignments", label: "Assignments", icon: ClipboardList, roles: ["manager", "admin"] },
+    { id: "reports", label: "Reports", icon: FileText, roles: ["manager", "admin"] },
+    { id: "settings", label: "Settings", icon: Settings, roles: ["employee", "manager", "admin"] },
   ];
 
   return (
     <div className="sidebar-outer">
       <div className="sidebar-inner">
-        {menuItems.map((item) => {
+        {menuItems
+          .filter(item => item.roles.includes(userRole))
+          .map((item) => {
           const Icon = item.icon;
 
           return (

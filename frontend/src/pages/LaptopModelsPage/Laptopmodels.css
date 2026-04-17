@@ -18,8 +18,8 @@ width: calc(100% - 130px);
 
 .header-left {
   display: flex;
-  align-items: center;
-  gap: 16px;
+    align-items: center;
+    gap: 16px;
 }
 
 .header-icon {
@@ -44,6 +44,7 @@ width: calc(100% - 130px);
 .page-subtitle {
   font-size: 14px;
   color: #64748b;
+  margin-bottom: 0;
 }
 
 /* Primary Button */
@@ -189,7 +190,8 @@ width: calc(100% - 130px);
   font-weight: 500;
   transition: all 0.3s ease;
 }
-.lm-select:focus {
+.l
+m-select:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);

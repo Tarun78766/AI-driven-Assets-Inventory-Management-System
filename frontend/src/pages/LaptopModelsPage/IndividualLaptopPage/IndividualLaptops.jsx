@@ -445,6 +445,7 @@ export default function IndividualLaptops() {
                 <tr>
                   <th>Serial Number</th>
                   <th>Model</th>
+                  <th>Assigned To</th>
                   <th>Status</th>
                   <th>Purchase Date</th>
                   <th>Condition</th>
@@ -480,6 +481,15 @@ export default function IndividualLaptops() {
                         </div>
                       </td>
                       <td>
+                        {l.assignedTo ? (
+                           <span style={{ fontWeight: 500, color: '#374151' }}>
+                             {l.assignedTo?.name || l.assignedTo}
+                           </span>
+                        ) : (
+                           <span style={{ color: '#9CA3AF' }}>—</span>
+                        )}
+                      </td>
+                      <td>
                         <span
                           className="il-status-badge"
                           style={{
@@ -513,27 +523,27 @@ export default function IndividualLaptops() {
                         </span>
                       </td>
                       <td>
-                        <div className="il-actions">
+                        <div className="action-buttons">
                           <button
-                            className="il-action-btn il-action-btn--view"
+                            className="btn-icon btn-view"
                             title="View"
                             onClick={() => setShowDetail(l)}
                           >
-                            <Eye size={15} />
+                            <Eye size={16} />
                           </button>
                           <button
-                            className="il-action-btn il-action-btn--edit"
+                            className="btn-icon btn-edit"
                             title="Edit"
                             onClick={() => openEdit(l)}
                           >
-                            <Edit2 size={15} />
+                            <Edit2 size={16} />
                           </button>
                           <button
-                            className="il-action-btn il-action-btn--delete"
+                            className="btn-icon btn-delete"
                             title="Delete"
                             onClick={() => setDeleteConfirm(l)}
                           >
-                            <Trash2 size={15} />
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </td>
@@ -726,6 +736,10 @@ export default function IndividualLaptops() {
                 <div className="il-detail-card">
                   <span className="il-detail-label">Serial Number</span>
                   <span className="il-detail-value">{showDetail.serialNumber}</span>
+                </div>
+                <div className="il-detail-card">
+                  <span className="il-detail-label">Assigned To</span>
+                  <span className="il-detail-value">{showDetail.assignedTo?.name || showDetail.assignedTo || "—"}</span>
                 </div>
                 <div className="il-detail-card">
                   <span className="il-detail-label">Status</span>

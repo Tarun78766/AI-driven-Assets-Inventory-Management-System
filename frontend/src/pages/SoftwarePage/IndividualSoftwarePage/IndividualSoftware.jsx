@@ -464,6 +464,7 @@ const IndividualSoftware = () => {
                       <td>
                         {seat.assignedTo ? (
                           <span className="sw-vendor">
+                            {console.log(seat)}
                             {seat.assignedTo?.name || seat.assignedTo}
                           </span>
                         ) : (

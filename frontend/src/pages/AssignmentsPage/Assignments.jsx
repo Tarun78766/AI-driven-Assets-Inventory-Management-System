@@ -4,7 +4,14 @@ import {
   createAssignmentApi,
   returnAssignmentApi,
 } from "./AssignmentAPI";
-import { getEmployees, getLaptopModels, getAvailableLaptops, getAvailableLaptopsByModel } from "../../API/dataAPI";
+import {
+  getEmployees,
+  getLaptopModels,
+  getAvailableLaptops,
+  getAvailableLaptopsByModel,
+  getSoftwareModels,
+  getAvailableSoftwareSeatsByModel,
+} from "../../API/dataAPI";
 import "./Assignments.css";
 import {
   Search,
@@ -33,162 +40,20 @@ import Sidebar from "../../components/sideBar/SideBar";
 
 const ITEMS_PER_PAGE = 10;
 
-// /* ─── Initial Data ─────────────────────── */
-// const INITIAL_ASSIGNMENTS = [
-//   {
-//     id: 1,
-//     employeeId: 1,
-//     employeeName: "Rajesh Kumar",
-//     assetType: "Laptop",
-//     assetName: "Dell XPS 15",
-//     assetId: 101,
-//     assignDate: "2024-01-15",
-//     returnDate: null,
-//     status: "Active",
-//     assignedBy: "Admin",
-//   },
-//   {
-//     id: 2,
-//     employeeId: 1,
-//     employeeName: "Rajesh Kumar",
-//     assetType: "Software",
-//     assetName: "Microsoft Office 365",
-//     assetId: 201,
-//     assignDate: "2024-01-15",
-//     returnDate: null,
-//     status: "Active",
-//     assignedBy: "Admin",
-//   },
-//   {
-//     id: 3,
-//     employeeId: 2,
-//     employeeName: "Priya Sharma",
-//     assetType: "Laptop",
-//     assetName: 'MacBook Pro 16"',
-//     assetId: 102,
-//     assignDate: "2023-11-20",
-//     returnDate: null,
-//     status: "Active",
-//     assignedBy: "IT Ops",
-//   },
-//   {
-//     id: 4,
-//     employeeId: 2,
-//     employeeName: "Priya Sharma",
-//     assetType: "Software",
-//     assetName: "GitHub Enterprise",
-//     assetId: 202,
-//     assignDate: "2023-11-20",
-//     returnDate: null,
-//     status: "Active",
-//     assignedBy: "IT Ops",
-//   },
-//   {
-//     id: 5,
-//     employeeId: 3,
-//     employeeName: "Amit Patel",
-//     assetType: "Laptop",
-//     assetName: "HP EliteBook 840 G9",
-//     assetId: 103,
-//     assignDate: "2024-02-10",
-//     returnDate: null,
-//     status: "Active",
-//     assignedBy: "Admin",
-//   },
-//   {
-//     id: 6,
-//     employeeId: 3,
-//     employeeName: "Amit Patel",
-//     assetType: "Software",
-//     assetName: "Adobe Creative Suite",
-//     assetId: 203,
-//     assignDate: "2024-02-10",
-//     returnDate: null,
-//     status: "Active",
-//     assignedBy: "Admin",
-//   },
-//   {
-//     id: 7,
-//     employeeId: 7,
-//     employeeName: "Rahul Verma",
-//     assetType: "Laptop",
-//     assetName: "Lenovo ThinkPad X1",
-//     assetId: 104,
-//     assignDate: "2023-09-18",
-//     returnDate: "2024-12-20",
-//     status: "Returned",
-//     assignedBy: "IT Ops",
-//   },
-//   {
-//     id: 8,
-//     employeeId: 4,
-//     employeeName: "Sneha Reddy",
-//     assetType: "Software",
-//     assetName: "Jira Software",
-//     assetId: 204,
-//     assignDate: "2024-01-05",
-//     returnDate: null,
-//     status: "Active",
-//     assignedBy: "Admin",
-//   },
-// ];
-
-// // Mock data for dropdowns
-// const EMPLOYEES = [
-//   { id: 1, name: "Rajesh Kumar", department: "IT Operations" },
-//   { id: 2, name: "Priya Sharma", department: "Engineering" },
-//   { id: 3, name: "Amit Patel", department: "Design" },
-//   { id: 4, name: "Sneha Reddy", department: "IT Operations" },
-//   { id: 5, name: "Vikram Singh", department: "Sales" },
-//   { id: 6, name: "Ananya Iyer", department: "Marketing" },
-// ];
-
-// const LAPTOPS = [
-//   {
-//     id: 101,
-//     name: "Dell XPS 15",
-//     serialNumber: "DXS-2024-001",
-//     available: true,
-//   },
-//   {
-//     id: 105,
-//     name: 'MacBook Pro 14"',
-//     serialNumber: "MBP-2024-002",
-//     available: true,
-//   },
-//   {
-//     id: 106,
-//     name: "HP EliteBook 840",
-//     serialNumber: "HPE-2024-003",
-//     available: true,
-//   },
-//   {
-//     id: 107,
-//     name: "Lenovo ThinkPad X1",
-//     serialNumber: "LTP-2024-004",
-//     available: true,
-//   },
-// ];
-
-// const SOFTWARE = [
-//   { id: 201, name: "Microsoft Office 365", available: 22 },
-//   { id: 205, name: "Slack Business", available: 158 },
-//   { id: 206, name: "Zoom Pro", available: 66 },
-//   { id: 207, name: "Tableau Desktop", available: 3 },
-// ];
 
 const STATUSES = ["All", "Assigned", "Returned"];
 const ASSET_TYPES = ["All", "Laptop", "Software"];
-const userData = JSON.parse(localStorage.getItem("user"))
+const userData = JSON.parse(localStorage.getItem("user"));
 
 const EMPTY_FORM = {
   employeeId: "",
   assetType: "Laptop",
   laptopModelId: "",
   laptopAssetId: "",
+  softwareModelId: "",
   softwareId: "",
-  assignedBy:  userData?.role || "",
-  status:"Assigned",
+  assignedBy: userData?.role || "",
+  status: "Assigned",
   assignDate: new Date().toISOString().split("T")[0],
 };
 
@@ -207,7 +72,9 @@ const Assignments = () => {
   const [laptopModels, setLaptopModels] = useState([]);
   const [availableLaptops, setAvailableLaptops] = useState([]);
   const [filteredLaptopAssets, setFilteredLaptopAssets] = useState([]);
-  
+  const [softwareModels, setSoftwareModels] = useState([]);
+  const [softwareSeats, setSoftwareSeats] = useState([]);
+
   // Backend Pagination States
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -219,39 +86,51 @@ const Assignments = () => {
     software: 0,
   });
 
-useEffect(() => {
-  const fetchData = async () => {
-    const [emp, lapModels, availLaps] = await Promise.all([
-      getEmployees(),
-      getLaptopModels(),
-      getAvailableLaptops(),
-    ]);
-
-    setEmployees(emp);
-
-    setLaptopModels(lapModels);
-    setAvailableLaptops(availLaps);
-  };
-
-  fetchData();
-}, []);
-  
   useEffect(() => {
-    const fetchModelLaptops = async () => {
+    const fetchData = async () => {
+      const [emp, lapModels, availLaps, softModels] = await Promise.all([
+        getEmployees(),
+        getLaptopModels(),
+        getAvailableLaptops(),
+        getSoftwareModels(),
+      ]);
+
+      setEmployees(emp);
+      setLaptopModels(lapModels);
+      setAvailableLaptops(availLaps);
+      setSoftwareModels(softModels);
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchAssets = async () => {
       if (formData.assetType === "Laptop" && formData.laptopModelId) {
         try {
-          const laptops = await getAvailableLaptopsByModel(formData.laptopModelId);
+          const laptops = await getAvailableLaptopsByModel(
+            formData.laptopModelId,
+          );
           setFilteredLaptopAssets(laptops || []);
         } catch (err) {
           console.error("Error fetching laptops by model", err);
           setFilteredLaptopAssets([]);
         }
+      } else if (formData.assetType === "Software" && formData.softwareModelId) {
+        try {
+          const data = await getAvailableSoftwareSeatsByModel(formData.softwareModelId);
+          setSoftwareSeats(data || []);
+        } catch (err) {
+          console.error(err);
+          setSoftwareSeats([]);
+        }
       } else {
-        setFilteredLaptopAssets([]);
+         if (formData.assetType === "Software") setSoftwareSeats([]);
+         if (formData.assetType === "Laptop") setFilteredLaptopAssets([]);
       }
     };
-    fetchModelLaptops();
-  }, [formData.laptopModelId, formData.assetType]);
+    fetchAssets();
+  }, [formData.laptopModelId, formData.softwareModelId, formData.assetType]);
 
   const fetchAssignments = async () => {
     setIsLoading(true);
@@ -261,7 +140,7 @@ useEffect(() => {
         ITEMS_PER_PAGE,
         search,
         statusFilter,
-        typeFilter
+        typeFilter,
       );
       setAssignments(response.data || []);
       setTotalCount(response.totalCount || 0);
@@ -346,21 +225,21 @@ useEffect(() => {
     setShowDetail(item);
   };
 
- const handleReturn = async (assignment) => {
-  if (!window.confirm("Return this asset?")) return;
+  const handleReturn = async (assignment) => {
+    if (!window.confirm("Return this asset?")) return;
 
-  try {
-    const updated = await returnAssignmentApi(assignment._id);
+    try {
+      const updated = await returnAssignmentApi(assignment._id);
 
-    setAssignments((prev) =>
-      prev.map((a) => (a._id === updated._id ? updated : a))
-    );
+      setAssignments((prev) =>
+        prev.map((a) => (a._id === updated._id ? updated : a)),
+      );
 
-    showToast("Returned successfully");
-  } catch (err) {
-    showToast(err.response?.data?.message || "Error", "error");
-  }
-};
+      showToast("Returned successfully");
+    } catch (err) {
+      showToast(err.response?.data?.message || "Error", "error");
+    }
+  };
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -369,20 +248,33 @@ useEffect(() => {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-console.log("inside submit")
     const errs = validate(formData);
-    console.log(errs);
     if (Object.keys(errs).length) {
       setFormErrors(errs);
       return;
     }
 
     try {
-      const newAssignment = await createAssignmentApi(formData);
+      const payload = {
+        employeeId: formData.employeeId,
+        assetType: formData.assetType,
+        assignDate: formData.assignDate,
+        ...(formData.assetType === "Laptop" && {
+          laptopModelId: formData.laptopModelId,
+          laptopAssetId: formData.laptopAssetId,
+        }),
+        ...(formData.assetType === "Software" && {
+          softwareId: formData.softwareId,
+        }),
+      };
+
+const newAssignment = await createAssignmentApi(payload);
 
       setAssignments((prev) => [newAssignment, ...prev]);
 
-      showToast(`${newAssignment.assetName} assigned to ${newAssignment.employeeName}`);
+      showToast(
+        `${newAssignment.assetName} assigned to ${newAssignment.employeeName}`,
+      );
 
       handleCloseModal();
     } catch (err) {
@@ -392,11 +284,42 @@ console.log("inside submit")
   const handleFormChange = (e) => {
     const { name, value } = e.target;
 
-    // Reset asset selection when asset type changes
     if (name === "assetType") {
-      setFormData((prev) => ({ ...prev, [name]: value, assetId: "" }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({
+        ...prev,
+        assetType: value,
+        laptopModelId: "",
+        laptopAssetId: "",
+        softwareModelId: "",
+        softwareId: "",
+        purchaseDate: "",
+      }));
+    }
+
+    // 🔥 IMPORTANT PART
+    else if (name === "laptopAssetId") {
+      const selectedLaptop = filteredLaptopAssets.find((l) => l._id === value);
+
+      setFormData((prev) => ({
+        ...prev,
+        laptopAssetId: value,
+        purchaseDate: selectedLaptop?.purchaseDate
+          ? selectedLaptop.purchaseDate.split("T")[0] // format fix
+          : "",
+      }));
+    }else if (name === "softwareId") {
+    const selected = softwareSeats.find(s => s._id === value);
+
+    setFormData((prev) => ({
+      ...prev,
+      softwareId: selected?._id,
+      // optional if you want
+    }));
+  } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
 
     setFormErrors((prev) => ({ ...prev, [name]: "" }));
@@ -411,6 +334,10 @@ console.log("inside submit")
   const getAvailableAssets = () => {
     return formData.assetType === "Laptop" ? laptops : software;
   };
+
+  const selectedSoftwareDetails = formData.softwareId 
+    ? softwareSeats.find((seat) => seat._id === formData.softwareId)
+    : null;
 
   return (
     <>
@@ -588,9 +515,17 @@ console.log("inside submit")
             </thead>
             <tbody>
               {isLoading ? (
-                 <tr>
+                <tr>
                   <td colSpan="8" className="emp-empty">
-                    <RefreshCw size={40} style={{ animation: 'spin 1s linear infinite', color: '#6366f1', marginBottom: '10px', opacity: 1 }} />
+                    <RefreshCw
+                      size={40}
+                      style={{
+                        animation: "spin 1s linear infinite",
+                        color: "#6366f1",
+                        marginBottom: "10px",
+                        opacity: 1,
+                      }}
+                    />
                     <p>Fetching assignments...</p>
                   </td>
                 </tr>
@@ -785,11 +720,12 @@ console.log("inside submit")
                   <div className="assign-form-row">
                     <div className="assign-form-group assign-form-group--full">
                       <input
-                            type="text"
-                            name="assignedBy"
-                            value={formData.role}
-                         hidden
-                          />
+                        type="text"
+                        name="assignedBy"
+                        value={formData.assignedBy}
+                        readOnly
+                        hidden
+                      />
                       <label>
                         Employee <span style={{ color: "#EF4444" }}>*</span>
                       </label>
@@ -943,6 +879,39 @@ console.log("inside submit")
                       <div className="assign-form-row">
                         <div className="assign-form-group assign-form-group--full">
                           <label>
+                            Software Model{" "}
+                            <span style={{ color: "#EF4444" }}>*</span>
+                          </label>
+                          <div className="assign-select-wrap">
+                            <select
+                              name="softwareModelId"
+                              value={formData.softwareModelId}
+                              onChange={handleFormChange}
+                              className={
+                                formErrors.softwareModelId
+                                  ? "assign-input assign-input--error"
+                                  : "assign-input"
+                              }
+                            >
+                              <option value="">Select Software Catalog</option>
+                              {softwareModels?.map((item) => (
+                                <option key={item._id} value={item._id}>
+                                  {item.name}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          {formErrors.softwareModelId && (
+                            <span className="assign-field-error">
+                              {formErrors.softwareModelId}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="assign-form-row">
+                        <div className="assign-form-group assign-form-group--full">
+                          <label>
                             Software <span style={{ color: "#EF4444" }}>*</span>
                           </label>
                           <div className="assign-select-wrap">
@@ -955,11 +924,20 @@ console.log("inside submit")
                                   ? "assign-input assign-input--error"
                                   : "assign-input"
                               }
+                              disabled={!formData.softwareModelId}
                             >
-                              <option value="">Select software</option>
-                              {software.map((item) => (
+                              <option value="">
+                                {formData.softwareModelId
+                                  ? "Select Software Seat (license key)"
+                                  : "First select software model"}
+                              </option>
+                              {[...(softwareSeats || [])]
+                                .sort((a, b) =>
+                                  a.licenseKeyOrSeatName.localeCompare(b.licenseKeyOrSeatName, undefined, { numeric: true })
+                                )
+                                .map((item) => (
                                 <option key={item._id} value={item._id}>
-                                  {item.softwareName}
+                                  {item.licenseKeyOrSeatName}
                                 </option>
                               ))}
                             </select>
@@ -1014,6 +992,26 @@ console.log("inside submit")
                         </span>
                       )}
                     </div>
+                    {formData.assetType === "Laptop" && (
+                      <div className="assign-form-group">
+                        <label>
+                          Purchase Date{" "}
+                          <span style={{ color: "#EF4444" }}>*</span>
+                        </label>
+                        <input
+                          type="date"
+                          name="purchaseDate"
+                          value={formData.purchaseDate || ""}
+                          readOnly
+                          className="assign-input assign-input--disabled"
+                        />
+                        {formErrors.purchaseDate && (
+                          <span className="assign-field-error">
+                            {formErrors.purchaseDate}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <div className="assign-modal-footer">
