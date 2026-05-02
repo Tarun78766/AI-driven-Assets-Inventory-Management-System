@@ -27,7 +27,7 @@ import ResetPassword from "./components/ResetPassword/ResetPassword";
 // Page Components
 import Software from "./pages/SoftwarePage/Software";
 import Notification from "./pages/NotificationPage/Notification";
-import LaptopModels from "./pages/LaptopModelsPage/LaptopModels";
+import LaptopModels from "./pages/LaptopModelsPage/LaptopModel";
 import Employees from "./pages/EmployeesPage/Employees";
 import Assignments from "./pages/AssignmentsPage/Assignments";
 import Reports from "./pages/ReportsPage/Report";
