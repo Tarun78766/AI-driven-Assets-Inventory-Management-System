@@ -1,6 +1,6 @@
 import Navbar from "../../components/navBar/NavBar";
 import Sidebar from "../../components/sideBar/SideBar";
-import "./Dashboard.css";
+import "./MainDashboard.css";
 import { useEffect, useState } from "react";
 import { getDashboardData } from "./DashboardAPI";
 import { useAuth } from "../../context/AuthContext";
