@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const individualLaptopController = require("../controllers/IndividualLaptopController");
-const authMiddleware = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middlewares/AuthMiddleware");
 const restrictTo = authMiddleware.restrictTo;
 
 /**

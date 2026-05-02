@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Import our Employee Controller and our Security Middleware
 const employeeController = require("../controllers/EmployeeController");
-const authMiddleware = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middlewares/AuthMiddleware");
 const restrictTo = authMiddleware.restrictTo;
 
 /**

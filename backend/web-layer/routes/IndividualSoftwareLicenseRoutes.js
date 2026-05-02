@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const individualSoftwareController = require("../controllers/IndividualSoftwareLicenseController");
-const authMiddleware = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middlewares/AuthMiddleware");
 
 /**
  * Individual Software License Routes
