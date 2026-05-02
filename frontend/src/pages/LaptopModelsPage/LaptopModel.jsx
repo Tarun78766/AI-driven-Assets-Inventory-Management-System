@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "./LaptopModels.css";
+import "./LaptopModel.css";
 import {
   Plus,
   Search,
@@ -18,7 +18,7 @@ import {
 
 import Navbar from "../../components/navBar/NavBar";
 import Sidebar from "../../components/sideBar/SideBar";
-import AddEditLaptopModal from "./EditModal/AddEditLaptopModal ";
+import AddEditLaptopModal from "./EditModal/AddEditLaptopModal";
 import {
   getLaptopModels,
   addLaptopModel,
