@@ -77,18 +77,26 @@ const PORT = process.env.PORT || 5000;
 
 const start = async () => {
   try {
+    console.log("Starting server initialization...");
+    
+    console.log("Connecting to MongoDB...");
     await connectDB();
+    console.log("MongoDB Connection Step Finished.");
     
     // Initialize scheduled cron jobs
+    console.log("Initializing Cron Jobs...");
     const initPredictiveMaintenanceCron = require("./cron/predictiveMaintenanceCron");
     initPredictiveMaintenanceCron();
+    console.log("Cron Jobs Initialized.");
 
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running at http://localhost:${PORT}`);
-      console.log(`📄 Swagger docs at http://localhost:${PORT}/api-docs`);
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Server running at http://0.0.0.0:${PORT}`);
+      console.log(`📄 Swagger docs at http://0.0.0.0:${PORT}/api-docs`);
     });
   } catch (error) {
+    console.error("FATAL ERROR DURING STARTUP:");
     console.error(error);
+    process.exit(1);
   }
 };
 
