@@ -20,7 +20,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 // Auth Components
 import Login from "./components/Login/Login";
-import SignUp from "./components/signUp/SignUp";
+
 import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
 import ResetPassword from "./components/ResetPassword/ResetPassword";
 
@@ -42,6 +42,7 @@ import SideBar from "./components/sideBar/SideBar";
 import IndividualLaptops from "./pages/LaptopModelsPage/IndividualLaptopPage/IndividualLaptops";
 import IndividualSoftware from "./pages/SoftwarePage/IndividualSoftwarePage/IndividualSoftware";
 import AIDashboard from "./pages/AIDashboard/AIDashboard";
+import SignUp from "./components/signUp/Signup";
 
 function App() {
   return (
