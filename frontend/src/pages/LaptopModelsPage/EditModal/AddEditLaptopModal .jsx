@@ -115,7 +115,6 @@ const AddEditLaptopModal = ({ isOpen, onClose, model, onSave }) => {
     if (validateForm()) {
       const dataToSave = {
         ...formData,
-        totalAssets: model ? model.totalAssets : 0,
         available: model ? model.available : 0,
         inUse: model ? model.inUse : 0,
         underRepair: model ? model.underRepair : 0,
