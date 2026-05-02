@@ -40,9 +40,9 @@ import SideBar from "./components/sideBar/SideBar";
 import IndividualLaptops from "./pages/LaptopModelsPage/IndividualLaptopPage/IndividualLaptops";
 import IndividualSoftware from "./pages/SoftwarePage/IndividualSoftwarePage/IndividualSoftware";
 import AIDashboard from "./pages/AIDashboard/AIDashboard";
-import SignUp from "./components/signUp/Signup";
 import Dashboard from "./pages/DashboardPage/MainDashboard";
 import LaptopModels from "./pages/LaptopModelsPage/LaptopModel";
+import SignUp from "./components/signUp/SignUp";
 
 function App() {
   return (

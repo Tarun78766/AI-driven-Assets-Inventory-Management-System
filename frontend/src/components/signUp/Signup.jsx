@@ -14,7 +14,7 @@ import {
   Building2,
   ShieldCheck,
 } from "lucide-react";
-import "./Signup.css";
+import "./SignUp.css";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -86,7 +86,7 @@ const SignUp = () => {
     const newValue = type === "checkbox" ? checked : value;
     setError("");
     setFormData((prev) => ({ ...prev, [name]: newValue }));
-    if (name !== "agreeTerms"  && name !== "department") {
+    if (name !== "agreeTerms" && name !== "department") {
       setFieldErrors((prev) => ({
         ...prev,
         [name]: validateField(name, newValue),
@@ -94,55 +94,57 @@ const SignUp = () => {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  setError("");
-  setLoading(true);
+    setError("");
+    setLoading(true);
 
-  // 🔥 VALIDATION
-  const errors = {};
-  ["firstName", "lastName", "email", "password", "confirmPassword"].forEach((f) => {
-    const msg = validateField(f, formData[f]);
-    if (msg) errors[f] = msg;
-  });
+    // 🔥 VALIDATION
+    const errors = {};
+    ["firstName", "lastName", "email", "password", "confirmPassword"].forEach(
+      (f) => {
+        const msg = validateField(f, formData[f]);
+        if (msg) errors[f] = msg;
+      },
+    );
 
-  if (Object.keys(errors).length) {
-    setFieldErrors(errors);
-    setError("Please fix the errors below");
-    setLoading(false);
-    return;
-  }
+    if (Object.keys(errors).length) {
+      setFieldErrors(errors);
+      setError("Please fix the errors below");
+      setLoading(false);
+      return;
+    }
 
-  // 🔥 PASSWORD MATCH CHECK
-  if (formData.password !== formData.confirmPassword) {
-    setError("Passwords do not match");
-    setLoading(false);
-    return;
-  }
+    // 🔥 PASSWORD MATCH CHECK
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
 
-  try {
-    // 🔥 CLEAN DATA (VERY IMPORTANT)
-    const cleanData = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      email: formData.email,
-      password: formData.password,
-      phone: formData.phone,
-      department: formData.department,
-    };
+    try {
+      // 🔥 CLEAN DATA (VERY IMPORTANT)
+      const cleanData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        department: formData.department,
+      };
 
-    await registerUser(cleanData);
+      await registerUser(cleanData);
 
-    setSuccess(true);
+      setSuccess(true);
 
-    setTimeout(() => navigate("/login"), 2000);
-  } catch (err) {
-    setError(err.response?.data?.message || "Registration failed");
-  } finally {
-    setLoading(false);
-  }
-};
+      setTimeout(() => navigate("/login"), 2000);
+    } catch (err) {
+      setError(err.response?.data?.message || "Registration failed");
+    } finally {
+      setLoading(false);
+    }
+  };
   const strength = getPasswordStrength(formData.password);
 
   if (success) {
