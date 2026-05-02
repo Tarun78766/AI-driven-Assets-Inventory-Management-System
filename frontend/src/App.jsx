@@ -27,7 +27,6 @@ import ResetPassword from "./components/ResetPassword/ResetPassword";
 // Page Components
 import Software from "./pages/SoftwarePage/Software";
 import Notification from "./pages/NotificationPage/Notification";
-import LaptopModels from "./pages/LaptopModelsPage/LaptopModel";
 import Employees from "./pages/EmployeesPage/Employees";
 import Assignments from "./pages/AssignmentsPage/Assignments";
 import Reports from "./pages/ReportsPage/Report";
@@ -43,6 +42,7 @@ import IndividualSoftware from "./pages/SoftwarePage/IndividualSoftwarePage/Indi
 import AIDashboard from "./pages/AIDashboard/AIDashboard";
 import SignUp from "./components/signUp/Signup";
 import Dashboard from "./pages/DashboardPage/MainDashboard";
+import LaptopModels from "./pages/LaptopModelsPage/LaptopModel";
 
 function App() {
   return (
