@@ -41,28 +41,29 @@ const Settings = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Profile Settings
   const [profileData, setProfileData] = useState({
-    name: "Rajesh Kumar",
-    email: "rajesh.kumar@company.com",
-    phone: "+91 98765 43210",
-    role: "Admin",
-    department: "IT Operations",
-    location: "Mumbai",
-    employeeId: "EMP-001",
-    joinDate: "2020-01-15",
+    name: "",
+    email: "",
+    phone: "",
+    role: "",
+    department: "",
+    location: "",
+    employeeId: "",
+    joinDate: "",
   });
 
   // Notification Settings
   const [notifications, setNotifications] = useState({
-    emailAlerts: true,
-    laptopAssignments: true,
-    softwareExpiry: true,
-    licenseRenewal: true,
+    emailAlerts: false,
+    laptopAssignments: false,
+    softwareExpiry: false,
+    licenseRenewal: false,
     systemUpdates: false,
-    weeklyReport: true,
-    pushNotifications: true,
+    weeklyReport: false,
+    pushNotifications: false,
   });
 
   // System Settings
@@ -117,6 +118,7 @@ const Settings = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(APIRoutes.USERS_API + "/profile");
         if (res.data.success) {
@@ -130,6 +132,8 @@ const Settings = () => {
       } catch (error) {
         console.error("Failed to fetch profile:", error);
         showToast("Failed to load profile", "error");
+      } finally {
+        setLoading(false);
       }
     };
     fetchProfile();
@@ -205,7 +209,28 @@ const Settings = () => {
           </div>
         )}
 
-        <div className="settings-header">
+        {loading ? (
+          <div className="no-data" style={{ 
+            display: "flex", 
+            flexDirection: "column", 
+            alignItems: "center", 
+            justifyContent: "center", 
+            height: "calc(100vh - 120px)" 
+          }}>
+            <RefreshCw
+              size={50}
+              className="il-loading-icon"
+              style={{
+                animation: "spin 1s linear infinite",
+                color: "#6366f1",
+                marginBottom: "16px",
+              }}
+            />
+            <p style={{ fontSize: "16px", fontWeight: "500", color: "#64748b" }}>Fetching Settings...</p>
+          </div>
+        ) : (
+          <>
+            <div className="settings-header">
           <div className="settings-header-left">
             <div className="settings-header-icon">
               <SettingsIcon size={26} />
@@ -518,8 +543,10 @@ const Settings = () => {
             )}
           </div>
         </div>
-      </div>
-    </>
+      </>
+    )}
+  </div>
+</>
   );
 };
 

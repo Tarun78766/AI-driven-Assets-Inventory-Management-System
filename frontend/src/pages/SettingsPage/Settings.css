@@ -13,6 +13,22 @@ width: calc(100% - 130px);
   padding: 20px;
 }
 
+/* loader */
+.no-data {
+  text-align: center;
+  padding: 60px 20px !important;
+  color: #94a3b8;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ── Toast Notification ─────────────────── */
 .settings-toast {
   position: fixed;
