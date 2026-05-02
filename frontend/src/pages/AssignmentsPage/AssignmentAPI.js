@@ -21,3 +21,8 @@ export const returnAssignmentApi = async (id) => {
   const res = await axios.put(`${APIRoutes.ASSIGNMENTS_API}/return/${id}`);
   return res.data.data;
 };
+
+export const requestReturnAssignmentApi = async (id) => {
+  const res = await axios.post(`${APIRoutes.ASSIGNMENTS_API}/${id}/request-return`);
+  return res.data.data;
+};

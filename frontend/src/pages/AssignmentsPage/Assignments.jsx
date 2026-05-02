@@ -3,6 +3,7 @@ import {
   getAssignments,
   createAssignmentApi,
   returnAssignmentApi,
+  requestReturnAssignmentApi,
 } from "./AssignmentAPI";
 import {
   getEmployees,
@@ -22,6 +23,7 @@ import {
   ClipboardList,
   Filter,
   Eye,
+  MessageSquare,
   ChevronLeft,
   ChevronRight,
   Laptop,
@@ -41,7 +43,7 @@ import Sidebar from "../../components/sideBar/SideBar";
 const ITEMS_PER_PAGE = 10;
 
 
-const STATUSES = ["All", "Assigned", "Returned"];
+const STATUSES = ["All", "Assigned", "Return Requested", "Returned"];
 const ASSET_TYPES = ["All", "Laptop", "Software"];
 const userData = JSON.parse(localStorage.getItem("user"));
 
@@ -226,7 +228,7 @@ const Assignments = () => {
   };
 
   const handleReturn = async (assignment) => {
-    if (!window.confirm("Return this asset?")) return;
+    if (!window.confirm("Confirm that this asset has been physically returned?")) return;
 
     try {
       const updated = await returnAssignmentApi(assignment._id);
@@ -236,6 +238,22 @@ const Assignments = () => {
       );
 
       showToast("Returned successfully");
+    } catch (err) {
+      showToast(err.response?.data?.message || "Error", "error");
+    }
+  };
+
+  const handleRequestReturn = async (assignment) => {
+    if (!window.confirm("Send a return request email to the employee?")) return;
+
+    try {
+      const updated = await requestReturnAssignmentApi(assignment._id);
+
+      setAssignments((prev) =>
+        prev.map((a) => (a._id === updated._id ? updated : a)),
+      );
+
+      showToast("Return request sent successfully");
     } catch (err) {
       showToast(err.response?.data?.message || "Error", "error");
     }
@@ -628,7 +646,17 @@ const newAssignment = await createAssignmentApi(payload);
                           {assign.status === "Assigned" && (
                             <button
                               className="assign-action-btn assign-action-btn--return"
-                              title="Return asset"
+                              title="Request Return"
+                              style={{ color: '#f59e0b', background: '#fef3c7' }}
+                              onClick={() => handleRequestReturn(assign)}
+                            >
+                              <MessageSquare size={15} />
+                            </button>
+                          )}
+                          {assign.status === "Return Requested" && (
+                            <button
+                              className="assign-action-btn assign-action-btn--return"
+                              title="Confirm Return"
                               onClick={() => handleReturn(assign)}
                             >
                               <RotateCcw size={15} />

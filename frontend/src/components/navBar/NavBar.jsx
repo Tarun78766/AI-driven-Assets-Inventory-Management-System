@@ -1,11 +1,44 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./Navbar.css";
-import { Bell, Mail, Globe, Settings as SettingsIcon, LogOut } from "lucide-react";
+import { Bell, Settings as SettingsIcon, LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { getNotifications } from "../../API/NotificationAPI";
+import { useEffect, useState } from "react";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notificationError, setNotificationError] = useState("");
+  const readStorageKey = user?._id || user?.id ? `readNotifications:${user._id || user.id}` : "readNotifications";
+
+  useEffect(() => {
+    if (user) {
+      const fetchNotifications = async () => {
+        try {
+          const res = await getNotifications();
+          if (res.success) {
+            const list = res.data || [];
+            const readIds = JSON.parse(localStorage.getItem(readStorageKey) || "[]");
+            setNotifications(list);
+            setUnreadCount(list.filter((notification) => !readIds.includes(notification.id)).length);
+            setNotificationError("");
+          }
+        } catch (error) {
+          setNotificationError("Unable to load notifications");
+        }
+      };
+      fetchNotifications();
+
+      const interval = setInterval(fetchNotifications, 60000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [user, readStorageKey]);
 
   // 🔥 Logout handler
   const handleLogout = async () => {
@@ -17,6 +50,29 @@ const Navbar = () => {
   const getUserName = () => {
     if (!user) return "User";
     return `${user.firstName || ""} ${user.lastName || ""}`.trim();
+  };
+
+  const formatNotificationTime = (date) => {
+    if (!date) return "";
+    const diffMs = Date.now() - new Date(date).getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    if (diffHours < 1) return "Just now";
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${Math.floor(diffHours / 24)}d ago`;
+  };
+
+  const markNotificationRead = (id) => {
+    const readIds = JSON.parse(localStorage.getItem(readStorageKey) || "[]");
+    if (!readIds.includes(id)) {
+      const nextReadIds = [...readIds, id];
+      localStorage.setItem(readStorageKey, JSON.stringify(nextReadIds));
+      setUnreadCount((count) => Math.max(0, count - 1));
+    }
+  };
+
+  const markAllNotificationsRead = () => {
+    localStorage.setItem(readStorageKey, JSON.stringify(notifications.map((notification) => notification.id)));
+    setUnreadCount(0);
   };
 
   return (
@@ -37,13 +93,63 @@ const Navbar = () => {
           <Globe size={20} />
         </button> */}
 
-        {/* Notifications */}
-        <Link to="/notifications" className="icon-btn">
+        <div className="notification-menu">
+        <button
+          type="button"
+          className="icon-btn"
+          onClick={() => setShowNotifications((prev) => !prev)}
+        >
           <div className="notification-wrapper">
             <Bell size={20} />
-            <span className="badge">3</span>
+            {unreadCount > 0 && (
+              <span className="badge notification-badge-pulse">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </div>
-        </Link>
+        </button>
+        {showNotifications && (
+          <div className="notification-dropdown">
+            <div className="notification-dropdown-header">
+              <span>Notifications</span>
+              {unreadCount > 0 && (
+                <button type="button" onClick={markAllNotificationsRead}>
+                  Mark all read
+                </button>
+              )}
+            </div>
+            {notificationError ? (
+              <div className="notification-dropdown-empty">{notificationError}</div>
+            ) : notifications.length === 0 ? (
+              <div className="notification-dropdown-empty">No notifications</div>
+            ) : (
+              <div className="notification-dropdown-list">
+                {notifications.map((notification) => {
+                  const readIds = JSON.parse(localStorage.getItem(readStorageKey) || "[]");
+                  const isUnread = !readIds.includes(notification.id);
+                  return (
+                    <button
+                      type="button"
+                      key={notification.id}
+                      className={`notification-dropdown-item ${isUnread ? "unread" : ""}`}
+                      onClick={() => markNotificationRead(notification.id)}
+                    >
+                      <div className={`notification-priority ${notification.priority?.toLowerCase() || "medium"}`} />
+                      <div className="notification-dropdown-content">
+                        <div className="notification-dropdown-title">
+                          <span>{notification.title}</span>
+                          <small>{formatNotificationTime(notification.createdAt)}</small>
+                        </div>
+                        <p>{notification.message}</p>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+        </div>
 
         {/* 🔥 USER PROFILE */}
         <div className="user-profile">

@@ -479,7 +479,6 @@ width: calc(100% - 130px);
   justify-content: flex-end;
   gap: 12px;
   padding-top: 20px;
-  border-top: 2px solid #f1f5f9;
   margin-top: 8px;
 }
 

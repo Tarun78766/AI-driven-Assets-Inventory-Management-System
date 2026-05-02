@@ -1,3 +1,4 @@
+
 // ═══════════════════════════════════════════
 // FRONTEND - App.js with Authentication
 // File: src/App.js
@@ -20,6 +21,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 // Auth Components
 import Login from "./components/Login/Login";
 import SignUp from "./components/signUp/SignUp";
+import ForgotPassword from "./components/ForgotPassword/ForgotPassword";
+import ResetPassword from "./components/ResetPassword/ResetPassword";
 
 // Page Components
 import Dashboard from "./pages/DashboardPage/Dashboard";
@@ -31,12 +34,14 @@ import Assignments from "./pages/AssignmentsPage/Assignments";
 import Reports from "./pages/ReportsPage/Report";
 import Settings from "./pages/SettingsPage/Settings";
 import UserManagement from "./pages/UserManagementPage/UserManagement";
+import EmployeeQueries from "./pages/EmployeeQueriesPage/EmployeeQueries";
 
 // Navbar and Sidebar
 import Navbar from "./components/navBar/NavBar";
 import SideBar from "./components/sideBar/SideBar";
 import IndividualLaptops from "./pages/LaptopModelsPage/IndividualLaptopPage/IndividualLaptops";
 import IndividualSoftware from "./pages/SoftwarePage/IndividualSoftwarePage/IndividualSoftware";
+import AIDashboard from "./pages/AIDashboard/AIDashboard";
 
 function App() {
   return (
@@ -45,6 +50,8 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* Protected Routes - All users */}
         <Route
@@ -70,6 +77,15 @@ function App() {
           element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/employee/queries"
+          element={
+            <ProtectedRoute allowedRoles={["employee"]}>
+              <EmployeeQueries />
             </ProtectedRoute>
           }
         />
@@ -123,6 +139,15 @@ function App() {
           element={
             <ProtectedRoute allowedRoles={["admin", "manager"]}>
               <Reports />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/ai-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["admin", "manager"]}>
+              <AIDashboard />
             </ProtectedRoute>
           }
         />

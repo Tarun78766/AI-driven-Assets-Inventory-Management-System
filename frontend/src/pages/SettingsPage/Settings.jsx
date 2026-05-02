@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./Settings.css";
 import {
   Settings as SettingsIcon,
@@ -30,8 +30,12 @@ import {
 
 import Navbar from "../../components/navBar/NavBar";
 import Sidebar from "../../components/sideBar/SideBar";
+import axios from "../../config/Axiosconfig";
+import { APIRoutes } from "../../API/APIRoutes";
+import { useAuth } from "../../context/AuthContext";
 
 const Settings = () => {
+  const { logout } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const [toast, setToast] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -111,8 +115,42 @@ const Settings = () => {
     }));
   };
 
-  const handleSaveProfile = () => {
-    showToast("Profile updated successfully");
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await axios.get(APIRoutes.USERS_API + "/profile");
+        if (res.data.success) {
+          const fetchedData = res.data.data;
+          setProfileData((prev) => ({
+            ...prev,
+            ...fetchedData,
+            joinDate: fetchedData.joinDate ? fetchedData.joinDate.slice(0, 10) : prev.joinDate,
+          }));
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+        showToast("Failed to load profile", "error");
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const handleSaveProfile = async () => {
+    try {
+      const res = await axios.put(APIRoutes.USERS_API + "/profile", profileData);
+      if (res.data.success) {
+        showToast("Profile updated successfully");
+        const updatedData = res.data.data;
+        setProfileData((prev) => ({
+          ...prev,
+          ...updatedData,
+          joinDate: updatedData.joinDate ? updatedData.joinDate.slice(0, 10) : prev.joinDate,
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      showToast(error.response?.data?.message || "Failed to update profile", "error");
+    }
   };
 
   const handleSaveNotifications = () => {
@@ -123,19 +161,28 @@ const Settings = () => {
     showToast("System settings updated");
   };
 
-  const handleSaveSecurity = () => {
+  const handleSaveSecurity = async () => {
     if (securityData.newPassword !== securityData.confirmPassword) {
       showToast("Passwords do not match", "error");
       return;
     }
-    showToast("Security settings updated");
-    setSecurityData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-      twoFactorAuth: securityData.twoFactorAuth,
-      sessionTimeout: securityData.sessionTimeout,
-    });
+
+    try {
+      const res = await axios.put(APIRoutes.USERS_API + "/security/password", {
+        currentPassword: securityData.currentPassword,
+        newPassword: securityData.newPassword,
+      });
+
+      if (res.data.success) {
+        showToast("Password updated. Please login again.");
+        setTimeout(() => {
+          logout(false);
+        }, 1500);
+      }
+    } catch (error) {
+      console.error("Failed to update security:", error);
+      showToast(error.response?.data?.message || "Failed to update security", "error");
+    }
   };
 
   const handleExportData = () => {
@@ -184,13 +231,6 @@ const Settings = () => {
             </button>
 
             <button
-              className={`settings-nav-item ${activeTab === "system" ? "settings-nav-item--active" : ""}`}
-              onClick={() => setActiveTab("system")}
-            >
-              <Database size={20} />
-              <span>System</span>
-            </button>
-            <button
               className={`settings-nav-item ${activeTab === "security" ? "settings-nav-item--active" : ""}`}
               onClick={() => setActiveTab("security")}
             >
@@ -216,15 +256,7 @@ const Settings = () => {
                 </div>
 
                 <div className="settings-profile-card">
-                  <div className="settings-avatar-section">
-                    <div className="settings-avatar-large">
-                      <User size={48} />
-                    </div>
-                    <button className="settings-avatar-upload">
-                      <Camera size={16} />
-                      Change Photo
-                    </button>
-                  </div>
+                  
 
                   <div className="settings-form">
                     <div className="settings-form-row">
@@ -374,169 +406,7 @@ const Settings = () => {
               </div>
             )}
 
-            {/* System Tab */}
-            {activeTab === "system" && (
-              <div className="settings-section">
-                <div className="settings-section-header">
-                  <div>
-                    <h2 className="settings-section-title">
-                      System Configuration
-                    </h2>
-                    <p className="settings-section-subtitle">
-                      Customize system behavior and preferences
-                    </p>
-                  </div>
-                </div>
 
-                <div className="settings-card">
-                  <div className="settings-form">
-                    <div className="settings-form-row">
-                      <div className="settings-form-group">
-                        <label>
-                          <Palette size={16} />
-                          Theme
-                        </label>
-                        <select
-                          name="theme"
-                          value={systemSettings.theme}
-                          onChange={handleSystemChange}
-                          className="settings-input"
-                        >
-                          <option value="light">Light</option>
-                          <option value="dark">Dark</option>
-                          <option value="auto">Auto (System)</option>
-                        </select>
-                      </div>
-                      <div className="settings-form-group">
-                        <label>
-                          <Globe size={16} />
-                          Language
-                        </label>
-                        <select
-                          name="language"
-                          value={systemSettings.language}
-                          onChange={handleSystemChange}
-                          className="settings-input"
-                        >
-                          <option value="en">English</option>
-                          <option value="hi">Hindi</option>
-                          <option value="mr">Marathi</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="settings-form-row">
-                      <div className="settings-form-group">
-                        <label>
-                          <Clock size={16} />
-                          Date Format
-                        </label>
-                        <select
-                          name="dateFormat"
-                          value={systemSettings.dateFormat}
-                          onChange={handleSystemChange}
-                          className="settings-input"
-                        >
-                          <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                          <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                          <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                        </select>
-                      </div>
-                      <div className="settings-form-group">
-                        <label>
-                          <Globe size={16} />
-                          Time Zone
-                        </label>
-                        <select
-                          name="timeZone"
-                          value={systemSettings.timeZone}
-                          onChange={handleSystemChange}
-                          className="settings-input"
-                        >
-                          <option value="Asia/Kolkata">
-                            IST (Asia/Kolkata)
-                          </option>
-                          <option value="America/New_York">
-                            EST (America/New_York)
-                          </option>
-                          <option value="Europe/London">
-                            GMT (Europe/London)
-                          </option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="settings-form-row">
-                      <div className="settings-form-group">
-                        <label>Items Per Page</label>
-                        <select
-                          name="itemsPerPage"
-                          value={systemSettings.itemsPerPage}
-                          onChange={handleSystemChange}
-                          className="settings-input"
-                        >
-                          <option value="5">5</option>
-                          <option value="10">10</option>
-                          <option value="25">25</option>
-                          <option value="50">50</option>
-                        </select>
-                      </div>
-                      <div className="settings-form-group">
-                        <label>Backup Frequency</label>
-                        <select
-                          name="backupFrequency"
-                          value={systemSettings.backupFrequency}
-                          onChange={handleSystemChange}
-                          className="settings-input"
-                        >
-                          <option value="hourly">Hourly</option>
-                          <option value="daily">Daily</option>
-                          <option value="weekly">Weekly</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="settings-toggle-item">
-                      <div className="settings-toggle-info">
-                        <div className="settings-toggle-title">
-                          <Database size={18} />
-                          Automatic Backups
-                        </div>
-                        <p className="settings-toggle-desc">
-                          Enable automatic data backups
-                        </p>
-                      </div>
-                      <label className="settings-toggle">
-                        <input
-                          type="checkbox"
-                          name="autoBackup"
-                          checked={systemSettings.autoBackup}
-                          onChange={handleSystemChange}
-                        />
-                        <span className="settings-toggle-slider"></span>
-                      </label>
-                    </div>
-
-                    <div className="settings-form-actions">
-                      <button
-                        className="settings-btn settings-btn--outline"
-                        onClick={handleExportData}
-                      >
-                        <Download size={16} />
-                        Export Data
-                      </button>
-                      <button
-                        className="settings-btn settings-btn--primary"
-                        onClick={handleSaveSystem}
-                      >
-                        <Save size={16} />
-                        Save Settings
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Security Tab */}
             {activeTab === "security" && (
@@ -634,9 +504,6 @@ const Settings = () => {
                     </div>
                   </div>
 
-                  <div className="settings-divider"></div>
-
-                  
                   <div className="settings-form-actions">
                       <button
                         className="settings-btn settings-btn--primary"

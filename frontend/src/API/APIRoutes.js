@@ -12,5 +12,9 @@ export const APIRoutes = {
   USERS_API: "users",
   DASHBOARD_API: "dashboard",
   REPORTS_API: "reports",
-  
+  QUERIES_API: "queries",
+  EMPLOYEE_ASSETS_API: "employee-assets",
+  AI_API: "ai",
+  FORGOT_PASSWORD: "auth/forgot-password",
+  RESET_PASSWORD: "auth/reset-password",
 };

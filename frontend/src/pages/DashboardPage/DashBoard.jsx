@@ -3,6 +3,8 @@ import Sidebar from "../../components/sideBar/SideBar";
 import "./Dashboard.css";
 import { useEffect, useState } from "react";
 import { getDashboardData } from "./DashboardAPI";
+import { useAuth } from "../../context/AuthContext";
+import EmployeeAssets from "../EmployeeAssetsPage/EmployeeAssets";
 
 import {
   Laptop,
@@ -21,10 +23,17 @@ import {
 
 
 const Dashboard = () => {
+  const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isEmployee = user?.role?.toLowerCase() === "employee";
 
   useEffect(() => {
+    if (isEmployee) {
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     const fetchData = async () => {
       try {
@@ -38,7 +47,11 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, []);
+  }, [isEmployee]);
+
+  if (isEmployee) {
+    return <EmployeeAssets />;
+  }
 
   // Sample data for statistics
 const stats = [

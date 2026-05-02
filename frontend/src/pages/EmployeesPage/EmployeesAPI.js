@@ -39,10 +39,6 @@ export const deleteEmployee = async (id) => {
     
     const response = await axios.delete(
       `${APIRoutes.EMPLOYEE_API}/${id}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        
-      },
     );
     return response.data;
   } catch (error) {

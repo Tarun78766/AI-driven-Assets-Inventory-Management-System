@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 import "./Report.css";
 import {
   BarChart3,
@@ -148,7 +149,7 @@ const Report = () => {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              minHeight: "calc(100vh - 220px)",
+              minHeight: "100vh",
               gap: "12px",
             }}
           >
@@ -354,62 +355,53 @@ const Report = () => {
                         <Download size={16} />
                       </button>
                     </div>
-                    <div className="reports-chart">
-                      <div className="reports-bar-chart">
-                        {assignmentHistory.length === 0 ? (
-                          <div className="reports-empty-state">
-                            No assignment history available
-                          </div>
-                        ) : (
-                          assignmentHistory.map((item, idx) => (
-                            <div key={`${item.month}-${idx}`} className="reports-bar-group">
-                              <div
-                                className="reports-bar-container"
-                                data-total={`${item.total} Total`}
-                                title={`Laptops: ${item.laptops}, Software: ${item.software}`}
-                              >
-                                <div
-                                  className="reports-bar reports-bar--software"
-                                  style={{
-                                    height: `${(item.software / maxAssignmentTotal) * 100}%`,
-                                  }}
-                                ></div>
-                                <div
-                                  className="reports-bar reports-bar--laptops"
-                                  style={{
-                                    height: `${(item.laptops / maxAssignmentTotal) * 100}%`,
-                                  }}
-                                ></div>
-                              </div>
-                              <span className="reports-bar-label">
-                                {item.month.split(" ")[0]}
-                              </span>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                      <div className="reports-chart-legend">
-                        <div className="reports-legend-item">
-                          <span
-                            className="reports-legend-dot"
-                            style={{
-                              background:
-                                "linear-gradient(135deg, #6366f1 0%, #4338ca 100%)",
-                            }}
-                          ></span>
-                          <span>Laptops Assigned</span>
+                    <div className="reports-chart" style={{ height: 300, width: "100%", padding: "10px 0" }}>
+                      {assignmentHistory.length === 0 ? (
+                        <div className="reports-empty-state">
+                          No assignment history available
                         </div>
-                        <div className="reports-legend-item">
-                          <span
-                            className="reports-legend-dot"
-                            style={{
-                              background:
-                                "linear-gradient(135deg, #ec4899 0%, #be185d 100%)",
-                            }}
-                          ></span>
-                          <span>Software Licenses</span>
-                        </div>
-                      </div>
+                      ) : (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={assignmentHistory} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" vertical={false} />
+                            <XAxis 
+                              dataKey="month" 
+                              tickFormatter={(tick) => tick.split(" ")[0]}
+                              tick={{ fill: '#6b7280', fontSize: 12 }}
+                              axisLine={{ stroke: '#e5e7eb' }}
+                              tickLine={false}
+                            />
+                            <YAxis 
+                              tick={{ fill: '#6b7280', fontSize: 12 }}
+                              axisLine={false}
+                              tickLine={false}
+                              tickFormatter={(value) => value}
+                            />
+                            <Tooltip 
+                              contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                            />
+                            <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
+                            <Line 
+                              type="monotone" 
+                              dataKey="laptops" 
+                              name="Laptops Assigned" 
+                              stroke="#6366f1" 
+                              strokeWidth={3}
+                              dot={{ r: 4, strokeWidth: 2 }}
+                              activeDot={{ r: 6 }}
+                            />
+                            <Line 
+                              type="monotone" 
+                              dataKey="software" 
+                              name="Software Licenses" 
+                              stroke="#ec4899" 
+                              strokeWidth={3}
+                              dot={{ r: 4, strokeWidth: 2 }}
+                              activeDot={{ r: 6 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      )}
                     </div>
                   </div>
 

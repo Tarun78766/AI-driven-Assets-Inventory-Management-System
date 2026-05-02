@@ -9,8 +9,9 @@ import {
   ClipboardList,
   FileText,
   Settings,
-  UserPlus,
   ShieldAlert,
+  MessageSquarePlus,
+  Bot,
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -22,12 +23,14 @@ const Sidebar = () => {
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["employee", "manager", "admin"] },
+    { id: "employee/queries", label: "Queries", icon: MessageSquarePlus, roles: ["employee"] },
     { id: "laptops", label: "Laptops", icon: Laptop, roles: ["manager", "admin"] },
     { id: "software", label: "Software", icon: Package, roles: ["manager", "admin"] },
     { id: "employees", label: "Employees", icon: Users, roles: ["admin"] },
     { id: "user-management", label: "User Roles", icon: ShieldAlert, roles: ["admin"] },
     { id: "assignments", label: "Assignments", icon: ClipboardList, roles: ["manager", "admin"] },
     { id: "reports", label: "Reports", icon: FileText, roles: ["manager", "admin"] },
+    { id: "ai-dashboard", label: "AI Prediction", icon: Bot, roles: ["manager", "admin"] },
     { id: "settings", label: "Settings", icon: Settings, roles: ["employee", "manager", "admin"] },
   ];
 
