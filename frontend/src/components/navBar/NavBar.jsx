@@ -1,11 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import "./Navbar.css";
+import "./NavBar.css";
 import { Bell, Settings as SettingsIcon, LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getNotifications } from "../../API/NotificationAPI";
 import { useEffect, useState } from "react";
 
-const Navbar = () => {
+const NavBar = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState([]);
@@ -180,4 +180,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default NavBar;
