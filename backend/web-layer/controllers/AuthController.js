@@ -91,10 +91,39 @@ const verifyToken = async (req, res) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Please provide an email" });
+    }
+    const result = await authService.forgotPassword(email);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+    if (!password) {
+      return res.status(400).json({ success: false, message: "Please provide a new password" });
+    }
+    const result = await authService.resetPassword(token, password);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 // Export all controllers
 module.exports = { 
   register, 
   login, 
   logout, 
-  verifyToken 
+  verifyToken,
+  forgotPassword,
+  resetPassword,
 };

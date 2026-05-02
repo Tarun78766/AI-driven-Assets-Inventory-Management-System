@@ -5,6 +5,7 @@ const LaptopModel = require("../models/LaptopModel");
 const IndividualLaptopModel = require("../models/IndividualLaptopModel");
 const SoftwareModel = require("../models/SoftwareModel");
 const IndividualSoftwareLicenseModel = require("../models/IndividualSoftwareLicenseModel");
+const { sendReturnRequestEmail } = require("../notifications/AssignmentEmailService");
 
 /**
  * AssignmentService
@@ -129,7 +130,7 @@ const createAssignment = async (data, assignedByAdmin) => {
 
 const getAllAssignments = async (query = {}) => {
   const { page = 1, limit = 10, search, status, type, employeeId } = query;
-
+ console.log("inside getAllAssignmentsService");
   const filter = {};
 
   if (search) {
@@ -219,6 +220,27 @@ const getAssignmentById = async (id) => {
   return assignment;
 };
 
+const requestAssignmentReturn = async (id) => {
+  const assignment = await AssignmentModel.findById(id);
+  console.log("inside requestAssignmentReturnService");
+  if (!assignment) throw new Error("Assignment not found");
+  if (assignment.status !== "Assigned") {
+    throw new Error("Only currently assigned assets can be requested for return.");
+  }
+
+  assignment.status = "Return Requested";
+  await assignment.save();
+
+  const employee = await EmployeeModel.findById(assignment.employeeId);
+  if (employee) {
+    sendReturnRequestEmail(assignment, employee).catch((error) => {
+      console.error("[AssignmentEmail] Return request email failed:", error.message);
+    });
+  }
+
+  return assignment;
+};
+
 const returnAssignment = async (id) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -288,5 +310,6 @@ module.exports = {
   createAssignment,
   getAllAssignments,
   getAssignmentById,
+  requestAssignmentReturn,
   returnAssignment,
 };

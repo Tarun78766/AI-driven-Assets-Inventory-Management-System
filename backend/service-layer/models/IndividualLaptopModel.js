@@ -51,6 +51,17 @@ const IndividualLaptopSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    // AI Predictive Maintenance Metrics
+    aiMetrics: {
+      predictionScore: { type: Number, min: 0, max: 100 },
+      riskLevel: {
+        type: String,
+        enum: ["Low", "Medium", "High", "Critical"],
+      },
+      reason: { type: String },
+      aiRecommendation: { type: String },
+      lastPredictionDate: { type: Date },
+    },
   },
   {
     timestamps: true,

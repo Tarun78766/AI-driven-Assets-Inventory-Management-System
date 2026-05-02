@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const assignmentController = require("../controllers/AssignmentController");
-const authMiddleware = require("../middlewares/authMiddleware");
+const authMiddleware = require("../middlewares/AuthMiddleware");
 const restrictTo = authMiddleware.restrictTo;
 
 /**
@@ -28,9 +28,14 @@ router.get("/", restrictTo("admin", "manager"), assignmentController.getAllAssig
 // Action: Look up a specific receipt 
 router.get("/:id", restrictTo("admin", "manager"), assignmentController.getAssignmentById);
 
+// Route:  POST /api/assignments/:id/request-return
+// Action: Request to return the equipment
+router.post("/:id/request-return", restrictTo("admin", "manager"), assignmentController.requestAssignmentReturn);
+
 // Route:  PUT /api/assignments/return/:id
 // Action: Employee returns the equipment (restores stock back into inventory!)
 // Notice we used `/return/:id` to make the URL action very specific instead of a generic `/update`
 router.put("/return/:id", restrictTo("admin", "manager"), assignmentController.returnAssignment);
 
 module.exports = router;
+ 

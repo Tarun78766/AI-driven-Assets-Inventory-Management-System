@@ -52,12 +52,25 @@ const getAssignmentById = async (req, res) => {
 // 4. RETURN an Assignment
 const returnAssignment = async (req, res) => {
   try {
-    // Notice this uses the specialized `returnAssignment` logic from our Service
     const returnedAssignment = await assignmentService.returnAssignment(req.params.id);
     res.status(200).json({ 
       success: true, 
       message: "Asset returned to inventory successfully!", 
       data: returnedAssignment 
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// 4.5 REQUEST RETURN
+const requestAssignmentReturn = async (req, res) => {
+  try {
+    const requestedAssignment = await assignmentService.requestAssignmentReturn(req.params.id);
+    res.status(200).json({
+      success: true,
+      message: "Return request sent to employee successfully!",
+      data: requestedAssignment
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -95,6 +108,7 @@ module.exports = {
   createAssignment,
   getAllAssignments,
   getAssignmentById,
+  requestAssignmentReturn,
   returnAssignment,
   deleteAssignment,
   getMyAssignments

@@ -16,6 +16,9 @@ const UserSchema = new mongoose.Schema(
 
     phone: { type: String },
     department: { type: String },
+    location: { type: String },
+    employeeId: { type: String },
+    joinDate: { type: Date, default: Date.now },
 
     role: {
       type: String,
@@ -32,7 +35,23 @@ const UserSchema = new mongoose.Schema(
 
     // ❌ REMOVED confirmPassword
 
+    // Password Reset
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
+
     lastLogout: { type: Date, default: null },
+    notificationSettings: {
+      email: { type: Boolean, default: true },
+      inapp: { type: Boolean, default: true },
+      critical: { type: Boolean, default: true },
+      exp30: { type: Boolean, default: true },
+      exp60: { type: Boolean, default: true },
+      exp90: { type: Boolean, default: false },
+      eol: { type: Boolean, default: true },
+      lowinv: { type: Boolean, default: true },
+      assign: { type: Boolean, default: false },
+      system: { type: Boolean, default: true },
+    },
   },
   { timestamps: true }
 );

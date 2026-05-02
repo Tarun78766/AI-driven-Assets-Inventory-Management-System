@@ -1,10 +1,11 @@
 const express = require("express");
 const cors = require("cors");
-require('dotenv').config();
+require("dotenv").config();
 
-// Connect DB
+// DB
 const connectDB = require("./db/connect");
 
+// Routes
 const authRoutes = require("./web-layer/routes/AuthRoutes");
 const adminRoutes = require("./web-layer/routes/AdminRoutes");
 const laptopModelRoutes = require("./web-layer/routes/LaptopModelRoutes");
@@ -16,15 +17,43 @@ const assignmentRoutes = require("./web-layer/routes/AssignmentRoutes");
 const dashboardRoutes = require("./web-layer/routes/DashboardRoutes");
 const userRoutes = require("./web-layer/routes/UserRoutes");
 const reportRoutes = require("./web-layer/routes/ReportRoutes");
+const queryRoutes = require("./web-layer/routes/QueryRoutes");
+const employeeAssetRoutes = require("./web-layer/routes/EmployeeAssetRoutes");
+const aiRoutes = require("./web-layer/routes/AiRoutes");
+const notificationRoutes = require("./web-layer/routes/NotificationRoutes");
 
-// Future routes
-// const inventoryRoutes = require("./web-layer/routes/inventory.routes");
+// Swagger
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsDoc = require("swagger-jsdoc");
 
 const app = express();
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Swagger Config
+const options = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Asset Management API",
+      version: "1.0.0",
+      description: "API documentation for Asset Management System",
+    },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT || 5000}`,
+      },
+    ],
+  },
+  apis: ["./web-layer/routes/*.js"], // IMPORTANT FIX ✅
+};
+
+const swaggerSpec = swaggerJsDoc(options);
+
+// Swagger Route
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -38,20 +67,28 @@ app.use("/api/employees", employeeRoutes);
 app.use("/api/assignments", assignmentRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/queries", queryRoutes);
+app.use("/api/employee-assets", employeeAssetRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/notifications", notificationRoutes);
 
-// app.use("/api/inventory", inventoryRoutes);
-
-// Start server
+// Start Server
 const PORT = process.env.PORT || 5000;
 
 const start = async () => {
   try {
     await connectDB();
+    
+    // Initialize scheduled cron jobs
+    const initPredictiveMaintenanceCron = require("./cron/predictiveMaintenanceCron");
+    initPredictiveMaintenanceCron();
+
     app.listen(PORT, () => {
-      console.log(`Server running on https://localhost:${PORT}`);
+      console.log(`🚀 Server running at http://localhost:${PORT}`);
+      console.log(`📄 Swagger docs at http://localhost:${PORT}/api-docs`);
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };
 

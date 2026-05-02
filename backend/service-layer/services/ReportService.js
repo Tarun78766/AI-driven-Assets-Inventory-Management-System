@@ -62,44 +62,65 @@ const formatMonthLabel = (date) =>
 
 const buildAssignmentHistory = async () => {
   const now = new Date();
-  const startMonth = new Date(now.getFullYear(), now.getMonth() - (HISTORY_MONTHS - 1), 1);
 
-  const assignments = await AssignmentModel.find({
-    assignDate: { $gte: startMonth },
-  }).select("assetType assignDate");
+  const startMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() - (HISTORY_MONTHS - 1),
+    1,
+  );
 
+  const raw = await AssignmentModel.aggregate([
+    {
+      $match: {
+        assignDate: { $gte: startMonth },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          year: { $year: "$assignDate" },
+          month: { $month: "$assignDate" },
+        },
+        laptops: {
+          $sum: {
+            $cond: [{ $eq: ["$assetType", "Laptop"] }, 1, 0],
+          },
+        },
+        software: {
+          $sum: {
+            $cond: [{ $eq: ["$assetType", "Software"] }, 1, 0],
+          },
+        },
+        total: { $sum: 1 },
+      },
+    },
+  ]);
+
+  // 🔥 PRE-FILL (same as before)
   const historyMap = new Map();
 
-  for (let index = 0; index < HISTORY_MONTHS; index += 1) {
-    const monthDate = new Date(startMonth.getFullYear(), startMonth.getMonth() + index, 1);
-    const key = `${monthDate.getFullYear()}-${monthDate.getMonth()}`;
+  for (let i = 0; i < HISTORY_MONTHS; i++) {
+    const d = new Date(startMonth.getFullYear(), startMonth.getMonth() + i, 1);
+    const key = `${d.getFullYear()}-${d.getMonth() + 1}`; // match Mongo (1–12)
 
     historyMap.set(key, {
-      month: formatMonthLabel(monthDate),
+      month: formatMonthLabel(d),
       laptops: 0,
       software: 0,
       total: 0,
     });
   }
 
-  assignments.forEach((assignment) => {
-    const assignDate = new Date(assignment.assignDate);
-    const key = `${assignDate.getFullYear()}-${assignDate.getMonth()}`;
+  // 🔥 MERGE DB RESULT
+  raw.forEach((item) => {
+    const key = `${item._id.year}-${item._id.month}`;
     const entry = historyMap.get(key);
 
-    if (!entry) {
-      return;
+    if (entry) {
+      entry.laptops = item.laptops;
+      entry.software = item.software;
+      entry.total = item.total;
     }
-
-    if (assignment.assetType === "Laptop") {
-      entry.laptops += 1;
-    }
-
-    if (assignment.assetType === "Software") {
-      entry.software += 1;
-    }
-
-    entry.total += 1;
   });
 
   return Array.from(historyMap.values());
@@ -122,7 +143,9 @@ const buildLifecycleData = async () => {
       age,
       status,
       assignedTo: laptop.assignedTo?.name || "Unassigned",
-      condition: laptop.conditionNotes?.trim() || (laptop.status === "Under Repair" ? "Needs Attention" : "Good"),
+      condition:
+        laptop.conditionNotes?.trim() ||
+        (laptop.status === "Under Repair" ? "Needs Attention" : "Good"),
     };
   });
 };
@@ -220,7 +243,10 @@ const buildUtilization = async () => {
     inUse: 0,
   };
 
-  const softwareAvailable = Math.max(softwareSummary.total - softwareSummary.inUse, 0);
+  const softwareAvailable = Math.max(
+    softwareSummary.total - softwareSummary.inUse,
+    0,
+  );
 
   return [
     {
@@ -253,7 +279,7 @@ const buildForecast = (
   laptopRatio,
   softwareRatio,
   averageLaptopCost,
-  averageSoftwareCost
+  averageSoftwareCost,
 ) => {
   const currentYear = new Date().getFullYear();
   const forecast = [];
@@ -264,7 +290,7 @@ const buildForecast = (
     const laptops = Math.round(employees * laptopRatio);
     const software = Math.round(employees * softwareRatio);
     const totalCost = Math.round(
-      laptops * averageLaptopCost + software * averageSoftwareCost
+      laptops * averageLaptopCost + software * averageSoftwareCost,
     );
 
     forecast.push({
@@ -296,20 +322,26 @@ const getReportsData = async () => {
     EmployeeModel.countDocuments({ status: "Active" }),
   ]);
 
-  const laptopUtilization = assetUtilization.find((item) => item.category === "Laptops") || {
+  const laptopUtilization = assetUtilization.find(
+    (item) => item.category === "Laptops",
+  ) || {
     total: 0,
     inUse: 0,
   };
-  const softwareUtilization = assetUtilization.find((item) => item.category === "Software") || {
+  const softwareUtilization = assetUtilization.find(
+    (item) => item.category === "Software",
+  ) || {
     total: 0,
     inUse: 0,
   };
 
   const totalAssets = laptopUtilization.total + softwareUtilization.total;
   const activeAssignments = laptopUtilization.inUse + softwareUtilization.inUse;
-  const expiringLicenses = softwareExpiry.filter((item) => item.daysLeft <= 90).length;
+  const expiringLicenses = softwareExpiry.filter(
+    (item) => item.daysLeft <= 90,
+  ).length;
   const replacementDue = lifecycleData.filter((item) =>
-    ["Replace Soon", "Expired"].includes(item.status)
+    ["Replace Soon", "Expired"].includes(item.status),
   ).length;
   const avgUtilization =
     totalAssets > 0 ? Math.round((activeAssignments / totalAssets) * 100) : 0;
@@ -342,8 +374,14 @@ const getReportsData = async () => {
     },
   ]);
 
-  const laptopInventory = totalLaptopValue[0] || { totalAssets: 0, totalValue: 0 };
-  const softwareInventory = totalSoftwareValue[0] || { totalLicenses: 0, totalValue: 0 };
+  const laptopInventory = totalLaptopValue[0] || {
+    totalAssets: 0,
+    totalValue: 0,
+  };
+  const softwareInventory = totalSoftwareValue[0] || {
+    totalLicenses: 0,
+    totalValue: 0,
+  };
 
   const laptopRatio =
     employeeCount > 0 ? laptopInventory.totalAssets / employeeCount : 0;
@@ -363,11 +401,14 @@ const getReportsData = async () => {
     laptopRatio,
     softwareRatio,
     averageLaptopCost,
-    averageSoftwareCost
+    averageSoftwareCost,
   );
 
   const topDepartments = [...departmentAllocation]
-    .sort((left, right) => right.laptops + right.software - (left.laptops + left.software))
+    .sort(
+      (left, right) =>
+        right.laptops + right.software - (left.laptops + left.software),
+    )
     .slice(0, 5);
 
   return {

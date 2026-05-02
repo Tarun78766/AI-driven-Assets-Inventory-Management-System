@@ -35,14 +35,14 @@ const assignmentSchema=new mongoose.Schema(
     },
 
 
-    
+
     assignDate: {
       type: Date,
       required: true
     },
     status: {
       type: String,
-      enum: ["Assigned", "Returned"],
+      enum: ["Assigned", "Returned", "Return Requested"],
       default: "Assigned"
     },
     returnDate:{
