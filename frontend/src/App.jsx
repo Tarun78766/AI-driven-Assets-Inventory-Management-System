@@ -42,7 +42,7 @@ import IndividualLaptops from "./pages/LaptopModelsPage/IndividualLaptopPage/Ind
 import IndividualSoftware from "./pages/SoftwarePage/IndividualSoftwarePage/IndividualSoftware";
 import AIDashboard from "./pages/AIDashboard/AIDashboard";
 import SignUp from "./components/signUp/Signup";
-import Dashboard from "./pages/DashboardPage/Dashboard";
+import Dashboard from "./pages/DashboardPage/MainDashboard";
 
 function App() {
   return (
