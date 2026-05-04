@@ -77,6 +77,7 @@ const EMPTY_FORM = {
   licenseType: "Subscription",
   vendor: "",
   totalLicenses: "",
+  activationDate: "",
   expiryDate: "",
   renewalStatus: "Active",
   cost: "",
@@ -240,6 +241,7 @@ const Software = () => {
     setFormData({
       ...item,
       expiryDate: item.expiryDate ? item.expiryDate.split("T")[0] : "",
+      activationDate: item.activationDate ? item.activationDate.split("T")[0] : "",
       assignedTo: [...item.assignedTo],
     });
     setFormErrors({});
@@ -925,6 +927,20 @@ const Software = () => {
 
                   <div className="sw-form-row">
                     <div className="sw-form-group">
+                      <label>Activation Date</label>
+                      <input
+                        type="date"
+                        name="activationDate"
+                        value={formData.activationDate}
+                        onChange={handleFormChange}
+                        disabled={!isTracked}
+                        className={`
+                          sw-input
+                          ${!isTracked ? "sw-input--default" : ""}
+                        `}
+                      />
+                    </div>
+                    <div className="sw-form-group">
                       <label>
                         Expiry Date <span style={{ color: "#ef4444" }}>*</span>
                       </label>
@@ -1076,6 +1092,21 @@ const Software = () => {
                       >
                         ({usagePercent(showDetail)}%)
                       </span>
+                    </span>
+                  </div>
+                  <div className="sw-detail-card">
+                    <span className="sw-detail-label">Activation Date</span>
+                    <span className="sw-detail-value">
+                      {showDetail.activationDate
+                        ? new Date(showDetail.activationDate).toLocaleDateString(
+                            "en-GB",
+                            {
+                              day: "2-digit",
+                              month: "long",
+                              year: "numeric",
+                            },
+                          )
+                        : "—"}
                     </span>
                   </div>
                   <div className="sw-detail-card">
