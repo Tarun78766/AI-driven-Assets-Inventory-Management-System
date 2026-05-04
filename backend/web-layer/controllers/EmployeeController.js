@@ -13,6 +13,7 @@ const createEmployee = async (req, res) => {
     // Send form data from the React frontend to the Service
     const newEmployee = await employeeService.createEmployee(req.body);
     await invalidateCache("dashboard:data");
+    await invalidateCache("reports:data");
     // HTTP 201 Created
     res.status(201).json({
       success: true,
@@ -93,6 +94,7 @@ const updateEmployee = async (req, res) => {
       updateData,
     );
     await invalidateCache("dashboard:data");
+    await invalidateCache("reports:data");
     res.status(200).json({
       success: true,
       message: "Employee details updated successfully!",
@@ -109,6 +111,7 @@ const deleteEmployee = async (req, res) => {
     const id = req.params.id;
     await employeeService.deleteEmployee(id);
     await invalidateCache("dashboard:data");
+    await invalidateCache("reports:data");
     res
       .status(200)
       .json({ success: true, message: "Employee deleted successfully!" });

@@ -16,6 +16,7 @@ const createAssignment = async (req, res) => {
     const newAssignment = await assignmentService.createAssignment(req.body, assignedByAdmin);
 
        await invalidateCache("dashboard:data");
+     await invalidateCache("reports:data");
     res.status(201).json({ 
       success: true, 
       message: "Asset successfully assigned to the employee!", 
@@ -57,6 +58,7 @@ const returnAssignment = async (req, res) => {
     const returnedAssignment = await assignmentService.returnAssignment(req.params.id);
 
      await invalidateCache("dashboard:data");
+     await invalidateCache("reports:data");
     res.status(200).json({ 
       success: true, 
       message: "Asset returned to inventory successfully!", 
@@ -86,6 +88,7 @@ const deleteAssignment = async (req, res) => {
   try {
     await assignmentService.deleteAssignment(req.params.id);
      await invalidateCache("dashboard:data");
+     await invalidateCache("reports:data");
     res.status(200).json({ success: true, message: "Assignment record deleted successfully!" });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

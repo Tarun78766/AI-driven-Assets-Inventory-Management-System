@@ -13,6 +13,7 @@ const addPhysicalLaptop = async (req, res) => {
 
     const newHardware = await individualLaptopService.addPhysicalLaptop(req.body);
      await invalidateCache("dashboard:data");
+    await invalidateCache("reports:data");
     res.status(201).json({
       success: true,
       message: "Physical laptop asset explicitly registered in inventory.",
@@ -77,6 +78,7 @@ const updatePhysicalLaptop = async (req, res) => {
   try {
     const updatedLaptop = await individualLaptopService.updatePhysicalLaptop(req.params.id, req.body);
     await invalidateCache("dashboard:data");
+    await invalidateCache("reports:data");
     res.status(200).json({
       success: true,
       message: "Hardware asset updated successfully.",
@@ -92,6 +94,7 @@ const removePhysicalLaptop = async (req, res) => {
   try {
     await individualLaptopService.removePhysicalLaptop(req.params.id);
     await invalidateCache("dashboard:data");
+    await invalidateCache("reports:data");
     res.status(200).json({ success: true, message: "Asset successfully decommissioned and removed." });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

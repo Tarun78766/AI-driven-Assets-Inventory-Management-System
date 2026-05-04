@@ -3,6 +3,7 @@ const EmployeeModel = require("../models/EmployeeModel");
 const IndividualLaptopModel = require("../models/IndividualLaptopModel");
 const LaptopModel = require("../models/LaptopModel");
 const SoftwareModel = require("../models/SoftwareModel");
+const { cacheData, getCachedData } = require("../../config/redis");
 
 const LAPTOP_REPLACEMENT_MONTHS = 36;
 const FORECAST_YEARS = 4;
@@ -306,6 +307,14 @@ const buildForecast = (
 };
 
 const getReportsData = async () => {
+  const CACHE_KEY = "reports:data";
+
+  const cached = await getCachedData(CACHE_KEY);
+  if (cached) {
+    console.log("[ReportService] Reports data served from cache.");
+    return cached;
+  }
+
   const [
     lifecycleData,
     softwareExpiry,
@@ -411,7 +420,7 @@ const getReportsData = async () => {
     )
     .slice(0, 5);
 
-  return {
+  const result = {
     stats: {
       totalAssets,
       activeAssignments,
@@ -428,6 +437,11 @@ const getReportsData = async () => {
     departmentAllocation,
     topDepartments,
   };
+
+  // 🔥 CACHE SAVE
+  await cacheData(CACHE_KEY, result, 3600); // 1 hour TTL
+
+  return result;
 };
 
 module.exports = {

@@ -30,6 +30,7 @@ const createSoftware = async (req, res) => {
   try {
     const data = await SoftwareService.createSoftware(req.body);
     await invalidateCache("dashboard:data");
+    await invalidateCache("reports:data");
     res.status(201).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -40,6 +41,7 @@ const updateSoftware = async (req, res) => {
   try {
     const data = await SoftwareService.updateSoftware(req.params.id, req.body);
     await invalidateCache("dashboard:data");
+    await invalidateCache("reports:data");
     res.status(200).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -50,6 +52,7 @@ const deleteSoftware = async (req, res) => {
   try {
     await SoftwareService.deleteSoftware(req.params.id);
     await invalidateCache("dashboard:data");
+    await invalidateCache("reports:data");
     res.status(200).json({ success: true, message: "Deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
