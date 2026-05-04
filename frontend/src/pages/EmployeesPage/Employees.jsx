@@ -29,7 +29,7 @@ import {
   updateEmployee,
 } from "./EmployeesAPI";
 
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 10;
 
 /* ─── Initial Data ─────────────────────── */
 const INITIAL_EMPLOYEES = [
