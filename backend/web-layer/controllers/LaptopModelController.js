@@ -1,5 +1,5 @@
 const laptopModelService = require("../../service-layer/services/LaptopModelService");
-
+const { invalidateCache } = require("../../config/redis");
 const getAllLaptopModels = async (req, res) => {
   try {
     const filter = {};
@@ -56,6 +56,7 @@ const getLaptopModelById = async (req, res) => {
 const createLaptopModel = async (req, res) => {
   try {
     const newModel = await laptopModelService.createLaptopModel(req.body);
+     await invalidateCache("dashboard:data");
     res.status(201).json({ success: true, data: newModel });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -68,6 +69,7 @@ const updateLaptopModel = async (req, res) => {
       req.params.id,
       req.body,
     );
+     await invalidateCache("dashboard:data");
     res.status(200).json({ success: true, data: updated });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -77,6 +79,7 @@ const updateLaptopModel = async (req, res) => {
 const deleteLaptopModel = async (req, res) => {
   try {
     await laptopModelService.deleteLaptopModel(req.params.id);
+     await invalidateCache("dashboard:data");
     res.status(200).json({ success: true, message: "Laptop model deleted." });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

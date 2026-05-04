@@ -8,6 +8,7 @@ const getDashboardData = async () => {
 
   const cached = await getCachedData(CACHE_KEY);
   if (cached) {
+    console.log("Dashboard data served from cache.", cached);
     return cached;
   }
   // ========================

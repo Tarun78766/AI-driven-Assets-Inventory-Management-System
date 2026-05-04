@@ -1,5 +1,5 @@
 const employeeService = require("../../service-layer/services/EmployeeService");
-
+const { invalidateCache } = require("../../config/redis");
 /**
  * EmployeeController
  * This file intercepts HTTP requests for Employee data.
@@ -12,7 +12,7 @@ const createEmployee = async (req, res) => {
   try {
     // Send form data from the React frontend to the Service
     const newEmployee = await employeeService.createEmployee(req.body);
-
+    await invalidateCache("dashboard:data");
     // HTTP 201 Created
     res.status(201).json({
       success: true,
@@ -92,6 +92,7 @@ const updateEmployee = async (req, res) => {
       id,
       updateData,
     );
+    await invalidateCache("dashboard:data");
     res.status(200).json({
       success: true,
       message: "Employee details updated successfully!",
@@ -107,6 +108,7 @@ const deleteEmployee = async (req, res) => {
   try {
     const id = req.params.id;
     await employeeService.deleteEmployee(id);
+    await invalidateCache("dashboard:data");
     res
       .status(200)
       .json({ success: true, message: "Employee deleted successfully!" });

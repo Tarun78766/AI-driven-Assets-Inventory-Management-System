@@ -1,5 +1,5 @@
 const assignmentService = require("../../service-layer/services/AssignmentService");
-
+const { invalidateCache } = require("../../config/redis");
 /**
  * AssignmentController
  * Responsible for handling incoming API requests for Assignments.
@@ -14,6 +14,8 @@ const createAssignment = async (req, res) => {
     const assignedByAdmin = req.user ? req.user.role : "Admin";
 
     const newAssignment = await assignmentService.createAssignment(req.body, assignedByAdmin);
+
+       await invalidateCache("dashboard:data");
     res.status(201).json({ 
       success: true, 
       message: "Asset successfully assigned to the employee!", 
@@ -53,6 +55,8 @@ const getAssignmentById = async (req, res) => {
 const returnAssignment = async (req, res) => {
   try {
     const returnedAssignment = await assignmentService.returnAssignment(req.params.id);
+
+     await invalidateCache("dashboard:data");
     res.status(200).json({ 
       success: true, 
       message: "Asset returned to inventory successfully!", 
@@ -81,6 +85,7 @@ const requestAssignmentReturn = async (req, res) => {
 const deleteAssignment = async (req, res) => {
   try {
     await assignmentService.deleteAssignment(req.params.id);
+     await invalidateCache("dashboard:data");
     res.status(200).json({ success: true, message: "Assignment record deleted successfully!" });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

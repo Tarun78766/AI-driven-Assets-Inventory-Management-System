@@ -1,4 +1,5 @@
 
+const { invalidateCache } = require("../../config/redis");
 const individualLaptopService = require("../../service-layer/services/IndividualLaptopService");
 
 /**
@@ -11,6 +12,7 @@ const addPhysicalLaptop = async (req, res) => {
   try {
 
     const newHardware = await individualLaptopService.addPhysicalLaptop(req.body);
+     await invalidateCache("dashboard:data");
     res.status(201).json({
       success: true,
       message: "Physical laptop asset explicitly registered in inventory.",
@@ -74,6 +76,7 @@ const getPhysicalLaptopById = async (req, res) => {
 const updatePhysicalLaptop = async (req, res) => {
   try {
     const updatedLaptop = await individualLaptopService.updatePhysicalLaptop(req.params.id, req.body);
+    await invalidateCache("dashboard:data");
     res.status(200).json({
       success: true,
       message: "Hardware asset updated successfully.",
@@ -88,6 +91,7 @@ const updatePhysicalLaptop = async (req, res) => {
 const removePhysicalLaptop = async (req, res) => {
   try {
     await individualLaptopService.removePhysicalLaptop(req.params.id);
+    await invalidateCache("dashboard:data");
     res.status(200).json({ success: true, message: "Asset successfully decommissioned and removed." });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

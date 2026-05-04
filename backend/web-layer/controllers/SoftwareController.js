@@ -1,3 +1,4 @@
+const { invalidateCache } = require("../../config/redis");
 const SoftwareService = require("../../service-layer/services/SoftwareService");
 
 const getAllSoftwares = async (req, res) => {
@@ -28,6 +29,7 @@ const getAllSoftwares = async (req, res) => {
 const createSoftware = async (req, res) => {
   try {
     const data = await SoftwareService.createSoftware(req.body);
+    await invalidateCache("dashboard:data");
     res.status(201).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -37,6 +39,7 @@ const createSoftware = async (req, res) => {
 const updateSoftware = async (req, res) => {
   try {
     const data = await SoftwareService.updateSoftware(req.params.id, req.body);
+    await invalidateCache("dashboard:data");
     res.status(200).json({ success: true, data });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -46,6 +49,7 @@ const updateSoftware = async (req, res) => {
 const deleteSoftware = async (req, res) => {
   try {
     await SoftwareService.deleteSoftware(req.params.id);
+    await invalidateCache("dashboard:data");
     res.status(200).json({ success: true, message: "Deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

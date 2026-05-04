@@ -27,6 +27,7 @@ client.connect().catch(() => {
  * Safe caching wrapper that degrades gracefully if Redis is down.
  */
 const cacheData = async (key, value, expInSeconds = 3600) => {
+    console.log("Redis ready?", client.isReady); 
   if (!client.isReady) return;
   try {
     await client.setEx(key, expInSeconds, JSON.stringify(value));
