@@ -6,7 +6,7 @@ const getAuthHeader = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
 
-export const getIndividualSeats = async (page, limit, search = "", status = "") => {
+export const getIndividualSeats = async (page, limit, search = "", status = "", softwareModelId = "") => {
   const response = await axios.get(`${BASE_URL}${APIRoutes.INDIVIDUAL_SOFTWARE_API}`, {
     headers: getAuthHeader(),
     params: {
@@ -14,6 +14,7 @@ export const getIndividualSeats = async (page, limit, search = "", status = "") 
       limit,
       ...(search && { search }),
       ...(status && status !== "All" && { status }),
+      ...(softwareModelId && { softwareModelId }),
     },
   });
   return response.data;

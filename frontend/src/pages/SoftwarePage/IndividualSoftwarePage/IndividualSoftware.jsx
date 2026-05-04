@@ -102,6 +102,7 @@ const IndividualSoftware = () => {
         ITEMS_PER_PAGE,
         debouncedSearch,
         statusFilter,
+        softwareIdFromNav,
       );
       setSeats(response.data || []);
       setTotalPages(response.totalPages || 1);
