@@ -51,14 +51,10 @@ export const updateEmployee = async (id, updateData) => {
   try {
     const response = await axios.put(
       `${APIRoutes.EMPLOYEE_API}/${id}`,
-      updateData,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        
-      },
+      updateData
     );
     return response.data;
-  }catch (error) {
+  } catch (error) {
     console.error("Error updating employee:", error);
     throw error;
   }
