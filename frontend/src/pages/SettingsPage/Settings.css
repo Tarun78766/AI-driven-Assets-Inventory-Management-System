@@ -8,9 +8,11 @@
   position: relative;
   right: 0;
   margin-top: 80px;
-    margin-left: 130px;
-width: calc(100% - 130px);
-  padding: 20px;
+  margin-left: 130px;
+  width: calc(100% - 130px);
+  padding: 24px;
+  min-height: calc(100vh - 80px);
+  transition: all 0.3s ease;
 }
 
 /* loader */
@@ -508,15 +510,38 @@ width: calc(100% - 130px);
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════
+   RESPONSIVE DESIGN (Settings Page)
+   ═══════════════════════════════════════════ */
+
+/* --- Tablet / Smaller Laptops (max-width: 1024px) --- */
 @media (max-width: 1024px) {
+  .settings-page {
+    margin-top: 70px;
+    margin-left: 130px;
+    width: calc(100% - 130px);
+    padding: 20px;
+  }
+
   .settings-container {
     grid-template-columns: 220px 1fr;
+    gap: 20px;
   }
 }
 
+/* --- Small Tablets (max-width: 768px) --- */
 @media (max-width: 768px) {
-  .settings-title {
-    font-size: 22px;
+  .settings-page {
+    margin-top: 65px;
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    padding: 16px;
+  }
+
+  .settings-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
   }
 
   .settings-container {
@@ -527,30 +552,18 @@ width: calc(100% - 130px);
     position: static;
     flex-direction: row;
     overflow-x: auto;
-    padding: 16px;
-  }
-
-  .settings-sidebar::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .settings-sidebar::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+    padding: 12px;
+    gap: 8px;
   }
 
   .settings-nav-item {
     white-space: nowrap;
-    padding: 12px 16px;
+    padding: 10px 16px;
+    flex-shrink: 0;
   }
 
   .settings-nav-item span {
-    display: none;
-  }
-
-  .settings-card,
-  .settings-profile-card {
-    padding: 20px;
+    display: none; /* Hide labels on mobile to save space if needed, or keep them */
   }
 
   .settings-form-row {
@@ -566,21 +579,27 @@ width: calc(100% - 130px);
   .settings-toggle {
     align-self: flex-end;
   }
-
-  .settings-form-actions {
-    flex-direction: column;
-  }
-
-  .settings-btn {
-    width: 100%;
-    justify-content: center;
-  }
 }
 
+/* --- Mobile (max-width: 480px) --- */
 @media (max-width: 480px) {
-  .settings-header {
-    flex-direction: column;
-    gap: 16px;
+  .settings-page {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 12px;
+  }
+
+  .settings-header-left {
+    gap: 12px;
+  }
+
+  .settings-header-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .settings-title {
+    font-size: 22px;
   }
 
   .settings-avatar-large {
@@ -590,5 +609,14 @@ width: calc(100% - 130px);
 
   .settings-section-title {
     font-size: 18px;
+  }
+
+  .settings-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .settings-form-actions {
+    flex-direction: column;
   }
 }

@@ -1,11 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./NavBar.css";
-import { Bell, Settings as SettingsIcon, LogOut } from "lucide-react";
+import { Bell, Settings as SettingsIcon, LogOut, Menu, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getNotifications } from "../../API/NotificationAPI";
 import { useEffect, useState } from "react";
 
-const NavBar = () => {
+const NavBar = ({ toggleSidebar, isSidebarOpen }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState([]);
@@ -78,6 +78,9 @@ const NavBar = () => {
   return (
     <nav className="navbar">
       <div className="nav-left">
+        <button className="menu-toggle" onClick={toggleSidebar}>
+          {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
         <div className="logo">
           <div className="logo-icon">i</div>
           <span className="logo-text">InventoryHub</span>

@@ -14,7 +14,7 @@ import {
   Bot,
 } from "lucide-react";
 
-const SideBar = () => {
+const SideBar = ({ isSidebarOpen, toggleSidebar }) => {
   const { user } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname.replace("/", "") || "dashboard";
@@ -80,33 +80,42 @@ const SideBar = () => {
   ];
 
   return (
-    <div className="sidebar-outer">
-      <div className="sidebar-inner">
-        {menuItems
-          .filter((item) => item.roles.includes(userRole))
-          .map((item) => {
-            const Icon = item.icon;
+    <>
+      <div className={`sidebar-outer ${isSidebarOpen ? "open" : ""}`}>
+        <div className="sidebar-inner">
+          {menuItems
+            .filter((item) => item.roles.includes(userRole))
+            .map((item) => {
+              const Icon = item.icon;
 
-            return (
-              <Link
-                to={`/${item.id}`}
-                key={item.id}
-                style={{ textDecoration: "none" }}
-              >
-                <button
-                  type="button"
-                  className={`menu-btn ${
-                    currentPath === item.id ? "active" : ""
-                  }`}
+              return (
+                <Link
+                  to={`/${item.id}`}
+                  key={item.id}
+                  style={{ textDecoration: "none" }}
+                  onClick={() => {
+                    if (window.innerWidth <= 480) toggleSidebar();
+                  }}
                 >
-                  <Icon className="menu-icon" size={24} />
-                  <span className="menu-label">{item.label}</span>
-                </button>
-              </Link>
-            );
-          })}
+                  <button
+                    type="button"
+                    className={`menu-btn ${
+                      currentPath === item.id ? "active" : ""
+                    }`}
+                  >
+                    <Icon className="menu-icon" size={24} />
+                    <span className="menu-label">{item.label}</span>
+                  </button>
+                </Link>
+              );
+            })}
+        </div>
       </div>
-    </div>
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div className="sidebar-overlay" onClick={toggleSidebar}></div>
+      )}
+    </>
   );
 };
 

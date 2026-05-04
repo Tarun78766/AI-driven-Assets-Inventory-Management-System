@@ -366,9 +366,7 @@ const Software = () => {
             </div>
           </div>
           <div className="sw-header-right">
-            <button className="sw-btn sw-btn--outline">
-              <Download size={16} /> Export
-            </button>
+            
             <button className="sw-btn sw-btn--primary" onClick={handleAddNew}>
               <Plus size={18} /> Add Software
             </button>

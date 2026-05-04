@@ -276,21 +276,125 @@
   transform: rotate(45deg);
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
+/* ═══════════════════════════════════════════
+   RESPONSIVE DESIGN (Mobile, Tablet, Laptop)
+   ═══════════════════════════════════════════ */
+
+/* --- Laptop & Large Screens (Default styles above apply) --- */
+
+/* --- Tablet / Smaller Laptops (max-width: 1024px) --- */
+@media (max-width: 1024px) {
   .navbar {
-    padding: 0 15px;
+    padding: 0 20px !important;
+    height: 70px;
   }
 
   .logo-text {
-    display: none;
+    font-size: 20px;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .user-name {
+    font-size: 14px;
+  }
+}
+
+/* --- Small Tablets / Large Mobile (max-width: 768px) --- */
+@media (max-width: 768px) {
+  .navbar {
+    height: 65px;
+  }
+
+  .logo-text {
+    display: none; /* Hide text to save space */
   }
 
   .user-info {
-    display: none;
+    display: none; /* Hide name/role on small screens */
   }
 
   .nav-right {
-    gap: 10px;
+    gap: 12px;
   }
+
+  .avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .nv-settings-btn {
+    padding: 10px;
+  }
+
+  .notification-dropdown {
+    position: fixed;
+    top: 65px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+  }
+}
+
+/* --- Small Mobile (max-width: 480px) --- */
+@media (max-width: 480px) {
+  .navbar {
+    padding: 0 12px !important;
+  }
+
+  .nav-right {
+    gap: 8px;
+  }
+
+  .icon-btn {
+    padding: 6px;
+  }
+
+  .logo-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 10px;
+  }
+
+  .user-profile {
+    padding: 4px;
+    gap: 0;
+  }
+
+  /* Make notification badge slightly smaller */
+  .badge {
+    font-size: 10px;
+    padding: 1px 3px !important;
+  }
+
+  .logo {
+    display: none; /* Hide logo on mobile */
+  }
+
+  .menu-toggle {
+    display: flex !important;
+  }
+}
+
+.menu-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: #1e293b;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+.menu-toggle:hover {
+  background-color: #f1f5f9;
 }

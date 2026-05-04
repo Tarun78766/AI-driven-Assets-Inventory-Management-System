@@ -93,9 +93,16 @@
 }
 
 /* Responsive design */
+@media (max-width: 1024px) {
+  .sidebar-outer {
+    top: 70px;
+  }
+}
+
 @media (max-width: 768px) {
   .sidebar-outer {
     width: 80px;
+    top: 65px;
   }
 
   .menu-label {
@@ -106,4 +113,49 @@
     justify-content: center;
     padding: 14px;
   }
+}
+
+@media (max-width: 480px) {
+  .sidebar-outer {
+    left: -260px; /* Hide off-screen */
+    width: 260px;
+    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    top: 65px;
+    height: calc(100% - 65px);
+    z-index: 2000;
+  }
+
+  .sidebar-outer.open {
+    left: 0;
+  }
+
+  .menu-label {
+    display: block; /* Show text labels on mobile as requested */
+  }
+
+  .menu-btn {
+    flex-direction: row; /* Horizontal layout for mobile drawer */
+    justify-content: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+
+  .sidebar-inner {
+    padding: 20px;
+  }
+}
+
+/* Sidebar Overlay */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1500;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

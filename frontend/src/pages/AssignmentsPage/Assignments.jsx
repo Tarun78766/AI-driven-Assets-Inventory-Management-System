@@ -382,9 +382,7 @@ const newAssignment = await createAssignmentApi(payload);
             </div>
           </div>
           <div className="assign-header-right">
-            <button className="assign-btn assign-btn--outline">
-              <Download size={16} /> Export
-            </button>
+            
             <button
               className="assign-btn assign-btn--primary"
               onClick={handleAddNew}

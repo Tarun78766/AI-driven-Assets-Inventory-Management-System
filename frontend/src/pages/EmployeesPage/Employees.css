@@ -4,14 +4,15 @@
 ═══════════════════════════════════════════ */
 
 .emp-page {
-  width: calc(100% - 130px);
   background-color: #f0f4f8;
   position: relative;
   right: 0;
   margin-top: 80px;
-    margin-left: 130px;
-
-  padding: 20px;
+  margin-left: 130px;
+  width: calc(100% - 130px);
+  padding: 24px;
+  min-height: calc(100vh - 80px);
+  transition: all 0.3s ease;
 }
 
 /* ── Toast Notification ─────────────────── */
@@ -999,10 +1000,112 @@
     flex-direction: column;
   }
 }
+/* ═══════════════════════════════════════════
+   RESPONSIVE DESIGN (Employees Page)
+   ═══════════════════════════════════════════ */
 
+/* --- Tablet / Smaller Laptops (max-width: 1024px) --- */
+@media (max-width: 1024px) {
+  .emp-page {
+    margin-top: 70px;
+    margin-left: 130px;
+    width: calc(100% - 130px);
+    padding: 20px;
+  }
+
+  .emp-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .emp-filters {
+    gap: 20px;
+  }
+}
+
+/* --- Small Tablets (max-width: 768px) --- */
+@media (max-width: 768px) {
+  .emp-page {
+    margin-top: 65px;
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    padding: 16px;
+  }
+
+  .emp-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .emp-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .emp-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .emp-search-wrap, .emp-filter-group {
+    max-width: none;
+  }
+
+  .emp-result-count {
+    margin-left: 0;
+    text-align: right;
+  }
+
+  .emp-table-wrap {
+    overflow-x: auto;
+  }
+
+  .emp-table {
+    min-width: 850px;
+  }
+
+  .emp-pagination {
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+  }
+}
+
+/* --- Mobile (max-width: 480px) --- */
 @media (max-width: 480px) {
+  .emp-page {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 12px;
+  }
+
+  .emp-header-left {
+    gap: 12px;
+  }
+
+  .emp-header-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .emp-title {
+    font-size: 22px;
+  }
+
   .emp-btn {
     width: 100%;
     justify-content: center;
+  }
+
+  .emp-stat-card {
+    padding: 16px;
+  }
+
+  .emp-stat-value {
+    font-size: 24px;
+  }
+
+  .emp-form-row {
+    grid-template-columns: 1fr;
   }
 }

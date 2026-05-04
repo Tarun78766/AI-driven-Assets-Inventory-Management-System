@@ -1,10 +1,13 @@
 .ai-dashboard-content {
-  padding: 24px;
-  width: calc(100% - 130px);
-  background-color: #f8fafc;
+  background-color: #f0f4f8;
+  position: relative;
+  right: 0;
   margin-top: 80px;
   margin-left: 130px;
-  min-height: calc(100vh - 60px);
+  width: calc(100% - 130px);
+  padding: 24px;
+  min-height: calc(100vh - 80px);
+  transition: all 0.3s ease;
   font-family: 'Inter', sans-serif;
 }
 
@@ -269,6 +272,92 @@
   border-radius: 12px;
   margin-bottom: 24px;
   font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE DESIGN (AI Dashboard Page)
+   ═══════════════════════════════════════════ */
+
+/* --- Tablet / Smaller Laptops (max-width: 1024px) --- */
+@media (max-width: 1024px) {
+  .ai-dashboard-content {
+    margin-top: 70px;
+    margin-left: 130px;
+    width: calc(100% - 130px);
+    padding: 20px;
+  }
+
+  .ai-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ai-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --- Small Tablets (max-width: 768px) --- */
+@media (max-width: 768px) {
+  .ai-dashboard-content {
+    margin-top: 65px;
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    padding: 16px;
+  }
+
+  .ai-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .ai-refresh-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ai-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-card-content {
+    overflow-x: auto;
+  }
+
+  .ai-table {
+    min-width: 600px;
+  }
+}
+
+/* --- Mobile (max-width: 480px) --- */
+@media (max-width: 480px) {
+  .ai-dashboard-content {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 12px;
+  }
+
+  .ai-header-left {
+    gap: 12px;
+  }
+
+  .ai-icon-box {
+    width: 50px;
+    height: 50px;
+  }
+
+  .ai-title {
+    font-size: 22px;
+  }
+
+  .ai-stat-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .ai-stat-info h2 {
+    font-size: 20px;
+  }
 }
 
 .ai-alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }

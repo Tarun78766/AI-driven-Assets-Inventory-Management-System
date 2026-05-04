@@ -8,15 +8,12 @@
   position: relative;
   right: 0;
   margin-top: 80px;
-    margin-left: 130px;
-width: calc(100% - 130px);
-  padding: 20px;
+  margin-left: 130px;
+  width: calc(100% - 130px);
+  padding: 24px;
+  min-height: calc(100vh - 80px);
+  transition: all 0.3s ease;
 }
-
-/* ═══════════════════════════════════════════
-   SOFTWARE PAGE  –  Software.css
-   Matches the Laptop Inventory design language
-═══════════════════════════════════════════ */
 
 /* ── Toast Notification ─────────────────── */
 .sw-toast {
@@ -1170,5 +1167,132 @@ width: calc(100% - 130px);
 
   .sw-confirm-actions {
     flex-direction: column;
+  }
+}
+/* ═══════════════════════════════════════════
+   RESPONSIVE DESIGN (Software Page)
+   ═══════════════════════════════════════════ */
+
+/* --- Tablet / Smaller Laptops (max-width: 1024px) --- */
+@media (max-width: 1024px) {
+  .sw-page {
+    margin-top: 70px;
+    margin-left: 130px;
+    width: calc(100% - 130px);
+    padding: 20px;
+  }
+
+  .sw-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sw-filters {
+    gap: 20px;
+  }
+}
+
+/* --- Small Tablets (max-width: 768px) --- */
+@media (max-width: 768px) {
+  .sw-page {
+    margin-top: 65px;
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    padding: 16px;
+  }
+
+  .sw-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .sw-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .sw-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 15px;
+  }
+
+  .sw-search-wrap, .sw-filter-group {
+    max-width: none;
+  }
+
+  .sw-result-count {
+    margin-left: 0;
+    text-align: right;
+  }
+
+  .sw-table-wrap {
+    overflow-x: auto; /* Enable horizontal scroll for table */
+  }
+
+  .sw-table {
+    min-width: 800px; /* Ensure table doesn't squash too much */
+  }
+}
+
+/* --- Mobile (max-width: 480px) --- */
+@media (max-width: 480px) {
+  .sw-page {
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 12px;
+  }
+
+  .sw-header-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .sw-header-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sw-title {
+    font-size: 20px;
+  }
+
+  .sw-subtitle {
+    font-size: 12px;
+  }
+
+  .sw-stat-value {
+    font-size: 22px;
+  }
+
+  .sw-stat-card {
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .sw-search {
+    padding: 10px 36px 10px 40px;
+    font-size: 13px;
+  }
+
+  .sw-filter-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sw-select {
+    width: 100%;
+    font-size: 13px;
+  }
+
+  .sw-table th, .sw-table td {
+    padding: 12px 10px;
+    font-size: 13px;
+  }
+
+  .sw-pagination {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    padding: 12px;
   }
 }

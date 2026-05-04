@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./navBar/NavBar";
 import Sidebar from "./sideBar/SideBar";
@@ -5,15 +6,21 @@ import Sidebar from "./sideBar/SideBar";
 /**
  * Layout Component
  * Wraps protected routes with shared Navbar and Sidebar.
- * This prevents unnecessary re-mounting and preserves UI state (like scroll position).
  */
 const Layout = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
     <>
-      <Navbar />
-      <Sidebar />
-      {/* The Outlet component will render the child routes (e.g. Dashboard, Settings, etc.) */}
-      <Outlet />
+      <Navbar toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
+      <Sidebar isSidebarOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      <div className={`main-layout-content ${isSidebarOpen ? "sidebar-open" : ""}`}>
+        <Outlet />
+      </div>
     </>
   );
 };

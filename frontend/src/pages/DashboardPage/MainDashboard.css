@@ -4,8 +4,10 @@
   right: 0;
   margin-top: 80px;
   margin-left: 130px;
-width: calc(100% - 130px);
-  padding: 20px;
+  width: calc(100% - 130px);
+  padding: 24px;
+  min-height: calc(100vh - 80px);
+  transition: all 0.3s ease;
 }
 
 .dashboard-header {
@@ -381,32 +383,99 @@ width: calc(100% - 130px);
   background-color: #10b981;
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
+/* ═══════════════════════════════════════════
+   RESPONSIVE DESIGN (Dashboard)
+   ═══════════════════════════════════════════ */
+
+/* --- Tablet / Smaller Laptops (max-width: 1024px) --- */
+@media (max-width: 1024px) {
+  .dashboard {
+    margin-top: 70px;
+    margin-left: 130px;
+    width: calc(100% - 130px);
+    padding: 20px;
+  }
+
   .dashboard-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
+/* --- Small Tablets (max-width: 768px) --- */
 @media (max-width: 768px) {
+  .dashboard {
+    margin-top: 65px;
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    padding: 16px;
+  }
+
   .stats-grid {
     grid-template-columns: 1fr;
+  }
+
+  .header-left {
+    gap: 12px;
+  }
+
+  .header-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .dashboard-title {
+    font-size: 22px;
+  }
+
+  .dashboard-subtitle {
+    font-size: 13px;
+  }
+
+  .stat-value {
+    font-size: 30px;
   }
 
   .quick-stats {
     grid-template-columns: 1fr;
   }
+}
 
-  .dashboard-title {
-    font-size: 24px;
-  }
-
-  .stat-value {
-    font-size: 28px;
-  }
-
+/* --- Mobile (max-width: 480px) --- */
+@media (max-width: 480px) {
   .dashboard {
-    margin-left: 80px;
-    width: 100%;
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 12px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .stat-card {
+    padding: 18px;
+  }
+
+  .dashboard-card {
+    padding: 16px;
+  }
+
+  .activity-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .quick-stats {
+    padding: 16px;
+  }
+
+  .quick-stat-value {
+    font-size: 24px;
   }
 }
