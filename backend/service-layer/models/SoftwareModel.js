@@ -39,6 +39,9 @@ const SoftwareModelSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    activationDate: {
+      type: Date,
+    },
     expiryDate: {
       type: Date,
       required: true,
