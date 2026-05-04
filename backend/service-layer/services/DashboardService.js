@@ -1,8 +1,15 @@
 const LaptopModel = require("../models/LaptopModel");
 const SoftwareModel = require("../models/SoftwareModel");
 const AssignmentModel = require("../models/AssignmentModel");
+const {getCachedData,cacheData}= require("../../config/redis")
 
 const getDashboardData = async () => {
+  const CACHE_KEY = "dashboard:data";
+
+  const cached = await getCachedData(CACHE_KEY);
+  if (cached) {
+    return cached;
+  }
   // ========================
   // 1. LAPTOP STATS
   // ========================
@@ -118,7 +125,7 @@ const getDashboardData = async () => {
     })),
   ];
 
-  return {
+   const result = {
     laptops,
     software,
     assignments: {
@@ -129,6 +136,13 @@ const getDashboardData = async () => {
     activity,
     alerts,
   };
+
+  // 🔥 CACHE SAVE
+  await cacheData(CACHE_KEY, result, 300);
+
+  return result;
+
+ 
 };
 
 module.exports = { getDashboardData };

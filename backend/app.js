@@ -30,6 +30,13 @@ const app = express();
 
 // Middleware
 app.use(cors());
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://ai-driven-assets-inventory-manageme.vercel.app/"
+  ],
+  credentials: true
+}));
 app.use(express.json());
 
 // Swagger Config
