@@ -68,13 +68,17 @@ const parentCatalogVerified = (parent) => {
 const getAllSoftwareLicenseSeats = async (filters = {}, page = 1, limit = 10) => {
   const skip = (page - 1) * limit;
 
+  // We need to ensure softwareModelId is an ObjectId for the aggregate $match stage
+  const matchFilters = { ...filters };
+  if (matchFilters.softwareModelId && typeof matchFilters.softwareModelId === "string") {
+    matchFilters.softwareModelId = new mongoose.Types.ObjectId(matchFilters.softwareModelId);
+  }
+
   const [data, totalCount, statsOutput] = await Promise.all([
     IndividualSoftwareLicenseModel.find(filters).populate("assignedTo", "name email").sort({ createdAt: -1 }).skip(skip).limit(limit),
     IndividualSoftwareLicenseModel.countDocuments(filters),
     IndividualSoftwareLicenseModel.aggregate([
-      // We pass an empty match to get global stats across the ENTIRE system if we want, 
-      // but usually stats match the ongoing filters. Let's return global stats overriding the current query 
-      // just like the main Software Page does so the top banner stays consistent.
+      { $match: matchFilters },
       {
         $group: {
           _id: null,
