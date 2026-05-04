@@ -10,8 +10,6 @@ import {
   
 } from 'lucide-react';
 import './IndividualLaptops.css';
-import Navbar from '../../../components/navBar/NavBar';
-import Sidebar from '../../../components/sideBar/SideBar';
 import { getIndividualLaptops, addIndividualLaptop, updateIndividualLaptop, deleteIndividualLaptop } from './IndividualLaptopAPI';
 import { getLaptopModels } from '../LaptopModelAPI';
 
@@ -271,11 +269,8 @@ export default function IndividualLaptops() {
   };
 
   /* ════════════════ RENDER ════════════════ */
-
   return (
     <>
-    <Navbar />
-      <Sidebar />
     <div className="il-root">
 
       {/* ══════════ SIDEBAR ══════════ */}

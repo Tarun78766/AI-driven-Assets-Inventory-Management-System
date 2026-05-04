@@ -28,8 +28,6 @@ import {
   Sun,
 } from "lucide-react";
 
-import Navbar from "../../components/navBar/NavBar";
-import Sidebar from "../../components/sideBar/SideBar";
 import axios from "../../config/Axiosconfig";
 import { APIRoutes } from "../../API/APIRoutes";
 import { useAuth } from "../../context/AuthContext";
@@ -192,11 +190,8 @@ const Settings = () => {
   const handleExportData = () => {
     showToast("Data export initiated");
   };
-
   return (
     <>
-      <Navbar />
-      <Sidebar />
       <div className="settings-page">
         {toast && (
           <div className={`settings-toast settings-toast--${toast.type}`}>

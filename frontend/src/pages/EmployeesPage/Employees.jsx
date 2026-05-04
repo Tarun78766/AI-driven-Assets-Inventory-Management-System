@@ -22,8 +22,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-import Navbar from "../../components/navBar/NavBar";
-import Sidebar from "../../components/sideBar/SideBar";
 import {
   addEmployee,
   getEmployees,
@@ -289,8 +287,6 @@ const Employees = () => {
 
   return (
     <>
-      <Navbar />
-      <Sidebar />
       <div className="emp-page">
         {toast && (
           <div className={`emp-toast emp-toast--${toast.type}`}>

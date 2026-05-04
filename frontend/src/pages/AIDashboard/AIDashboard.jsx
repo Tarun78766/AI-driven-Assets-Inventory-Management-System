@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import "./AIDashboard.css";
-import Navbar from "../../components/navBar/NavBar";
-import Sidebar from "../../components/sideBar/SideBar";
 import { getHighRiskLaptops, getBrandFailureAnalysis, predictFailure } from "../../API/aiApi";
 import { AlertTriangle, RefreshCw, TrendingDown, Zap, Bot } from "lucide-react";
 
@@ -68,11 +66,7 @@ const AIDashboard = () => {
     : "0.0";
 
   return (
-    <div className="layout">
-      <Navbar />
-      <div className="main-content">
-        <Sidebar />
-        <div className="ai-dashboard-content">
+    <div className="ai-dashboard-content">
           
           {/* Header */}
           <div className="ai-header">
@@ -230,8 +224,6 @@ const AIDashboard = () => {
             </div>
 
           </div>
-        </div>
-      </div>
     </div>
   );
 };

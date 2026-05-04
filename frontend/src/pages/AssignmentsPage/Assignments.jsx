@@ -37,8 +37,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-import Navbar from "../../components/navBar/NavBar";
-import Sidebar from "../../components/sideBar/SideBar";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -359,8 +357,6 @@ const newAssignment = await createAssignmentApi(payload);
 
   return (
     <>
-      <Navbar />
-      <Sidebar />
       <div className="assign-page">
         {toast && (
           <div className={`assign-toast assign-toast--${toast.type}`}>

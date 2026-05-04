@@ -1,5 +1,3 @@
-import Navbar from "../../components/navBar/NavBar";
-import Sidebar from "../../components/sideBar/SideBar";
 import "./MainDashboard.css";
 import { useEffect, useState } from "react";
 import { getDashboardData } from "./DashboardAPI";
@@ -85,8 +83,6 @@ const stats = [
   
   return (
     <>
-      <Navbar />
-      <Sidebar />
       <div className="dashboard">
         {loading ? (
           <div className="no-data" style={{ 

@@ -1,7 +1,5 @@
 import { MessageSquarePlus, Plus, ClipboardList } from "lucide-react";
 import { useState } from "react";
-import Navbar from "../../components/navBar/NavBar";
-import Sidebar from "../../components/sideBar/SideBar";
 import QueryForm from "./QueryForm";
 import QueryList from "./QueryList";
 import "./EmployeeQueries.css";
@@ -22,8 +20,6 @@ const EmployeeQueries = () => {
 
   return (
     <>
-      <Navbar />
-      <Sidebar />
       <main className="employee-queries-page">
         <div className="employee-queries-header">
           <div className="employee-queries-header-left">

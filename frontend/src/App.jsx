@@ -37,6 +37,7 @@ import EmployeeQueries from "./pages/EmployeeQueriesPage/EmployeeQueries";
 // Navbar and Sidebar
 import Navbar from "./components/navBar/NavBar";
 import SideBar from "./components/sideBar/SideBar";
+import Layout from "./components/Layout";
 import IndividualLaptops from "./pages/LaptopModelsPage/IndividualLaptopPage/IndividualLaptops";
 import IndividualSoftware from "./pages/SoftwarePage/IndividualSoftwarePage/IndividualSoftware";
 import AIDashboard from "./pages/AIDashboard/AIDashboard";
@@ -54,142 +55,126 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* Protected Routes - All users */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
+        {/* Protected Routes Wrapper */}
+        <Route element={<Layout />}>
+          {/* Protected Routes - All users */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/notifications"
-          element={
-            <ProtectedRoute>
-              <Notification />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoute>
+                <Notification />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/settings"
-          element={
-            <ProtectedRoute>
-              <Settings />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/employee/queries"
-          element={
-            <ProtectedRoute allowedRoles={["employee"]}>
-              <EmployeeQueries />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/employee/queries"
+            element={
+              <ProtectedRoute allowedRoles={["employee"]}>
+                <EmployeeQueries />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Protected Routes - Admin & Manager only */}
-        <Route
-          path="/laptops"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager"]}>
-              <LaptopModels />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/laptops/individual"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager"]}>
-              <IndividualLaptops />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected Routes - Admin & Manager only */}
+          <Route
+            path="/laptops"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <LaptopModels />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/laptops/individual"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <IndividualLaptops />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/software"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager"]}>
-              <Software />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/software/individual"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager"]}>
-              <IndividualSoftware />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/software"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <Software />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/software/individual"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <IndividualSoftware />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/assignments"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager"]}>
-              <Assignments />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/assignments"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <Assignments />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/reports"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager"]}>
-              <Reports />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/reports"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <Reports />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/ai-dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "manager"]}>
-              <AIDashboard />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/ai-dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["admin", "manager"]}>
+                <AIDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Protected Routes - Admin only */}
-        <Route
-          path="/employees"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <Employees />
-            </ProtectedRoute>
-          }
-      />
-        
-        <Route
-          path="/user-management"
-          element={
-            <ProtectedRoute allowedRoles={["admin"]}>
-              <UserManagement />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* Legacy routes (if needed) */}
-        <Route
-          path="/navbar"
-          element={
-            <ProtectedRoute>
-              <Navbar />
-            </ProtectedRoute>
-          }
-        />
-
-        <Route
-          path="/sidebar"
-          element={
-            <ProtectedRoute>
-              <SideBar />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected Routes - Admin only */}
+          <Route
+            path="/employees"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <Employees />
+              </ProtectedRoute>
+            }
+          />
+          
+          <Route
+            path="/user-management"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <UserManagement />
+              </ProtectedRoute>
+            }
+          />
+        </Route>
       </Routes>
   );
 }

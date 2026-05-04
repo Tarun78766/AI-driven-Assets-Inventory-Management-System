@@ -22,8 +22,6 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import Navbar from "../../components/navBar/NavBar";
-import SideBar from "../../components/sideBar/SideBar";
 import {
   addSoftware,
   getSoftwares,
@@ -343,8 +341,6 @@ const Software = () => {
 
   return (
     <>
-      <Navbar />
-      <SideBar />
       <div className="sw-page">
         {toast && (
           <div className={`sw-toast sw-toast--${toast.type}`}>

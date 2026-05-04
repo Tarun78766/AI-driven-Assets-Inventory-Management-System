@@ -16,8 +16,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-import Navbar from "../../components/navBar/NavBar";
-import Sidebar from "../../components/sideBar/SideBar";
 import AddEditLaptopModal from "./EditModal/AddEditLaptopModal";
 import {
   getLaptopModels,
@@ -193,8 +191,6 @@ const LaptopModels = () => {
 
   return (
     <>
-      <Navbar />
-      <Sidebar />
       <div className="laptop-models">
         {toast && (
           <div className={`lm-toast lm-toast--${toast.type}`}>

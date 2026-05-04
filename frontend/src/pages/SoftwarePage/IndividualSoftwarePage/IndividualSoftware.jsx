@@ -19,8 +19,6 @@ import {
   ChevronRight,
   Package,
 } from "lucide-react";
-import Navbar from "../../../components/navBar/NavBar";
-import SideBar from "../../../components/sideBar/SideBar";
 import {
   getIndividualSeats,
   addIndividualSeat,
@@ -260,8 +258,6 @@ const IndividualSoftware = () => {
 
   return (
     <>
-      <Navbar />
-      <SideBar />
       <div className="sw-page">
         {toast && (
           <div className={`sw-toast sw-toast--${toast.type}`}>

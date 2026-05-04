@@ -15,8 +15,6 @@ import {
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import Navbar from "../../components/navBar/NavBar";
-import Sidebar from "../../components/sideBar/SideBar";
 import { getMyAssets } from "./EmployeeAssetsAPI";
 import "./EmployeeAssets.css";
 
@@ -57,8 +55,6 @@ const EmployeeAssets = () => {
 
   return (
     <>
-      <Navbar />
-      <Sidebar />
       <main className="view-assets-page">
         <div className="view-assets-header">
           <h1>My Assigned Assets</h1>

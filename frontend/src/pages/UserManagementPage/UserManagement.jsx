@@ -2,8 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Search, ShieldAlert, ShieldCheck, Users, Briefcase, RefreshCw, } from "lucide-react";
 import { getAllUsers, updateUserRole } from "./UserAPI";
 import { useAuth } from "../../context/AuthContext";
-import Navbar from "../../components/navBar/NavBar";
-import Sidebar from "../../components/sideBar/SideBar";
 import "./UserManagement.css";
 
 const UserManagement = () => {
@@ -74,10 +72,7 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="app-container">
-      <Navbar />
-      <div className="main-content">
-        <Sidebar />
+    <div className="user-management-container">
         <div className="page-content">
           <div className="users-container">
             {/* Header section */}
@@ -223,7 +218,6 @@ const UserManagement = () => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 

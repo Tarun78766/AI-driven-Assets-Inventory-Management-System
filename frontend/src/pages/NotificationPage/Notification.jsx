@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from "react";
-import NavBar from "../../components/navBar/NavBar";
-import SideBar from "../../components/sideBar/SideBar";
 import { AlertTriangle, Bell, BellOff, CheckCircle, ClipboardList, Info, RefreshCw, Search } from "lucide-react";
 import { getNotifications } from "../../API/NotificationAPI";
 import "./Notification.css";
@@ -56,11 +54,7 @@ const Notification = () => {
   });
 
   return (
-    <div className="nf-root">
-      <NavBar />
-      <SideBar />
-      <div className="nf-main">
-        <div className="nf-body">
+    <div className="nf-body">
           <div className="nf-page-hdr">
             <div className="nf-page-hdr-left">
               <div className="nf-page-icon">
@@ -137,8 +131,6 @@ const Notification = () => {
               )}
             </div>
           </div>
-        </div>
-      </div>
     </div>
   );
 };

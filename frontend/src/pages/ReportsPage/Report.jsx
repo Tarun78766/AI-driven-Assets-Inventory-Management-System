@@ -17,8 +17,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 
-import Navbar from "../../components/navBar/NavBar";
-import Sidebar from "../../components/sideBar/SideBar";
 import { getReportsData } from "./ReportsAPI";
 
 const EMPTY_REPORTS_DATA = {
@@ -127,8 +125,6 @@ const Report = () => {
 
   return (
     <>
-      <Navbar />
-      <Sidebar />
       <div className="reports-page">
         {toast && (
           <div className={`reports-toast reports-toast--${toast.type}`}>
