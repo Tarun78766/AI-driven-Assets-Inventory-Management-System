@@ -35,6 +35,8 @@ const createSoftware = async (data) => {
             softwareName: software.name,
             licenseKeyOrSeatName: generateSeatName(software.name, i),
             status: "Available",
+            activationDate: software.activationDate ? software.activationDate.toISOString().split('T')[0] : "",
+            expiryDate: software.expiryDate ? software.expiryDate.toISOString().split('T')[0] : "",
         });
     }
 
