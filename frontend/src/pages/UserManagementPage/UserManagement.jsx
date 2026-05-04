@@ -148,7 +148,7 @@ const UserManagement = () => {
                         opacity: 1,
                       }}
                     />
-                    <p>Fetching models...</p>
+                    <p>Fetching users...</p>
                   </td>
                 </tr>
                   ) : filteredUsers.length === 0 ? (

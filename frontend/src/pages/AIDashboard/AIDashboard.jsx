@@ -83,15 +83,21 @@ const AIDashboard = () => {
               <RefreshCw size={18} className={loading ? "ai-spin" : ""} /> Refresh Data
             </button>
           </div>
-
-          {message.text && (
-            <div className={`ai-alert ai-alert-${message.type}`}>
-              {message.text}
+          {loading ? (
+            <div className="ai-empty-state" style={{ height: 'calc(100vh - 250px)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <RefreshCw size={50} style={{ animation: 'spin 1s linear infinite', color: '#6366f1', marginBottom: '15px' }} />
+              <p style={{ fontSize: '1.1rem', fontWeight: '500', color: '#64748b' }}>Analyzing assets risk levels...</p>
             </div>
-          )}
+          ) : (
+            <>
+              {message.text && (
+                <div className={`ai-alert ai-alert-${message.type}`}>
+                  {message.text}
+                </div>
+              )}
 
-          {/* Stat Cards */}
-          <div className="ai-stats-row">
+              {/* Stat Cards */}
+              <div className="ai-stats-row">
             <div className="ai-stat-card">
               <div className="ai-stat-icon-wrapper ai-stat-icon-red">
                 <AlertTriangle size={24} />
@@ -223,7 +229,9 @@ const AIDashboard = () => {
               </div>
             </div>
 
-          </div>
+              </div>
+            </>
+          )}
     </div>
   );
 };
