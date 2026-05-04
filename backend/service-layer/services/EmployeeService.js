@@ -1,4 +1,5 @@
 const EmployeeModel = require("../models/EmployeeModel");
+const User = require("../models/User");
 /**
  * EmployeeService
  * Directly handles Database logic for adding, reading, editing, and deleting
@@ -87,6 +88,22 @@ const updateEmployee = async (id, updateData) => {
 
   if (!updatedEmployee) {
     throw new Error("Employee not found or could not be updated");
+  }
+
+  // 🔥 Sync with User Schema if a user account exists for this email
+  if (updatedEmployee.email) {
+    await User.findOneAndUpdate(
+      { email: updatedEmployee.email },
+      {
+        department: updatedEmployee.department,
+        location: updatedEmployee.location,
+        // Also sync name if provided (split into firstName/lastName)
+        ...(updatedEmployee.name && {
+          firstName: updatedEmployee.name.split(" ")[0],
+          lastName: updatedEmployee.name.split(" ").slice(1).join(" ") || " ",
+        }),
+      }
+    );
   }
 
   return updatedEmployee;
