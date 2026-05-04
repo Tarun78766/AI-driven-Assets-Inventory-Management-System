@@ -139,7 +139,8 @@ const getDashboardData = async () => {
   };
 
   // 🔥 CACHE SAVE
-  await cacheData(CACHE_KEY, result, 3600); // 1 hour TTL
+  console.log(`[DashboardService] Cache store attempt for: ${CACHE_KEY}`);
+  await cacheData(CACHE_KEY, result, 3600); 
 
   return result;
 
