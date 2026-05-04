@@ -6,10 +6,6 @@ const client = createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379",
 });
 
-// Diagnostic log for production
-const maskedUrl = (process.env.REDIS_URL || "redis://localhost:6379").substring(0, 15);
-console.log(`[Redis] Attempting to connect to: ${maskedUrl}...`);
-
 let hasLoggedError = false;
 
 client.on("error", (err) => {

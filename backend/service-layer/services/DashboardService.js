@@ -139,7 +139,6 @@ const getDashboardData = async () => {
   };
 
   // 🔥 CACHE SAVE
-  console.log(`[DashboardService] Cache store attempt for: ${CACHE_KEY}`);
   await cacheData(CACHE_KEY, result, 3600); 
 
   return result;
