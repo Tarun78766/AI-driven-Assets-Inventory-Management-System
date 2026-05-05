@@ -223,7 +223,6 @@ const stats = [
                 </div>
               ))}
             </div>
-            <button className="reorder-btn">Reorder Items</button>
           </div>
         </div>
 
