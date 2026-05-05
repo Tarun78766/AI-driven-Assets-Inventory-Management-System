@@ -1,5 +1,7 @@
 import "./MainDashboard.css";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { getDashboardData } from "./DashboardAPI";
 import { useAuth } from "../../context/AuthContext";
 import EmployeeAssets from "../EmployeeAssetsPage/EmployeeAssets";
@@ -22,6 +24,8 @@ import {
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const isEmployee = user?.role?.toLowerCase() === "employee";
@@ -159,8 +163,15 @@ const stats = [
           <div className="dashboard-card activity-card">
             <div className="card-header">
               <h2 className="card-title">Recent Activity</h2>
-              <button className="view-all-btn">View All</button>
+              <button 
+                className="view-all-btn" 
+                onClick={() => navigate("/assignments")}
+              >
+                View All <ArrowUpRight size={16} />
+              </button>
+
             </div>
+
             <div className="activity-list">
               {recentActivity?.map((activity) => (
                 <div key={activity.id} className="activity-item">
