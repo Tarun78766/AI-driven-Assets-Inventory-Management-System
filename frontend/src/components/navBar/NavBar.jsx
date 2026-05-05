@@ -196,7 +196,7 @@ const NavBar = ({ toggleSidebar, isSidebarOpen }) => {
         </Link>
 
         {/* 🔥 LOGOUT BUTTON (NEW) */}
-        <button className="icon-btn logout-btn" onClick={handleLogout}>
+        <button className="icon-btn logout-btn" onClick={handleLogout} title="Logout">
           <LogOut size={20} />
         </button>
       </div>
