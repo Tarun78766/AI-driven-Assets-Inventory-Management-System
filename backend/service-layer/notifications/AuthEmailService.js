@@ -1,58 +1,27 @@
-let nodemailer = null;
-
-try {
-  nodemailer = require("nodemailer");
-} catch {
-  nodemailer = null;
-}
-
-const isEmailConfigured = () =>
-  Boolean(
-    nodemailer &&
-      process.env.SMTP_HOST &&
-      process.env.SMTP_USER &&
-      process.env.SMTP_PASS &&
-      process.env.ADMIN_EMAIL,
-  );
-
-const getTransporter = () =>
-  nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === "true",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-
-const sendMail = async (mailOptions) => {
-  if (!isEmailConfigured()) {
-    console.warn("[AuthEmailService] Email not sent because SMTP is not configured or nodemailer is missing.");
-    return;
-  }
-
-  const transporter = getTransporter();
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    ...mailOptions,
-  });
-};
+const EmailService = require("../services/EmailService");
 
 const sendPasswordResetEmail = async (user, resetUrl) => {
-  await sendMail({
+  await EmailService.sendMail({
     to: user.email,
-    subject: "Password Reset Request",
+    subject: "Password Reset Request - Asset Management System",
     html: `
-      <h2>Password Reset Request</h2>
-      <p>Hi ${user.firstName || user.name},</p>
-      <p>You requested a password reset. Please click the link below to set a new password:</p>
-      <p><a href="${resetUrl}" style="padding: 10px 15px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 5px;">Reset Password</a></p>
-      <p>If you did not request this, please ignore this email and your password will remain unchanged.</p>
-      <p>This link is valid for 1 hour.</p>
-      <br />
-      <p>Thank you,</p>
-      <p>IT Department</p>
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #6366f1; padding: 20px; text-align: center; color: white;">
+          <h1 style="margin: 0;">Password Reset</h1>
+        </div>
+        <div style="padding: 20px;">
+          <p>Hi ${user.firstName || user.name},</p>
+          <p>You requested a password reset for your account. Please click the button below to set a new password:</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetUrl}" style="padding: 12px 24px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Reset My Password</a>
+          </div>
+          <p style="font-size: 14px; color: #64748b;">If you did not request this, please ignore this email and your password will remain unchanged.</p>
+          <p style="font-size: 14px; color: #64748b;">This link is valid for 1 hour.</p>
+        </div>
+        <div style="background-color: #f8fafc; padding: 15px; text-align: center; font-size: 12px; color: #94a3b8;">
+          <p>This is an automated system message. Please do not reply.</p>
+        </div>
+      </div>
     `,
   });
 };
@@ -60,3 +29,4 @@ const sendPasswordResetEmail = async (user, resetUrl) => {
 module.exports = {
   sendPasswordResetEmail,
 };
+

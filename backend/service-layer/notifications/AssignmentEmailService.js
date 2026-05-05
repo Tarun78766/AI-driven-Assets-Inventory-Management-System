@@ -1,57 +1,28 @@
-let nodemailer = null;
-
-try {
-  nodemailer = require("nodemailer");
-} catch {
-  nodemailer = null;
-}
-
-const isEmailConfigured = () =>
-  Boolean(
-    nodemailer &&
-      process.env.SMTP_HOST &&
-      process.env.SMTP_USER &&
-      process.env.SMTP_PASS &&
-      process.env.ADMIN_EMAIL,
-  );
-
-const getTransporter = () =>
-  nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT || 587),
-    secure: process.env.SMTP_SECURE === "true",
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-
-const sendMail = async (mailOptions) => {
-  if (!isEmailConfigured()) {
-    console.warn("[EmailService] Email not sent because SMTP is not configured or nodemailer is missing.");
-    console.warn("Nodemailer installed:", !!nodemailer);
-    console.warn("SMTP_HOST:", !!process.env.SMTP_HOST, "SMTP_USER:", !!process.env.SMTP_USER, "SMTP_PASS:", !!process.env.SMTP_PASS, "ADMIN_EMAIL:", !!process.env.ADMIN_EMAIL);
-    return;
-  }
-
-  const transporter = getTransporter();
-  await transporter.sendMail({
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    ...mailOptions,
-  });
-};
+const EmailService = require("../services/EmailService");
 
 const sendReturnRequestEmail = async (assignment, employee) => {
-  await sendMail({
+  await EmailService.sendMail({
     to: employee.email,
-    subject: `Action Required: Return Request for ${assignment.assetName}`,
+    subject: `Asset Return Request: ${assignment.assetName}`,
     html: `
-      <h2>Asset Return Request</h2>
-      <p>Hi ${employee.firstName || employee.name},</p>
-      <p>The IT department has requested the return of your assigned ${assignment.assetType.toLowerCase()}:</p>
-      <p><strong>Asset:</strong> ${assignment.assetName}</p>
-      <p>Please return this asset to the IT department as soon as possible. If you have any questions, please reach out to the IT team.</p>
-      <p>Thank you.</p>
+      <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden;">
+        <div style="background-color: #f59e0b; padding: 20px; text-align: center; color: white;">
+          <h1 style="margin: 0;">Asset Return Request</h1>
+        </div>
+        <div style="padding: 20px;">
+          <p>Hi ${employee.firstName || employee.name},</p>
+          <p>The IT department has requested the return of your assigned ${assignment.assetType.toLowerCase()}:</p>
+          <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+            <p style="margin: 5px 0;"><strong>Asset:</strong> ${assignment.assetName}</p>
+            <p style="margin: 5px 0;"><strong>Type:</strong> ${assignment.assetType}</p>
+          </div>
+          <p>Please return this asset to the IT department as soon as possible. If you have any questions or if there is a problem returning this asset, please contact the IT team immediately.</p>
+          <p>Thank you for your cooperation.</p>
+        </div>
+        <div style="background-color: #f8fafc; padding: 15px; text-align: center; font-size: 12px; color: #94a3b8;">
+          <p>Asset Management System | IT Department</p>
+        </div>
+      </div>
     `,
   });
 };
@@ -59,3 +30,4 @@ const sendReturnRequestEmail = async (assignment, employee) => {
 module.exports = {
   sendReturnRequestEmail,
 };
+
