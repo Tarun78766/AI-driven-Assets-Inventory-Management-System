@@ -32,16 +32,7 @@ import {
 const ITEMS_PER_PAGE = 10;
 
 /* ─── Initial Data ─────────────────────── */
-const INITIAL_EMPLOYEES = [
-  // { id: 1, name: "Rajesh Kumar", email: "rajesh.kumar@company.com", phone: "+91 98765 43210", role: "Admin", department: "IT Operations", joinDate: "2020-01-15", location: "Mumbai", status: "Active", assignedLaptops: 1, assignedSoftware: 12 },
-  // { id: 2, name: "Priya Sharma", email: "priya.sharma@company.com", phone: "+91 98765 43211", role: "Manager", department: "Engineering", joinDate: "2019-03-20", location: "Bangalore", status: "Active", assignedLaptops: 1, assignedSoftware: 15 },
-  // { id: 3, name: "Amit Patel", email: "amit.patel@company.com", phone: "+91 98765 43212", role: "Employee", department: "Design", joinDate: "2021-06-10", location: "Ahmedabad", status: "Active", assignedLaptops: 1, assignedSoftware: 8 },
-  // { id: 4, name: "Sneha Reddy", email: "sneha.reddy@company.com", phone: "+91 98765 43213", role: "IT Operations", department: "IT Operations", joinDate: "2020-11-25", location: "Hyderabad", status: "Active", assignedLaptops: 1, assignedSoftware: 10 },
-  // { id: 5, name: "Vikram Singh", email: "vikram.singh@company.com", phone: "+91 98765 43214", role: "Manager", department: "Sales", joinDate: "2018-07-14", location: "Delhi", status: "Active", assignedLaptops: 1, assignedSoftware: 9 },
-  // { id: 6, name: "Ananya Iyer", email: "ananya.iyer@company.com", phone: "+91 98765 43215", role: "Employee", department: "Marketing", joinDate: "2022-02-01", location: "Chennai", status: "Active", assignedLaptops: 1, assignedSoftware: 7 },
-  // { id: 7, name: "Rahul Verma", email: "rahul.verma@company.com", phone: "+91 98765 43216", role: "Employee", department: "Engineering", joinDate: "2021-09-18", location: "Pune", status: "Inactive", assignedLaptops: 0, assignedSoftware: 0 },
-  // { id: 8, name: "Kavya Nair", email: "kavya.nair@company.com", phone: "+91 98765 43217", role: "Employee", department: "HR", joinDate: "2020-05-22", location: "Kochi", status: "Active", assignedLaptops: 1, assignedSoftware: 6 },
-];
+const INITIAL_EMPLOYEES = [];
 
 const ROLES = ["Admin", "IT Operations", "Manager", "Employee"];
 const DEPARTMENTS = [
