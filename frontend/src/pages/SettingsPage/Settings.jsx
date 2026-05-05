@@ -294,7 +294,8 @@ const Settings = () => {
                         </div>
                       </div>
                       <div className="settings-form-group">
-                        
+                        <div className="settings-input-wrap">
+                          
                           <input
                             type="text"
                             name="employeeId"
