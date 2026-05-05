@@ -98,10 +98,13 @@ const NavBar = ({ toggleSidebar, isSidebarOpen }) => {
         <button className="menu-toggle" onClick={toggleSidebar}>
           {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
-        <div className="logo">
-          <div className="logo-icon">i</div>
-          <span className="logo-text">InventoryHub</span>
-        </div>
+        <Link to="/dashboard" className="logo-link" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+          <div className="logo">
+            <div className="logo-icon">i</div>
+            <span className="logo-text">InventoryHub</span>
+          </div>
+        </Link>
+
       </div>
 
       <div className="nav-right">
