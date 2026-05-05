@@ -305,7 +305,8 @@ const Settings = () => {
                             name="employeeId"
                             value={profileData.employeeId}
                             disabled
-                            className="settings-input settings-input--disabled"
+                                  className="settings-input settings-input--disabled"
+                            hidden
                           />
                         </div>
                       </div>
