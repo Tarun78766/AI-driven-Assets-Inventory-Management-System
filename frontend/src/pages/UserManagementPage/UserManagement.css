@@ -207,6 +207,22 @@
   opacity: 0.7;
 }
 
+.role-action-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.role-update-spinner {
+  animation: spin 1s linear infinite;
+  color: #6366f1;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 /* Empty State / Loading */
 .users-empty {
   text-align: center;

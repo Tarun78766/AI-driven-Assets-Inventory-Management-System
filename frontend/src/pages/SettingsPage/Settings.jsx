@@ -26,7 +26,9 @@ import {
   Palette,
   Moon,
   Sun,
+  Loader2,
 } from "lucide-react";
+import LoadingButton from "../../components/LoadingButton/LoadingButton";
 
 import axios from "../../config/Axiosconfig";
 import { APIRoutes } from "../../API/APIRoutes";
@@ -40,6 +42,8 @@ const Settings = () => {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSecuritySubmitting, setIsSecuritySubmitting] = useState(false);
 
   // Profile Settings
   const [profileData, setProfileData] = useState({
@@ -139,6 +143,7 @@ const Settings = () => {
 
   const handleSaveProfile = async () => {
     try {
+      setIsSubmitting(true);
       const res = await axios.put(APIRoutes.USERS_API + "/profile", profileData);
       if (res.data.success) {
         showToast("Profile updated successfully");
@@ -152,6 +157,8 @@ const Settings = () => {
     } catch (error) {
       console.error("Failed to update profile:", error);
       showToast(error.response?.data?.message || "Failed to update profile", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -170,6 +177,7 @@ const Settings = () => {
     }
 
     try {
+      setIsSecuritySubmitting(true);
       const res = await axios.put(APIRoutes.USERS_API + "/security/password", {
         currentPassword: securityData.currentPassword,
         newPassword: securityData.newPassword,
@@ -184,6 +192,8 @@ const Settings = () => {
     } catch (error) {
       console.error("Failed to update security:", error);
       showToast(error.response?.data?.message || "Failed to update security", "error");
+    } finally {
+      setIsSecuritySubmitting(false);
     }
   };
 
@@ -410,13 +420,14 @@ const Settings = () => {
                     </div>
 
                     <div className="settings-form-actions">
-                      <button
+                      <LoadingButton
                         className="settings-btn settings-btn--primary"
                         onClick={handleSaveProfile}
+                        loading={isSubmitting}
+                        icon={Save}
                       >
-                        <Save size={16} />
                         Save Changes
-                      </button>
+                      </LoadingButton>
                     </div>
                   </div>
                 </div>
@@ -522,13 +533,14 @@ const Settings = () => {
                   </div>
 
                   <div className="settings-form-actions">
-                      <button
+                      <LoadingButton
                         className="settings-btn settings-btn--primary"
                         onClick={handleSaveSecurity}
+                        loading={isSecuritySubmitting}
+                        icon={Save}
                       >
-                        <Save size={16} />
                         Update Security
-                      </button>
+                      </LoadingButton>
                     </div>
                 </div>
               </div>

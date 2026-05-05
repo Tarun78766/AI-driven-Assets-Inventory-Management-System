@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Search, ShieldAlert, ShieldCheck, Users, Briefcase, RefreshCw, } from "lucide-react";
+import { Search, ShieldAlert, ShieldCheck, Users, Briefcase, RefreshCw, Loader2 } from "lucide-react";
 import { getAllUsers, updateUserRole } from "./UserAPI";
 import { useAuth } from "../../context/AuthContext";
 import "./UserManagement.css";
@@ -10,6 +10,7 @@ const UserManagement = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [toast, setToast] = useState(null);
+  const [updatingUserId, setUpdatingUserId] = useState(null);
 
   const fetchUsers = async () => {
     try {
@@ -46,6 +47,7 @@ const UserManagement = () => {
     }
 
     try {
+      setUpdatingUserId(userId);
       // Optimistically mapping would be slightly faster but re-fetching ensures db state is fully atomic
       const res = await updateUserRole(userId, newRole);
       if (res.success) {
@@ -55,6 +57,8 @@ const UserManagement = () => {
       }
     } catch (error) {
       showToast(error.response?.data?.message || "Failed to update role", "error");
+    } finally {
+      setUpdatingUserId(null);
     }
   };
 
@@ -196,17 +200,22 @@ const UserManagement = () => {
                             </div>
                           </td>
                           <td>
-                            <select
-                              className="role-select"
-                              value={user.role}
-                              onChange={(e) => handleRoleChange(user._id, user.role, e.target.value)}
-                              disabled={isSelf}
-                              title={isSelf ? "You cannot modify your own role" : "Change user role"}
-                            >
-                              <option value="employee">Employee</option>
-                              <option value="manager">Manager</option>
-                              <option value="admin">Admin</option>
-                            </select>
+                            <div className="role-action-cell">
+                              <select
+                                className="role-select"
+                                value={user.role}
+                                onChange={(e) => handleRoleChange(user._id, user.role, e.target.value)}
+                                disabled={isSelf || updatingUserId === user._id}
+                                title={isSelf ? "You cannot modify your own role" : "Change user role"}
+                              >
+                                <option value="employee">Employee</option>
+                                <option value="manager">Manager</option>
+                                <option value="admin">Admin</option>
+                              </select>
+                              {updatingUserId === user._id && (
+                                <Loader2 size={16} className="role-update-spinner" />
+                              )}
+                            </div>
                           </td>
                         </tr>
                       );

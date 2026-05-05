@@ -4,7 +4,9 @@ import {
   MessageSquare,
   RefreshCw,
   X,
+  Send,
 } from "lucide-react";
+import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import { useState } from "react";
 import { useMyQueries } from "./useQueries";
 import { replyToQuery } from "./EmployeeQueriesAPI";
@@ -128,13 +130,15 @@ const QueryDetailModal = ({ query, onClose, onReplySuccess }) => {
                   style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', resize: 'vertical' }}
                   required
                 />
-                <button 
+                <LoadingButton 
                   type="submit" 
-                  disabled={isReplying || !replyText.trim()}
+                  disabled={!replyText.trim()}
+                  loading={isReplying}
+                  icon={Send}
                   style={{ alignSelf: 'flex-start', padding: '8px 16px', background: '#6366f1', color: 'white', borderRadius: '6px', border: 'none', cursor: 'pointer' }}
                 >
-                  {isReplying ? "Sending..." : "Send Reply"}
-                </button>
+                  Send Reply
+                </LoadingButton>
               </form>
             </section>
           )}

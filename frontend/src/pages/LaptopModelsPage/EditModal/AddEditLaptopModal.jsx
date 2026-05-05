@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import "./AddEditLaptopModal.css";
-import { X, Save, Laptop } from "lucide-react";
+import { X, Save, Laptop, Loader2 } from "lucide-react";
+import LoadingButton from "../../../components/LoadingButton/LoadingButton";
 
-const AddEditLaptopModal = ({ isOpen, onClose, model, onSave }) => {
+const AddEditLaptopModal = ({ isOpen, onClose, model, onSave, isSubmitting }) => {
   const [formData, setFormData] = useState({
     modelName: "",
     brand: "",
@@ -449,10 +450,14 @@ const AddEditLaptopModal = ({ isOpen, onClose, model, onSave }) => {
             >
               Cancel
             </button>
-            <button type="submit" className="btn-submit">
-              <Save size={18} />
+            <LoadingButton 
+              type="submit" 
+              className="btn-submit"
+              loading={isSubmitting}
+              icon={Save}
+            >
               {model ? "Update Model" : "Add Model"}
-            </button>
+            </LoadingButton>
           </div>
         </form>
       </div>

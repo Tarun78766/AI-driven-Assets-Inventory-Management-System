@@ -35,7 +35,9 @@ import {
   Download,
   AlertTriangle,
   RefreshCw,
+  Loader2,
 } from "lucide-react";
+import LoadingButton from "../../components/LoadingButton/LoadingButton";
 
 
 const ITEMS_PER_PAGE = 10;
@@ -78,6 +80,9 @@ const Assignments = () => {
   // Backend Pagination States
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReturning, setIsReturning] = useState(false);
+  const [isRequesting, setIsRequesting] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     assigned: 0,
@@ -229,6 +234,7 @@ const Assignments = () => {
     if (!window.confirm("Confirm that this asset has been physically returned?")) return;
 
     try {
+      setIsReturning(true);
       const updated = await returnAssignmentApi(assignment._id);
 
       setAssignments((prev) =>
@@ -238,6 +244,8 @@ const Assignments = () => {
       showToast("Returned successfully");
     } catch (err) {
       showToast(err.response?.data?.message || "Error", "error");
+    } finally {
+      setIsReturning(false);
     }
   };
 
@@ -245,6 +253,7 @@ const Assignments = () => {
     if (!window.confirm("Send a return request email to the employee?")) return;
 
     try {
+      setIsRequesting(true);
       const updated = await requestReturnAssignmentApi(assignment._id);
 
       setAssignments((prev) =>
@@ -254,6 +263,8 @@ const Assignments = () => {
       showToast("Return request sent successfully");
     } catch (err) {
       showToast(err.response?.data?.message || "Error", "error");
+    } finally {
+      setIsRequesting(false);
     }
   };
 
@@ -271,6 +282,7 @@ const Assignments = () => {
     }
 
     try {
+      setIsSubmitting(true);
       const payload = {
         employeeId: formData.employeeId,
         assetType: formData.assetType,
@@ -284,7 +296,7 @@ const Assignments = () => {
         }),
       };
 
-const newAssignment = await createAssignmentApi(payload);
+      const newAssignment = await createAssignmentApi(payload);
 
       setAssignments((prev) => [newAssignment, ...prev]);
 
@@ -295,6 +307,8 @@ const newAssignment = await createAssignmentApi(payload);
       handleCloseModal();
     } catch (err) {
       showToast(err.response?.data?.message || "Error", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const handleFormChange = (e) => {
@@ -1045,12 +1059,14 @@ const newAssignment = await createAssignmentApi(payload);
                       Cancel
                     </button>
 
-                    <button
-                      type="submit"
+                    <LoadingButton 
+                      type="submit" 
                       className="assign-btn assign-btn--primary"
+                      loading={isSubmitting}
+                      icon={CheckCircle}
                     >
-                      <CheckCircle size={16} /> Create Assignment
-                    </button>
+                      Create Assignment
+                    </LoadingButton>
                   </div>
                 </form>
               </div>

@@ -20,7 +20,10 @@ import {
   Calendar,
   Shield,
   RefreshCw,
+  Loader2,
 } from "lucide-react";
+
+import LoadingButton from "../../components/LoadingButton/LoadingButton";
 
 import {
   addEmployee,
@@ -92,6 +95,8 @@ const Employees = () => {
     totalSoftware: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -222,12 +227,15 @@ const Employees = () => {
   const handleDelete = async (id) => {
     const name = employees.find((e) => e._id === id)?.name;
     try {
+      setIsDeleting(true);
       await deleteEmployee(id);
       await fetchEmployees();
       setDeleteConfirm(null);
       showToast(`"${name}" removed`, "error");
     } catch (error) {
       showToast("Failed to delete employee.", "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -246,6 +254,7 @@ const Employees = () => {
       return;
     }
     try {
+      setIsSubmitting(true);
       if (editItem) {
         await updateEmployee(editItem._id, formData);
         showToast(`"${formData.name}" updated successfully`);
@@ -257,6 +266,8 @@ const Employees = () => {
       handleCloseModal();
     } catch (error) {
       showToast("Failed to save employee.", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -785,17 +796,14 @@ const Employees = () => {
                     >
                       Cancel
                     </button>
-                    <button type="submit" className="emp-btn emp-btn--primary">
-                      {editItem ? (
-                        <>
-                          <CheckCircle size={16} /> Update
-                        </>
-                      ) : (
-                        <>
-                          <Plus size={16} /> Add Employee
-                        </>
-                      )}
-                    </button>
+                    <LoadingButton 
+                      type="submit" 
+                      className="emp-btn emp-btn--primary"
+                      loading={isSubmitting}
+                      icon={editItem ? CheckCircle : Plus}
+                    >
+                      {editItem ? "Update" : "Add Employee"}
+                    </LoadingButton>
                   </div>
                 </form>
               </div>
@@ -961,12 +969,14 @@ const Employees = () => {
                 >
                   Cancel
                 </button>
-                <button
+                <LoadingButton
                   className="emp-btn emp-btn--danger"
                   onClick={() => handleDelete(deleteConfirm._id)}
+                  loading={isDeleting}
+                  icon={Trash2}
                 >
-                  <Trash2 size={15} /> Delete
-                </button>
+                  Delete
+                </LoadingButton>
               </div>
             </div>
           </div>

@@ -1,0 +1,58 @@
+.loading-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.loading-btn-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.loading-btn--loading {
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.loading-btn-spinner {
+  animation: spin 1s linear infinite;
+}
+
+.loading-btn-icon {
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Specific styles for different button types if needed, 
+   but we'll mostly use the classNames passed from parent */
+
+/* Inherit transition from parent for hover effects */
+.loading-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.loading-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

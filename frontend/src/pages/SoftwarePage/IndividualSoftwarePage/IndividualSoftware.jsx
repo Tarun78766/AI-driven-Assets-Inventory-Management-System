@@ -18,7 +18,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Package,
+  Loader2,
 } from "lucide-react";
+import LoadingButton from "../../../components/LoadingButton/LoadingButton";
 import {
   getIndividualSeats,
   addIndividualSeat,
@@ -82,6 +84,8 @@ const IndividualSoftware = () => {
     expired: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting]     = useState(false);
   const [softwareDropdown, setSoftwareDropdown] = useState([]); // for the add modal dropdown
 
   // Debounce search
@@ -213,12 +217,15 @@ const IndividualSoftware = () => {
 
   const handleDelete = async (id) => {
     try {
+      setIsDeleting(true);
       await deleteIndividualSeat(id);
       await fetchSeats();
       setDeleteConfirm(null);
       showToast("License seat removed", "error");
     } catch (error) {
       showToast("Failed to remove seat", "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -237,6 +244,7 @@ const IndividualSoftware = () => {
       return;
     }
     try {
+      setIsSubmitting(true);
       if (editItem) {
         await updateIndividualSeat(editItem._id, formData);
         showToast(`"${formData.licenseKeyOrSeatName}" updated successfully`);
@@ -248,6 +256,8 @@ const IndividualSoftware = () => {
       handleCloseModal();
     } catch (error) {
       showToast("Failed to save seat", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -700,17 +710,14 @@ const IndividualSoftware = () => {
                     >
                       Cancel
                     </button>
-                    <button type="submit" className="sw-btn sw-btn--primary">
-                      {editItem ? (
-                        <>
-                          <RefreshCw size={16} /> Update
-                        </>
-                      ) : (
-                        <>
-                          <Plus size={16} /> Add Seat
-                        </>
-                      )}
-                    </button>
+                    <LoadingButton 
+                      type="submit" 
+                      className="sw-btn sw-btn--primary"
+                      loading={isSubmitting}
+                      icon={editItem ? RefreshCw : Plus}
+                    >
+                      {editItem ? "Update" : "Add Seat"}
+                    </LoadingButton>
                   </div>
                 </form>
               </div>
@@ -844,12 +851,14 @@ const IndividualSoftware = () => {
                 >
                   Cancel
                 </button>
-                <button
+                <LoadingButton
                   className="sw-btn sw-btn--danger"
                   onClick={() => handleDelete(deleteConfirm._id)}
+                  loading={isDeleting}
+                  icon={Trash2}
                 >
-                  <Trash2 size={15} /> Delete
-                </button>
+                  Delete
+                </LoadingButton>
               </div>
             </div>
           </div>

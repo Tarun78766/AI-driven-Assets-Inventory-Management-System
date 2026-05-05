@@ -14,7 +14,10 @@ import {
   ChevronLeft,
   ChevronRight,
   RefreshCw,
+  Loader2,
 } from "lucide-react";
+
+import LoadingButton from "../../components/LoadingButton/LoadingButton";
 
 import AddEditLaptopModal from "./EditModal/AddEditLaptopModal";
 import {
@@ -49,6 +52,8 @@ const LaptopModels = () => {
     totalInUse: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchLaptopModels = async () => {
     try {
@@ -128,6 +133,7 @@ const LaptopModels = () => {
   const handleDelete = async (id) => {
     const name = laptopModels.find((m) => m._id === id)?.modelName;
     try {
+      setIsDeleting(true);
       await deleteLaptopModel(id);
       await fetchLaptopModels();
       setDeleteConfirm(null);
@@ -135,12 +141,14 @@ const LaptopModels = () => {
     } catch (error) {
       const errorMsg = error.response?.data?.message || "Failed to delete model.";
       showToast(errorMsg, "error");
+    } finally {
+      setIsDeleting(false);
     }
-
   };
 
   const handleSave = async (modelData) => {
     try {
+      setIsSubmitting(true);
       if (isEditing) {
         await updateLaptopModel(selectedModel._id, modelData);
         showToast(`"${modelData.modelName}" updated successfully`);
@@ -154,6 +162,8 @@ const LaptopModels = () => {
       setIsEditing(false);
     } catch (error) {
       showToast("Failed to save model.", "error");
+    } finally {
+      setIsSubmitting(false);
     }
   };
   const handleCloseModal = () => {
@@ -472,6 +482,7 @@ const LaptopModels = () => {
           onClose={handleCloseModal}
           model={isEditing ? selectedModel : null}
           onSave={handleSave}
+          isSubmitting={isSubmitting}
         />
 
         {showDetail && (
@@ -673,12 +684,14 @@ const LaptopModels = () => {
                 >
                   Cancel
                 </button>
-                <button
+                <LoadingButton
                   className="lm-btn lm-btn--danger"
                   onClick={() => handleDelete(deleteConfirm._id)}
+                  loading={isDeleting}
+                  icon={Trash2}
                 >
-                  <Trash2 size={15} /> Delete
-                </button>
+                  Delete
+                </LoadingButton>
               </div>
             </div>
           </div>

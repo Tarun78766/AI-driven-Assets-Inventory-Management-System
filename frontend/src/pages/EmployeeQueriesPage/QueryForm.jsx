@@ -2,6 +2,7 @@ import { CheckCircle, Loader2, Send, XCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSubmitQuery } from "./useQueries";
 import { getManagers } from "./EmployeeQueriesAPI";
+import LoadingButton from "../../components/LoadingButton/LoadingButton";
 
 const QUERY_TYPES = [
   "New Laptop Request",
@@ -210,10 +211,14 @@ const QueryForm = ({ onSuccess }) => {
 
       <div className="employee-query-form-actions">
         <p>Requests are saved immediately. Email notifications send when SMTP is configured.</p>
-        <button type="submit" className="employee-query-primary-btn" disabled={loading}>
-          {loading ? <Loader2 className="employee-query-spin" size={18} /> : <Send size={18} />}
+        <LoadingButton 
+          type="submit" 
+          className="employee-query-primary-btn" 
+          loading={loading}
+          icon={Send}
+        >
           Submit Query
-        </button>
+        </LoadingButton>
       </div>
     </form>
   );

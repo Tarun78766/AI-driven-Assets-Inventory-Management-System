@@ -21,7 +21,9 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  Loader2,
 } from "lucide-react";
+import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import {
   addSoftware,
   getSoftwares,
@@ -131,6 +133,8 @@ const Software = () => {
     usedLic: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const isTracked = TRACKED_TYPES.includes(formData.licenseType);
 
@@ -258,6 +262,7 @@ const Software = () => {
 
   const handleDelete = async (id) => {
     try {
+      setIsDeleting(true);
       await deleteSoftware(id);
       setDeleteConfirm(null);
       showToast(`Removed successfully`, "error");
@@ -270,6 +275,8 @@ const Software = () => {
       }
     } catch (error) {
       showToast("Failed to remove software", "error");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -288,13 +295,17 @@ const Software = () => {
       return;
     }
 
+    setIsSubmitting(true);
     if (editItem) {
       try {
         await updateSoftware(editItem._id, formData);
         showToast(`"${formData.name}" updated successfully`);
         fetchSoftwares();
+        handleCloseModal();
       } catch (error) {
         showToast(`"${formData.name}" failed to update`, "error");
+      } finally {
+        setIsSubmitting(false);
       }
     } else {
       try {
@@ -302,11 +313,13 @@ const Software = () => {
         showToast(`"${formData.name}" added successfully`);
         if (currentPage === 1) fetchSoftwares();
         else setCurrentPage(1);
+        handleCloseModal();
       } catch (error) {
         showToast(`"${formData.name}" failed to add`, "error");
+      } finally {
+        setIsSubmitting(false);
       }
     }
-    handleCloseModal();
   };
 
   const handleFormChange = (e) => {
@@ -1015,17 +1028,14 @@ const Software = () => {
                     >
                       Cancel
                     </button>
-                    <button type="submit" className="sw-btn sw-btn--primary">
-                      {editItem ? (
-                        <>
-                          <RefreshCw size={16} /> Update
-                        </>
-                      ) : (
-                        <>
-                          <Plus size={16} /> Add Software
-                        </>
-                      )}
-                    </button>
+                    <LoadingButton 
+                      type="submit" 
+                      className="sw-btn sw-btn--primary"
+                      loading={isSubmitting}
+                      icon={editItem ? RefreshCw : Plus}
+                    >
+                      {editItem ? "Update" : "Add Software"}
+                    </LoadingButton>
                   </div>
                 </form>
               </div>
@@ -1264,12 +1274,14 @@ const Software = () => {
                 >
                   Cancel
                 </button>
-                <button
+                <LoadingButton
                   className="sw-btn sw-btn--danger"
                   onClick={() => handleDelete(deleteConfirm._id)}
+                  loading={isDeleting}
+                  icon={Trash2}
                 >
-                  <Trash2 size={15} /> Delete
-                </button>
+                  Delete
+                </LoadingButton>
               </div>
             </div>
           </div>

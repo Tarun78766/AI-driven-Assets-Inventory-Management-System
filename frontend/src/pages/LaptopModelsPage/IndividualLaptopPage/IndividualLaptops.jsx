@@ -6,9 +6,10 @@ import {
   Settings, Plus, Edit2, Trash2, X, Search,
   Eye, CheckCircle, Clock, AlertCircle,
   Monitor, Calendar, ChevronDown, Download,
-  RefreshCw, Filter, Wrench, Archive, ChevronLeft
-  
+  RefreshCw, Filter, Wrench, Archive, ChevronLeft,
+  Loader2,
 } from 'lucide-react';
+import LoadingButton from "../../../components/LoadingButton/LoadingButton";
 import './IndividualLaptops.css';
 import { getIndividualLaptops, addIndividualLaptop, updateIndividualLaptop, deleteIndividualLaptop } from './IndividualLaptopAPI';
 import { getLaptopModels } from '../LaptopModelAPI';
@@ -70,6 +71,8 @@ export default function IndividualLaptops() {
   const [formData, setFormData]       = useState(EMPTY_FORM);
   const [formErrors, setFormErrors]   = useState({});
   const [toast, setToast]             = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting]     = useState(false);
 
   /* ── Load data on mount/changes ── */
   useEffect(() => {
@@ -192,6 +195,7 @@ export default function IndividualLaptops() {
     }
 
     try {
+      setIsSubmitting(true);
       if (editItem) {
         await updateIndividualLaptop(editItem._id, formData);
         showToast('Laptop updated successfully', 'success');
@@ -204,11 +208,14 @@ export default function IndividualLaptops() {
     } catch (error) {
       console.error('Save error:', error);
       showToast(error.response?.data?.message || 'Failed to save laptop', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
     try {
+      setIsDeleting(true);
       await deleteIndividualLaptop(id);
       showToast('Laptop deleted successfully', 'success');
       setDeleteConfirm(null);
@@ -216,6 +223,8 @@ export default function IndividualLaptops() {
     } catch (error) {
       console.error('Delete error:', error);
       showToast(error.response?.data?.message || 'Failed to delete laptop', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -694,9 +703,14 @@ export default function IndividualLaptops() {
                   <button type="button" className="il-btn il-btn--ghost" onClick={() => setShowModal(false)}>
                     Cancel
                   </button>
-                  <button type="submit" className="il-btn il-btn--primary">
-                    {editItem ? <><RefreshCw size={15} /> Update</> : <><Plus size={15} /> Create</>}
-                  </button>
+                  <LoadingButton 
+                    type="submit" 
+                    className="il-btn il-btn--primary"
+                    loading={isSubmitting}
+                    icon={editItem ? RefreshCw : Plus}
+                  >
+                    {editItem ? "Update" : "Create"}
+                  </LoadingButton>
                 </div>
               </form>
             </div>
@@ -783,9 +797,14 @@ export default function IndividualLaptops() {
             </p>
             <div className="il-confirm-actions">
               <button className="il-btn il-btn--ghost" onClick={() => setDeleteConfirm(null)}>Cancel</button>
-              <button className="il-btn il-btn--danger" onClick={() => handleDelete(deleteConfirm._id)}>
-                <Trash2 size={15} /> Delete
-              </button>
+              <LoadingButton
+                className="il-btn il-btn--danger"
+                onClick={() => handleDelete(deleteConfirm._id)}
+                loading={isDeleting}
+                icon={Trash2}
+              >
+                Delete
+              </LoadingButton>
             </div>
           </div>
         </div>
