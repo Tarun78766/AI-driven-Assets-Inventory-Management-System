@@ -19,7 +19,8 @@ const sendMail = async (options) => {
   // NOTE: Resend's free tier (onboarding@resend.dev) can only send to the email you signed up with.
   // To send to anyone, you'll need to verify a domain in the Resend dashboard.
   const payload = JSON.stringify({
-    from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+    from: process.env.EMAIL_FROM || "Assetto IT <noreply@assetto.co.in>",
+
     to: Array.isArray(options.to) ? options.to : [options.to],
     cc: options.cc ? (Array.isArray(options.cc) ? options.cc : [options.cc]) : undefined,
     subject: options.subject,
