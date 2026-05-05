@@ -1,75 +1,72 @@
-const nodemailer = require("nodemailer");
+const https = require("https");
 
 /**
- * Unified Email Service
- * Handles SMTP configuration and provides helper methods for sending various system emails.
+ * Unified Email Service (via Resend API)
+ * Bypasses SMTP port blocking on cloud providers like Render.
  */
 
-const isEmailConfigured = () =>
-  Boolean(
-    process.env.SMTP_HOST &&
-    process.env.SMTP_USER &&
-    process.env.SMTP_PASS
-  );
-
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // SSL for port 465
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-});
-
-
-
-
-
-// Verify connection on startup
-if (isEmailConfigured()) {
-  transporter.verify((error, success) => {
-    if (error) {
-      console.error("[EmailService] SMTP Connection Error:", error.message);
-    } else {
-      console.log("[EmailService] SMTP Server is ready to take messages");
-    }
-  });
-} else {
-  console.warn("[EmailService] Email configuration is missing. Emails will not be sent.");
-}
+const isEmailConfigured = () => Boolean(process.env.RESEND_API_KEY);
 
 /**
- * Core send mail function
+ * Core send mail function using Resend HTTP API
  */
 const sendMail = async (options) => {
   if (!isEmailConfigured()) {
-    console.warn(`[EmailService] Skipping email to ${options.to} - SMTP not configured.`);
+    console.warn(`[EmailService] ⚠️ Skipping email to ${options.to} - RESEND_API_KEY not found in .env`);
     return;
   }
 
-  const mailOptions = {
-    from: process.env.SMTP_FROM || `"Asset Management System" <${process.env.SMTP_USER}>`,
-    to: options.to,
-    cc: options.cc,
+  // NOTE: Resend's free tier (onboarding@resend.dev) can only send to the email you signed up with.
+  // To send to anyone, you'll need to verify a domain in the Resend dashboard.
+  const payload = JSON.stringify({
+    from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+    to: Array.isArray(options.to) ? options.to : [options.to],
+    cc: options.cc ? (Array.isArray(options.cc) ? options.cc : [options.cc]) : undefined,
     subject: options.subject,
-    text: options.text,
     html: options.html,
+  });
+
+  const requestOptions = {
+    hostname: "api.resend.com",
+    path: "/emails",
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Length": Buffer.byteLength(payload),
+    },
   };
 
-  console.log(`[EmailService] 📧 Sending email: "${mailOptions.subject}" to <${mailOptions.to}>`);
+  console.log(`[EmailService] 📧 Sending API request: "${options.subject}" to <${options.to}>`);
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`[EmailService] ✅ Email sent successfully! MessageID: ${info.messageId}`);
-    return info;
-  } catch (error) {
-    console.error(`[EmailService] ❌ Failed to send email to <${options.to}>:`, error.message);
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    const req = https.request(requestOptions, (res) => {
+      let responseData = "";
 
+      res.on("data", (chunk) => {
+        responseData += chunk;
+      });
+
+      res.on("end", () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          const parsed = JSON.parse(responseData);
+          console.log(`[EmailService] ✅ Email sent via Resend API! ID: ${parsed.id}`);
+          resolve(parsed);
+        } else {
+          console.error(`[EmailService] ❌ Resend API Error (${res.statusCode}):`, responseData);
+          reject(new Error(`Resend API returned ${res.statusCode}: ${responseData}`));
+        }
+      });
+    });
+
+    req.on("error", (error) => {
+      console.error(`[EmailService] ❌ Network Error:`, error.message);
+      reject(error);
+    });
+
+    req.write(payload);
+    req.end();
+  });
 };
 
 module.exports = {
