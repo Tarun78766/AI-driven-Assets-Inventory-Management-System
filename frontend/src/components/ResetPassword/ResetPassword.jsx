@@ -9,6 +9,9 @@ const ResetPassword = () => {
   const { token } = useParams();
   const navigate = useNavigate();
   
+  console.log("[ResetPassword] Component mounted. Token:", token);
+
+  
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

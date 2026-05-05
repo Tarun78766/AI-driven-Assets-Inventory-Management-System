@@ -133,8 +133,10 @@ const LaptopModels = () => {
       setDeleteConfirm(null);
       showToast(`"${name}" removed`, "error");
     } catch (error) {
-      showToast("Failed to delete model.", "error");
+      const errorMsg = error.response?.data?.message || "Failed to delete model.";
+      showToast(errorMsg, "error");
     }
+
   };
 
   const handleSave = async (modelData) => {

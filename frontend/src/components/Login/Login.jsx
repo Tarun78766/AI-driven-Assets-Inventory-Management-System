@@ -5,7 +5,8 @@ import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import "./Login.css";
 
 const Login = () => {
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, showToast } = useAuth();
+
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
@@ -70,7 +71,9 @@ const Login = () => {
       return;
     }
 
+    showToast(`Welcome back, ${result.user.firstName || result.user.name}!`);
     // ✅ SUCCESS → let useEffect handle redirect
+
   } catch (err) {
     setError(err?.response?.data?.message || "Login failed");
   } finally {
