@@ -65,9 +65,67 @@ const Report = () => {
     setTimeout(() => setToast(null), 3200);
   };
 
-  const handleExport = (reportType) => {
-    showToast(`Exporting ${reportType} report...`);
+  const convertToCSV = (data) => {
+
+    if (!data || data.length === 0) return "";
+    const headers = Object.keys(data[0]);
+    const rows = data.map((obj) =>
+      headers
+        .map((header) => {
+          const val = obj[header] === null || obj[header] === undefined ? "" : obj[header];
+          return `"${String(val).replace(/"/g, '""')}"`;
+        })
+        .join(",")
+    );
+    return [headers.join(","), ...rows].join("\n");
   };
+
+  const downloadFile = (content, fileName, contentType) => {
+    const a = document.createElement("a");
+    const file = new Blob([content], { type: contentType });
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  const handleExport = (reportType) => {
+    let dataToExport = [];
+    let fileName = `Assetto_Report_${reportType}_${new Date().toISOString().split("T")[0]}.csv`;
+
+    switch (reportType) {
+      case "assignment-history":
+        dataToExport = reportsData.assignmentHistory;
+        break;
+      case "lifecycle":
+        dataToExport = reportsData.lifecycleData;
+        break;
+      case "software-expiry":
+        dataToExport = reportsData.softwareExpiry;
+        break;
+      case "forecast":
+        dataToExport = reportsData.growthForecast;
+        break;
+      case "complete":
+        // Create a summary sheet from stats
+        dataToExport = [reportsData.stats];
+        fileName = `Assetto_Full_Summary_${new Date().getFullYear()}.csv`;
+        break;
+      default:
+        showToast("Unknown report type", "error");
+        return;
+    }
+
+    if (!dataToExport || dataToExport.length === 0) {
+      showToast("No data available for this report type.", "error");
+      return;
+    }
+
+    const csvContent = convertToCSV(dataToExport);
+    downloadFile(csvContent, fileName, "text/csv;charset=utf-8;");
+    showToast(`Successfully exported ${reportType} report!`);
+  };
+
 
   const stats = reportsData?.stats || EMPTY_REPORTS_DATA.stats;
   const lifecycleData = reportsData?.lifecycleData || [];
