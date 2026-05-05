@@ -13,16 +13,18 @@ const isEmailConfigured = () =>
   );
 
 const transporter = nodemailer.createTransport({
-  // Use 'service: gmail' for better compatibility with Gmail App Passwords
-  service: 'gmail',
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // Use STARTTLS on port 587
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
   tls: {
-    rejectUnauthorized: false,
+    rejectUnauthorized: false, // Avoid self-signed cert issues
   },
 });
+
 
 
 
@@ -57,14 +59,17 @@ const sendMail = async (options) => {
     html: options.html,
   };
 
+  console.log(`[EmailService] 📧 Sending email: "${mailOptions.subject}" to <${mailOptions.to}>`);
+
   try {
     const info = await transporter.sendMail(mailOptions);
-    console.log(`[EmailService] Email sent: ${info.messageId}`);
+    console.log(`[EmailService] ✅ Email sent successfully! MessageID: ${info.messageId}`);
     return info;
   } catch (error) {
-    console.error(`[EmailService] Failed to send email to ${options.to}:`, error.message);
+    console.error(`[EmailService] ❌ Failed to send email to <${options.to}>:`, error.message);
     throw error;
   }
+
 };
 
 module.exports = {
