@@ -3,7 +3,8 @@ import "./NavBar.css";
 import { Bell, Settings as SettingsIcon, LogOut, Menu, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getNotifications } from "../../API/NotificationAPI";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+
 
 const NavBar = ({ toggleSidebar, isSidebarOpen }) => {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ const NavBar = ({ toggleSidebar, isSidebarOpen }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notificationError, setNotificationError] = useState("");
+  const notificationRef = useRef(null);
+
   const readStorageKey = user?._id || user?.id ? `readNotifications:${user._id || user.id}` : "readNotifications";
 
   useEffect(() => {
@@ -39,6 +42,20 @@ const NavBar = ({ toggleSidebar, isSidebarOpen }) => {
       };
     }
   }, [user, readStorageKey]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
 
   // 🔥 Logout handler
   const handleLogout = async () => {
@@ -96,8 +113,9 @@ const NavBar = ({ toggleSidebar, isSidebarOpen }) => {
           <Globe size={20} />
         </button> */}
 
-        <div className="notification-menu">
+        <div className="notification-menu" ref={notificationRef}>
         <button
+
           type="button"
           className="icon-btn"
           onClick={() => setShowNotifications((prev) => !prev)}
