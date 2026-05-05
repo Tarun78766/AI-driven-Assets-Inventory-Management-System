@@ -13,17 +13,18 @@ const isEmailConfigured = () =>
   );
 
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: Number(process.env.SMTP_PORT || 587),
-  secure: process.env.SMTP_SECURE === "true", // true for 465, false for other ports
+  // Use 'service: gmail' for better compatibility with Gmail App Passwords
+  service: 'gmail',
   auth: {
     user: process.env.SMTP_USER,
     pass: process.env.SMTP_PASS,
   },
   tls: {
-    rejectUnauthorized: false, // Helps with some shared hosting/dev environments
+    rejectUnauthorized: false,
   },
 });
+
+
 
 // Verify connection on startup
 if (isEmailConfigured()) {

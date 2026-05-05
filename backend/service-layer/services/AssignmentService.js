@@ -233,10 +233,14 @@ const requestAssignmentReturn = async (id) => {
 
   const employee = await EmployeeModel.findById(assignment.employeeId);
   if (employee) {
+    console.log(`[AssignmentService] Found employee: ${employee.email}. Sending return request...`);
     sendReturnRequestEmail(assignment, employee).catch((error) => {
       console.error("[AssignmentEmail] Return request email failed:", error.message);
     });
+  } else {
+    console.error(`[AssignmentService] Could not find employee record for ID: ${assignment.employeeId}`);
   }
+
 
   return assignment;
 };
