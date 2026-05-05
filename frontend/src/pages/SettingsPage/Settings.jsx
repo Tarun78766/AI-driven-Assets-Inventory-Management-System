@@ -294,12 +294,7 @@ const Settings = () => {
                         </div>
                       </div>
                       <div className="settings-form-group">
-                        <label>Employee ID</label>
-                        <div className="settings-input-wrap">
-                          <Briefcase
-                            size={16}
-                            className="settings-input-icon"
-                          />
+                        
                           <input
                             type="text"
                             name="employeeId"
