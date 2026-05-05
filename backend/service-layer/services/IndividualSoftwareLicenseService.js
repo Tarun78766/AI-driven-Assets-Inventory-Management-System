@@ -152,9 +152,10 @@ const removeSoftwareLicenseSeat = async (id) => {
     const seat = await IndividualSoftwareLicenseModel.findById(id).session(session);
     if (!seat) throw new Error("Seat/License not found.");
 
-    if (seat.status === "Assigned") {
+    if (["Assigned", "Return Requested"].includes(seat.status)) {
        throw new Error("Cannot delete a license that is currently assigned to an employee! Revoke it first.");
     }
+
 
     // Deduct from Parent Catalog total
     const parent = await SoftwareModel.findById(seat.softwareModelId).session(session);

@@ -154,10 +154,17 @@ const updateSoftware = async (id, data) => {
 };
 
 const deleteSoftware = async (id) => {
-  const software = await SoftwareModel.findByIdAndDelete(id);
+  const software = await SoftwareModel.findById(id);
   if (!software) throw new Error("Software not found");
+
+  if (software.usedLicenses > 0) {
+    throw new Error(`Cannot delete "${software.name}" because it has ${software.usedLicenses} licenses currently assigned to employees.`);
+  }
+
+  await SoftwareModel.findByIdAndDelete(id);
   return software;
 };
+
 
 module.exports = {
   createSoftware,

@@ -26,10 +26,11 @@ const createAssignment = async (data, assignedByAdmin) => {
     // ================= LAPTOP =================
     if (data.assetType === "Laptop") {
       const existingLaptop = await AssignmentModel.findOne({
-    employeeId: new mongoose.Types.ObjectId(data.employeeId),
-    assetType: "Laptop",
-    status: "Assigned",
-  }).session(session);
+        employeeId: new mongoose.Types.ObjectId(data.employeeId),
+        assetType: "Laptop",
+        status: { $in: ["Assigned", "Return Requested"] },
+      }).session(session);
+
 
   if (existingLaptop) {
     throw new Error("Employee already has a laptop assigned");

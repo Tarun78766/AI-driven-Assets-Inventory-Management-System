@@ -113,7 +113,13 @@ const updateLaptopModel = async (id, data) => {
 const deleteLaptopModel = async (id) => {
   const model = await LaptopModel.findById(id);
   if (!model) throw new Error("Laptop model not found.");
+  
+  if (model.inUse > 0) {
+    throw new Error(`Cannot delete "${model.modelName}" because it has ${model.inUse} assets currently assigned to employees.`);
+  }
+
   await LaptopModel.findByIdAndDelete(id);
+
   return true;
 };
 

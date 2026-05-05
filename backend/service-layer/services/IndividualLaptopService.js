@@ -138,9 +138,10 @@ const removePhysicalLaptop = async (id) => {
     const laptop = await IndividualLaptopModel.findById(id).session(session);
     if (!laptop) throw new Error("Physical laptop not found.");
 
-    if (laptop.status === "Assigned") {
-       throw new Error("Cannot delete a laptop currently assigned to an employee! Return it first.");
+    if (["Assigned", "Return Requested"].includes(laptop.status)) {
+       throw new Error("Cannot delete a laptop that is currently assigned to an employee! Return it first.");
     }
+
 
     // Deduct from Parent Catalog total
     const parent = await LaptopModel.findById(laptop.laptopModelId).session(session);
