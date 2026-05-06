@@ -1,4 +1,5 @@
 const IndividualLaptopModel = require("../models/IndividualLaptopModel");
+const LaptopModel = require("../models/LaptopModel"); // ✅ Registered to fix "Schema hasn't been registered" error
 const AssignmentModel = require("../models/AssignmentModel");
 const RepairHistory = require("../models/RepairHistory");
 const { cacheData, getCachedData, invalidateCache } = require("../../config/redis");
@@ -234,7 +235,7 @@ const getHighRiskLaptops = async () => {
     "aiMetrics.riskLevel": { $in: ["High", "Critical"] },
   })
     .populate("laptopModelId", "brand modelName processor ram")
-    .populate("assignedTo", "firstName lastName email")
+    .populate("assignedTo", "name email")
     .sort({ "aiMetrics.predictionScore": -1 })
     .lean();
 
