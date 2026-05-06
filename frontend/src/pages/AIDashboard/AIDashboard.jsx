@@ -165,7 +165,7 @@ const AIDashboard = () => {
                             </td>
                             <td>
                               {laptop.assignedTo 
-                                ? `${laptop.assignedTo.firstName} ${laptop.assignedTo.lastName}`
+                                ? laptop.assignedTo.name || `${laptop.assignedTo.firstName} ${laptop.assignedTo.lastName}`
                                 : "Unassigned"}
                             </td>
                             <td><span className="ai-score-pill">{laptop.aiMetrics?.predictionScore}/100</span></td>
