@@ -64,46 +64,75 @@ const seed = async () => {
       { name: "Visual Studio Code Pro", vendor: "Microsoft", category: "Development", licenseType: "Per Seat", totalLicenses: 50, cost: 12000, expiryDate: new Date("2026-06-30"), renewalStatus: "Active" },
     ]);
 
-    // 6. Insert Individual Laptops (Edge Cases for AI)
+    // 6. Insert Individual Laptops (Generating counts to match parent models)
     console.log("Creating Individual Laptops...");
-    const laptops = await IndividualLaptop.insertMany([
-      {
-        laptopModelId: laptopModels[0]._id, // ThinkPad
-        serialNumber: "SN-CRITICAL-999",
+    const laptopData = [];
+    
+    // ThinkPad: Create 10 assets (1 Critical for AI Demo, 9 Available)
+    for (let i = 1; i <= 10; i++) {
+      laptopData.push({
+        laptopModelId: laptopModels[0]._id,
+        serialNumber: i === 1 ? "SN-CRITICAL-999" : `SN-THINK-${String(i).padStart(3, '0')}`,
         modelName: "ThinkPad X1 Carbon",
-        status: "Under Repair",
-        purchaseDate: new Date("2019-01-10"),
-        conditionNotes: "Frequent blue screens, battery health critical, loud fan noise.",
-        index: 1
-      },
-      {
-        laptopModelId: laptopModels[1]._id, // MacBook
-        serialNumber: "SN-HEALTHY-001",
+        status: i === 1 ? "Under Repair" : "Available",
+        purchaseDate: i === 1 ? new Date("2019-01-10") : new Date("2023-01-01"),
+        conditionNotes: i === 1 ? "Critical battery and fan issues." : "Good condition",
+        index: i
+      });
+    }
+
+    // MacBook: Create 5 assets (1 Assigned, 4 Available)
+    for (let i = 1; i <= 5; i++) {
+      laptopData.push({
+        laptopModelId: laptopModels[1]._id,
+        serialNumber: i === 1 ? "SN-HEALTHY-001" : `SN-MAC-${String(i).padStart(3, '0')}`,
         modelName: "MacBook Pro 14",
-        status: "Assigned",
-        assignedTo: employees[0]._id,
+        status: i === 1 ? "Assigned" : "Available",
+        assignedTo: i === 1 ? employees[0]._id : null,
         purchaseDate: new Date("2024-01-15"),
-        conditionNotes: "Perfect condition.",
-        index: 2
-      },
-      {
-        laptopModelId: laptopModels[2]._id, // Dell
-        serialNumber: "SN-HIGH-RISK-002",
+        conditionNotes: "Perfect condition",
+        index: 10 + i
+      });
+    }
+
+    // Dell: Create 3 assets (1 Assigned, 2 Available)
+    for (let i = 1; i <= 3; i++) {
+      laptopData.push({
+        laptopModelId: laptopModels[2]._id,
+        serialNumber: i === 1 ? "SN-HIGH-RISK-002" : `SN-DELL-${String(i).padStart(3, '0')}`,
         modelName: "Dell XPS 15",
-        status: "Assigned",
-        assignedTo: employees[1]._id,
+        status: i === 1 ? "Assigned" : "Available",
+        assignedTo: i === 1 ? employees[1]._id : null,
         purchaseDate: new Date("2021-06-10"),
-        conditionNotes: "Hinge is loose, screen flickers occasionally.",
-        index: 3
-      }
-    ]);
+        conditionNotes: i === 1 ? "Loose hinge." : "Standard wear",
+        index: 15 + i
+      });
+    }
+    const laptops = await IndividualLaptop.insertMany(laptopData);
 
     // 7. Insert Individual Software Licenses
     console.log("Creating Software Licenses...");
-    const softwareLicenses = await IndividualSoftwareLicense.insertMany([
-      { softwareModelId: softwareModels[0]._id, licenseKeyOrSeatName: "ADOBE-SEAT-001", softwareName: "Adobe Creative Cloud", status: "Assigned", assignedTo: employees[2]._id },
-      { softwareModelId: softwareModels[1]._id, licenseKeyOrSeatName: "VS-SEAT-001", softwareName: "Visual Studio Code Pro", status: "Available" },
-    ]);
+    const softwareData = [];
+    // Adobe: 10 seats
+    for (let i = 1; i <= 10; i++) {
+      softwareData.push({
+        softwareModelId: softwareModels[0]._id,
+        licenseKeyOrSeatName: `ADOBE-KEY-${String(i).padStart(3, '0')}`,
+        softwareName: "Adobe Creative Cloud",
+        status: i === 1 ? "Assigned" : "Available",
+        assignedTo: i === 1 ? employees[2]._id : null
+      });
+    }
+    // VS Code: 50 seats (matching parent total)
+    for (let i = 1; i <= 50; i++) {
+      softwareData.push({
+        softwareModelId: softwareModels[1]._id,
+        licenseKeyOrSeatName: `VS-KEY-${String(i).padStart(3, '0')}`,
+        softwareName: "Visual Studio Code Pro",
+        status: "Available"
+      });
+    }
+    const softwareLicenses = await IndividualSoftwareLicense.insertMany(softwareData);
 
     // 8. Insert Repair History (Data for AI Analysis)
     console.log("Creating Repair Histories...");
