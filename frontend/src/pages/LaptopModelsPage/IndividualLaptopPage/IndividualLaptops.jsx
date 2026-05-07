@@ -7,12 +7,14 @@ import {
   Eye, CheckCircle, Clock, AlertCircle,
   Monitor, Calendar, ChevronDown, Download,
   RefreshCw, Filter, Wrench, Archive, ChevronLeft,
-  Loader2,
+  Loader2, Bot, Zap, Sparkles
 } from 'lucide-react';
 import LoadingButton from "../../../components/LoadingButton/LoadingButton";
 import './IndividualLaptops.css';
+import './AiDrawer.css';
 import { getIndividualLaptops, addIndividualLaptop, updateIndividualLaptop, deleteIndividualLaptop } from './IndividualLaptopAPI';
 import { getLaptopModels } from '../LaptopModelAPI';
+import { predictFailure } from '../../../API/aiApi';
 
 /* ─────────────────────────────────────────
    API CONFIGURATION
@@ -63,6 +65,8 @@ export default function IndividualLaptops() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages]   = useState(1);
   const [totalItems, setTotalItems]   = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const [showAiDrawer, setShowAiDrawer] = useState(null); // New state for Side Drawer
 
   const [showModal, setShowModal]     = useState(false);
   const [showDetail, setShowDetail]   = useState(null);
@@ -73,6 +77,7 @@ export default function IndividualLaptops() {
   const [toast, setToast]             = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting]     = useState(false);
+  const [predictingId, setPredictingId] = useState(null);
 
   /* ── Load data on mount/changes ── */
   useEffect(() => {
@@ -249,6 +254,58 @@ export default function IndividualLaptops() {
   const handlePageChange = (page) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleAiAnalysis = async (assetId) => {
+    try {
+      setShowAiDrawer(null); // 🔄 CLEAR PREVIOUS DATA FIRST
+      setPredictingId(assetId);
+      const res = await predictFailure(assetId);
+      
+      // res is { success, laptop, data, skipped }
+      let laptopData = res.laptop || res.data;
+      
+      // If the data itself contains predictionScore, wrap it in an aiMetrics object for the UI
+      if (laptopData && laptopData.predictionScore !== undefined && !laptopData.aiMetrics) {
+        laptopData = {
+          ...laptopData,
+          modelName: laptopData.modelName || laptopData.laptopModelId?.modelName || "Hardware Asset",
+          aiMetrics: {
+            predictionScore: laptopData.predictionScore,
+            riskLevel: laptopData.riskLevel,
+            reason: laptopData.reason,
+            aiRecommendation: laptopData.aiRecommendation,
+            lastPredictionDate: laptopData.lastPredictionDate
+          }
+        };
+      }
+      
+      // Ensure modelName is set for the header
+      if (laptopData && !laptopData.modelName) {
+        laptopData.modelName = laptopData.laptopModelId?.modelName || "Hardware Asset";
+      }
+      
+      if (!laptopData || (!laptopData.aiMetrics && !res.skipped)) {
+        console.error("Malformed AI response structure:", res);
+        showToast('AI Error: Could not parse diagnostic metrics', 'error');
+        return;
+      }
+      
+      if (res.skipped) {
+        showToast('Asset is in Optimal Condition', 'info');
+        setShowAiDrawer({ ...laptopData, isSkipped: true });
+      } else {
+        showToast('AI Diagnostic Complete!', 'success');
+        setShowAiDrawer(laptopData);
+        fetchLaptops(); 
+      }
+    } catch (error) {
+      console.error('AI error:', error);
+      const errorMsg = error.response?.data?.message || error.message || 'AI analysis failed';
+      showToast(errorMsg, 'error');
+    } finally {
+      setPredictingId(null);
+    }
   };
 
   const getPageNumbers = () => {
@@ -536,6 +593,18 @@ export default function IndividualLaptops() {
                             <Eye size={16} />
                           </button>
                           <button
+                            className="btn-icon btn-ai"
+                            title="Analyze with AI"
+                            onClick={() => handleAiAnalysis(l._id)}
+                            disabled={predictingId === l._id}
+                          >
+                            {predictingId === l._id ? (
+                              <RefreshCw size={14} className="animate-spin" />
+                            ) : (
+                              <Bot size={16} />
+                            )}
+                          </button>
+                          <button
                             className="btn-icon btn-edit"
                             title="Edit"
                             onClick={() => openEdit(l)}
@@ -813,6 +882,105 @@ export default function IndividualLaptops() {
       {/* ══════════════════════════════════════
           TOAST NOTIFICATION
       ══════════════════════════════════════ */}
+      {/* ══════════════════════════════════════
+          AI SIDE DRAWER (PREMIUM DIAGNOSTIC)
+      ══════════════════════════════════════ */}
+      {showAiDrawer && (
+        <div className="ai-drawer-overlay" onClick={() => setShowAiDrawer(null)}>
+          <div className="ai-drawer" onClick={e => e.stopPropagation()}>
+            <div className="ai-drawer-hdr">
+              <div className="ai-drawer-title">
+                <div className="ai-icon-pulse">
+                  <Bot size={22} />
+                </div>
+                <div>
+                  <h2 style={{ fontSize: '1.1rem', margin: 0 }}>AI Health Diagnostic</h2>
+                  <span style={{ fontSize: '11px', opacity: 0.9 }}>
+                    Asset: {showAiDrawer.serialNumber || "Unknown SN"}
+                  </span>
+                </div>
+              </div>
+              <button className="ai-drawer-close" onClick={() => setShowAiDrawer(null)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="ai-drawer-body">
+              {/* Asset Identity Card */}
+              <div className="ai-identity-card">
+                <div className="ai-id-icon"><Monitor size={24} /></div>
+                <div className="ai-id-info">
+                  <h3>{showAiDrawer.modelName || "Hardware Asset"}</h3>
+                  <p>Current Status: <span className={`status-${showAiDrawer.status?.toLowerCase()}`}>{showAiDrawer.status || "Checking..."}</span></p>
+                </div>
+              </div>
+
+              {/* Main Diagnostic Content */}
+              {showAiDrawer.aiMetrics ? (
+                /* RISK DETECTED VIEW */
+                <div className="ai-result-view">
+                  <div className="ai-score-hero">
+                    <div className={`ai-score-ring ring-${showAiDrawer.aiMetrics.riskLevel?.toLowerCase()}`}>
+                       <span className="score-val">{showAiDrawer.aiMetrics.predictionScore}%</span>
+                       <span className="score-label">Risk Level</span>
+                    </div>
+                    <div className="ai-risk-tag">
+                      <AlertCircle size={16} />
+                      {showAiDrawer.aiMetrics.riskLevel} Risk Detected
+                    </div>
+                  </div>
+
+                  <div className="ai-detail-block">
+                    <h4 className="block-title"><Search size={14} /> Analysis Insights</h4>
+                    <div className="ai-insight-box">
+                      {showAiDrawer.aiMetrics.reason}
+                    </div>
+                  </div>
+
+                  <div className="ai-detail-block">
+                    <h4 className="block-title"><Zap size={14} /> Expert Recommendation</h4>
+                    <div className="ai-rec-card">
+                      <div className="rec-icon"><Sparkles size={16} /></div>
+                      <div className="rec-text">{showAiDrawer.aiMetrics.aiRecommendation}</div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* HEALTHY / SKIPPED VIEW */
+                <div className="ai-healthy-view">
+                  <div className="ai-health-shield">
+                    <div className="shield-outer">
+                      <CheckCircle size={48} />
+                    </div>
+                  </div>
+                  <h3 className="healthy-title">System Healthy</h3>
+                  <p className="healthy-text">
+                    This asset is currently in optimal operating condition. Our predictive models show no signs of hardware failure within the next 12 months.
+                  </p>
+                  
+                  <div className="health-stats">
+                    <div className="health-stat">
+                      <span className="stat-label">Hardware Age</span>
+                      <span className="stat-val">Healthy</span>
+                    </div>
+                    <div className="health-stat">
+                      <span className="stat-label">Repair History</span>
+                      <span className="stat-val">Optimal</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="ai-drawer-footer">
+              <button className="il-btn il-btn--primary" style={{ width: '100%', padding: '12px' }} onClick={() => setShowAiDrawer(null)}>
+                Close Diagnostic
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {toast && (
         <div className={`il-toast il-toast--${toast.type}`}>
           <div className="il-toast-icon">

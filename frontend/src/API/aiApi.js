@@ -3,7 +3,7 @@ import { APIRoutes } from "./APIRoutes";
 
 export const predictFailure = async (assetId) => {
   try {
-    const response = await axios.post(`/${APIRoutes.AI_API}/predict-failure/${assetId}`);
+    const response = await axios.post(`/${APIRoutes.AI_API}/predict-failure/${assetId}?t=${Date.now()}`);
     return response.data;
   } catch (error) {
     throw error.response?.data || error.message;

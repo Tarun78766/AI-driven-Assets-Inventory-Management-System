@@ -399,6 +399,17 @@ const LaptopModels = () => {
                           <Eye size={16} />
                         </button>
                         <button
+                          className="btn-icon btn-assets"
+                          title="View Physical Assets"
+                          onClick={() => {
+                            navigate("/laptops/individual", {
+                              state: { filterByModelId: model._id },
+                            });
+                          }}
+                        >
+                          <Laptop size={16} />
+                        </button>
+                        <button
                           className="btn-icon btn-edit"
                           title="Edit"
                           onClick={() => handleEdit(model)}

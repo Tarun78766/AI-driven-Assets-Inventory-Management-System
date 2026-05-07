@@ -60,11 +60,9 @@ const IndividualSoftware = () => {
   const softwareIdFromNav = params.get("softwareId");
   const softwareNameFromNav = params.get("softwareName");
 
-  // Pre-set search with software name if navigated from Software page
-  const [search, setSearch] = useState(softwareNameFromNav || "");
-  const [debouncedSearch, setDebouncedSearch] = useState(
-    softwareNameFromNav || "",
-  );
+  // Use softwareIdFromNav for background filtering, but keep search box clean for user
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [seats, setSeats] = useState([]);
   const [statusFilter, setStatusFilter] = useState("All");
   const [showModal, setShowModal] = useState(false);

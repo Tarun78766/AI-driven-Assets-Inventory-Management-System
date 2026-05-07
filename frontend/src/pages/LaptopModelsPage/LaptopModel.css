@@ -322,6 +322,17 @@ m-select:focus {
   transform: scale(1.1);
 }
 
+.btn-assets {
+  background-color: rgba(99, 102, 241, 0.12);
+  color: #6366f1;
+}
+
+.btn-assets:hover {
+  background-color: #6366f1;
+  color: white;
+  transform: scale(1.1);
+}
+
 .btn-edit {
   background-color: #d1fae5;
   color: #10b981;
