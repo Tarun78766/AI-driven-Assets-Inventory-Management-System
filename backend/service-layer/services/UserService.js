@@ -33,7 +33,7 @@ const updateUserRole = async (targetUserId, newRole, requestingAdminId) => {
   const updatedUser = await User.findByIdAndUpdate(
     targetUserId,
     { role: newRole },
-    { returnDocument: "after", runValidators: true } // Return updated doc, run schema enum validators
+    { new: true, runValidators: true } // Return updated doc, run schema enum validators
   ).select("-password");
 
   if (!updatedUser) {

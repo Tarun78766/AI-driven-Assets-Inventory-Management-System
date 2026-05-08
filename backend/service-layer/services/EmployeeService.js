@@ -81,7 +81,7 @@ const updateEmployee = async (id, updateData) => {
     id,
     updateData,
     {
-      returnDocument: "after", // we want the newly modified employee details returned
+      new: true, // we want the newly modified employee details returned
       runValidators: true, // ensure we don't accidentally save an invalid enum like Status="SuperFakeActive"
     },
   );
@@ -97,6 +97,10 @@ const updateEmployee = async (id, updateData) => {
       {
         department: updatedEmployee.department,
         location: updatedEmployee.location,
+        // Also sync role if provided
+        ...(updatedEmployee.role && {
+          role: updatedEmployee.role.toLowerCase(),
+        }),
         // Also sync name if provided (split into firstName/lastName)
         ...(updatedEmployee.name && {
           firstName: updatedEmployee.name.split(" ")[0],

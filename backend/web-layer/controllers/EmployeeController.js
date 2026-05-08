@@ -34,6 +34,8 @@ const getAllEmployees = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || "";
     const status = req.query.status || "";
+    const role = req.query.role || "";
+    const unassigned = req.query.unassigned === "true";
 
     if (search) {
       filter.$or = [
@@ -51,6 +53,15 @@ const getAllEmployees = async (req, res) => {
 
     if (status) {
       filter.status = status;
+    }
+
+    if (role) {
+      filter.role = role;
+    }
+
+    if (unassigned) {
+      filter.assignedLaptops = 0;
+      filter.assignedSoftware = 0;
     }
 
     const employees = await employeeService.getAllEmployees(
