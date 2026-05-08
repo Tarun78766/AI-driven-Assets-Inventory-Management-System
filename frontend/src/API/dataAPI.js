@@ -1,8 +1,8 @@
 import axios from "../config/Axiosconfig";
 import { APIRoutes } from "./APIRoutes";
 
-export const getEmployees = async () => {
-  const res = await axios.get(APIRoutes.EMPLOYEE_API);
+export const getEmployees = async (params = {}) => {
+  const res = await axios.get(APIRoutes.EMPLOYEE_API, { params });
   return res.data.data.data;
 };
 export const getLaptopModels = async () => {

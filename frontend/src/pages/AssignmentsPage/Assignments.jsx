@@ -94,7 +94,7 @@ const Assignments = () => {
   useEffect(() => {
     const fetchData = async () => {
       const [emp, lapModels, availLaps, softModels] = await Promise.all([
-        getEmployees(),
+        getEmployees({ role: "Employee", unassigned: "true", limit: 1000 }),
         getLaptopModels(),
         getAvailableLaptops(),
         getSoftwareModels(),
